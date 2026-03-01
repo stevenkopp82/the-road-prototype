@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Gathering</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Shared variables ── */
+    :root {
+      --bg:          #0d0b08;
+      --panel:       #13110e;
+      --border:      #3a2e1e;
+      --gold:        #c8962a;
+      --gold-dim:    #6b4f18;
+      --parchment:   #e8dcc8;
+      --ink:         #1a1408;
+      --shadow:      rgba(0,0,0,0.7);
+
+      --food-col:    #5a9e4a;
+      --health-col:  #c94040;
+      --sanity-col:  #5577cc;
+      --mutate-col:  #8b4ac8;
+
+      --food-glow:   0 0 12px rgba(90,158,74,0.6);
+      --health-glow: 0 0 12px rgba(201,64,64,0.6);
+      --sanity-glow: 0 0 12px rgba(85,119,204,0.6);
+      --mutate-glow: 0 0 12px rgba(139,74,200,0.6);
+
+      --threat-col:  #b03030;
+      --threat-dim:  #5a1818;
+      --loot-col:    #4a7a3a;
+      --loot-dim:    #243d1c;
+      --food-pip:    #c87820;
+      --food-pip-dim:#6b3e10;
+
+      --card-w:      100px;
+      --card-h:      140px;
+      --threat-h:    110px;
+    }
+
+    /* ── Page layout ── */
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 50% 0%, #1e1508 0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230d0b08'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23ffffff' opacity='0.02'/%3E%3C/svg%3E");
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 2rem 3rem;
+      gap: 2.5rem;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Page-level divider between the two boards */
+    .board-divider {
+      width: 100%;
+      max-width: 900px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+      opacity: 0.5;
+    }
+
+    /* ── Shared board frame ── */
+    .board-frame {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem 2.2rem;
+      position: relative;
+      box-shadow:
+        0 0 0 1px #1e1810,
+        0 0 50px rgba(0,0,0,0.85),
+        inset 0 0 70px rgba(0,0,0,0.4);
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .board-frame::before, .board-frame::after,
+    .board-frame .corner-br, .board-frame .corner-bl {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+    }
+    .board-frame::before    { top: 8px;    left: 8px;  border-width: 2px 0 0 2px; }
+    .board-frame::after     { top: 8px;    right: 8px; border-width: 2px 2px 0 0; }
+    .board-frame .corner-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+    .board-frame .corner-bl { bottom: 8px; left: 8px;  border-width: 0 0 2px 2px; }
+
+    .board-title {
+      font-family: 'Cinzel Decorative', cursive;
+      color: var(--gold);
+      text-align: center;
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+      text-shadow: 0 0 20px rgba(200,150,42,0.4);
+    }
+
+    .board-subtitle {
+      font-family: 'IM Fell English', serif;
+      color: var(--gold-dim);
+      text-align: center;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+      margin-bottom: 1.6rem;
+    }
+
+    /* ═══════════════════════════════════════════════
+       GATHER BOARD STYLES
+    ═══════════════════════════════════════════════ */
+
+    .cost-gradient-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.7rem;
+      gap: 0;
+    }
+
+    .cost-bar-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      white-space: nowrap;
+      padding-right: 0.6rem;
+      opacity: 0.7;
+    }
+
+    .cost-bar-track {
+      flex: 1;
+      height: 3px;
+      background: linear-gradient(to right, var(--loot-dim), var(--gold-dim), var(--threat-dim));
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .cost-bar-track::after {
+      content: '▶';
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.55rem;
+      color: var(--threat-dim);
+      opacity: 0.7;
+    }
+
+    .slots-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .slot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    .slot-number {
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
+      color: var(--gold-dim);
+      opacity: 0.5;
+      margin-bottom: 5px;
+      font-family: 'IM Fell English', serif;
+    }
+
+    .threat-zone {
+      width: var(--card-w);
+      min-height: var(--threat-h);
+      border: 1px dashed var(--threat-dim);
+      border-radius: 4px 4px 0 0;
+      background: rgba(80, 10, 10, 0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 6px;
+      gap: 4px;
+    }
+
+    .threat-pips {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 4px 0 2px;
+    }
+
+    .threat-pip {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--threat-col);
+      background: rgba(176, 48, 48, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      color: var(--threat-col);
+      opacity: 0.75;
+    }
+
+    .threat-label {
+      font-size: 0.42rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--threat-col);
+      opacity: 0.55;
+    }
+
+    .threat-zone::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px;
+      height: calc(var(--threat-h) - 48px);
+      border: 1px dashed rgba(176, 48, 48, 0.2);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .cost-bridge {
+      width: var(--card-w);
+      background: #0f0c09;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 4px;
+      gap: 5px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .cost-bridge::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(80,10,10,0.08), rgba(20,40,10,0.08));
+      pointer-events: none;
+    }
+
+    .cost-or {
+      font-size: 0.45rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+    }
+
+    .cost-pip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: 0.5rem;
+    }
+
+    .pip-icon { font-size: 0.9rem; line-height: 1; }
+    .pip-count {
+      font-size: 0.6rem;
+      color: var(--parchment);
+      opacity: 0.6;
+      font-family: 'IM Fell English', serif;
+      line-height: 1;
+    }
+
+    .pip-food   { color: var(--food-pip); }
+    .pip-threat { color: var(--threat-col); }
+
+    .loot-zone {
+      width: var(--card-w);
+      height: var(--card-h);
+      border: 1px dashed var(--loot-dim);
+      border-radius: 0 0 4px 4px;
+      background: rgba(20, 50, 14, 0.12);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .loot-zone:hover {
+      border-color: var(--loot-col);
+      background: rgba(30, 70, 20, 0.2);
+      box-shadow: 0 0 12px rgba(74,122,58,0.2), inset 0 0 20px rgba(74,122,58,0.05);
+    }
+
+    .loot-zone .loot-icon {
+      font-size: 1.6rem;
+      opacity: 0.18;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .loot-zone:hover .loot-icon { opacity: 0.3; }
+
+    .loot-zone .loot-label {
+      position: absolute;
+      bottom: 6px;
+      font-size: 0.42rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--loot-col);
+      opacity: 0.45;
+    }
+
+    .slot-col:nth-child(1) .loot-zone,
+    .slot-col:nth-child(1) .threat-zone  { border-left-color: rgba(74,122,58,0.45); }
+    .slot-col:nth-child(7) .loot-zone,
+    .slot-col:nth-child(7) .threat-zone  { border-color: rgba(176,48,48,0.4); }
+    .slot-col:nth-child(7) .threat-zone  { background: rgba(100,10,10,0.22); }
+
+    .slot-separator {
+      width: 1px;
+      align-self: stretch;
+      background: linear-gradient(to bottom, transparent, var(--gold-dim), transparent);
+      opacity: 0.25;
+      margin: 0 2px;
+    }
+
+    /* Draw button */
+    .draw-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .draw-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: linear-gradient(135deg, #c8962a, #8a5e10);
+      border: none;
+      border-radius: 3px;
+      padding: 0.5rem 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(200,150,42,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .draw-btn:hover {
+      opacity: 0.92;
+      box-shadow: 0 4px 20px rgba(200,150,42,0.5);
+      transform: translateY(-1px);
+    }
+
+    .draw-btn:active  { transform: scale(0.97); }
+    .draw-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    .deck-count {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.65rem;
+      color: var(--gold-dim);
+      opacity: 0.7;
+    }
+
+    /* Loot cards */
+    .loot-card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 6px 5px;
+      gap: 3px;
+      animation: cardReveal 0.35s ease forwards;
+      cursor: default;
+    }
+
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-type-badge {
+      font-size: 0.38rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 2px;
+      align-self: flex-start;
+      line-height: 1.6;
+    }
+    .badge-gather  { background: rgba(74,122,58,0.25);  color: #6aaa54; border: 1px solid rgba(74,122,58,0.4); }
+    .badge-item    { background: rgba(85,119,204,0.2);  color: #7090d0; border: 1px solid rgba(85,119,204,0.35); }
+    .badge-weapon  { background: rgba(176,48,48,0.2);   color: #cc6060; border: 1px solid rgba(176,48,48,0.35); }
+    .badge-vehicle { background: rgba(180,120,20,0.2);  color: #c89030; border: 1px solid rgba(180,120,20,0.35); }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      font-weight: 600;
+      color: var(--parchment);
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+    }
+
+    .card-divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin: 1px 0;
+    }
+
+    .card-effects { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    .effect-chip {
+      font-size: 0.44rem;
+      padding: 1px 4px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-family: 'IM Fell English', serif;
+    }
+    .effect-chip .ef-icon { font-size: 0.7rem; line-height: 1; }
+    .ef-food     { color: #c87820; }
+    .ef-health   { color: #c94040; }
+    .ef-sanity   { color: #5577cc; }
+    .ef-mutation { color: #8b4ac8; }
+    .ef-pos      { color: var(--parchment); opacity: 0.8; }
+    .ef-neg      { color: #c94040; }
+
+    .card-stat {
+      font-size: 0.44rem;
+      color: var(--gold-dim);
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-text {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.44rem;
+      color: var(--parchment);
+      opacity: 0.55;
+      line-height: 1.4;
+      margin-top: auto;
+    }
+
+    .card-value {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 0.4rem;
+      color: var(--gold-dim);
+      opacity: 0.4;
+      font-family: 'IM Fell English', serif;
+    }
+
+    /* ── Card selection states ── */
+    .loot-zone.has-card {
+      background: #100e0b;
+      border-style: solid;
+      border-color: var(--border);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .loot-zone.has-card:hover {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 14px rgba(200,150,42,0.25), inset 0 0 20px rgba(200,150,42,0.04);
+    }
+    /* Selecting is locked after one pick per round */
+    .loot-zone.has-card.locked {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+    .loot-zone.has-card.locked:hover {
+      border-color: var(--border);
+      box-shadow: none;
+    }
+
+    .loot-zone.reserved {
+      background: rgba(10,8,5,0.5);
+      border-style: dashed;
+      border-color: rgba(58,46,30,0.4);
+      cursor: not-allowed;
+    }
+    .loot-zone.reserved .loot-icon  { opacity: 0.07; }
+    .loot-zone.reserved .loot-label { opacity: 0.2; letter-spacing: 0.2em; }
+    .loot-zone.reserved:hover        { background: rgba(10,8,5,0.5); border-color: rgba(58,46,30,0.4); box-shadow: none; }
+
+    .slot-col.reserved-slot .slot-number::after { content: ' ✦'; color: var(--gold-dim); opacity: 0.4; }
+
+    /* ── Toast notification ── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e1a10;
+      border: 1px solid var(--gold-dim);
+      border-radius: 4px;
+      padding: 0.6rem 1.4rem;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--parchment);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 999;
+      text-align: center;
+      max-width: 360px;
+      white-space: pre-line;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.toast-warn { border-color: var(--threat-col); color: #e07070; }
+
+    /* ── Redraw flash animation ── */
+    @keyframes boardFlash {
+      0%   { opacity: 1; }
+      40%  { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+    .slots-row.redrawing { animation: boardFlash 0.5s ease; }
+
+    .board-footer {
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.6rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.65rem;
+      color: var(--gold-dim);
+      opacity: 0.75;
+    }
+
+    .legend-pip { font-size: 0.85rem; line-height: 1; }
+
+    /* ═══════════════════════════════════════════════
+       PLAYER BOARD STYLES
+    ═══════════════════════════════════════════════ */
+
+    #player-board {
+      padding: 2.5rem 2.5rem 2rem;
+    }
+
+    .tracks-container {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .track-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .track-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--parchment);
+      opacity: 0.7;
+    }
+
+    .track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .track-space {
+      width: 52px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #0e0c09;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track-space .space-num {
+      font-size: 0.55rem;
+      color: var(--border);
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      font-family: 'IM Fell English', serif;
+    }
+
+    .track-space.skull-space { border-color: #4a2020; background: #110808; }
+
+    .skull-icon {
+      font-size: 1.4rem;
+      opacity: 0.9;
+      filter: grayscale(0) drop-shadow(0 0 4px rgba(220, 80, 80, 0.6));
+      line-height: 1;
+    }
+
+    .track-space:hover  { border-color: #5a4a2a; background: #151208; }
+    .track-space.has-marker { background: #1a1508; }
+
+    .marker {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid;
+      position: relative;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      pointer-events: none;
+    }
+
+    .marker::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.35;
+    }
+
+    [data-track="food"] .track-space.has-marker { border-color: var(--food-col); }
+    [data-track="food"] .marker { border-color: var(--food-col); color: var(--food-col); box-shadow: var(--food-glow); }
+    [data-track="food"] .track-space:hover { border-color: color-mix(in srgb, var(--food-col) 40%, var(--border)); }
+
+    [data-track="health"] .track-space.has-marker { border-color: var(--health-col); }
+    [data-track="health"] .marker { border-color: var(--health-col); color: var(--health-col); box-shadow: var(--health-glow); }
+    [data-track="health"] .track-space:hover { border-color: color-mix(in srgb, var(--health-col) 40%, var(--border)); }
+
+    [data-track="sanity"] .track-space.has-marker { border-color: var(--sanity-col); }
+    [data-track="sanity"] .marker { border-color: var(--sanity-col); color: var(--sanity-col); box-shadow: var(--sanity-glow); }
+    [data-track="sanity"] .track-space:hover { border-color: color-mix(in srgb, var(--sanity-col) 40%, var(--border)); }
+
+    [data-track="mutation"] .track-space.has-marker { border-color: var(--mutate-col); }
+    [data-track="mutation"] .marker { border-color: var(--mutate-col); color: var(--mutate-col); box-shadow: var(--mutate-glow); }
+    [data-track="mutation"] .track-space:hover { border-color: color-mix(in srgb, var(--mutate-col) 40%, var(--border)); }
+
+    .ctrl-btn {
+      width: 24px;
+      height: 24px;
+      background: #1a1508;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--parchment);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+
+    .ctrl-btn:hover  { background: #251d0a; border-color: var(--gold-dim); color: var(--gold); }
+    .ctrl-btn:active { transform: scale(0.92); }
+
+    .track-icon { font-size: 1.1rem; opacity: 0.8; }
+
+    /* Stat sidebars */
+    .track-group,
+    .health-track-group { display: flex; align-items: flex-start; gap: 0; }
+
+    .stat-sidebar, .strength-sidebar { display: flex; flex-direction: column; align-items: stretch; }
+
+    .stat-spacer,
+    .strength-spacer { height: calc(1.1rem + 24px + 0.75rem + 0.75rem + 4px); flex-shrink: 0; }
+
+    .stat-cells,
+    .strength-cells { display: flex; flex-direction: column; gap: 4px; }
+
+    .stat-cell,
+    .strength-cell {
+      width: 36px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 0 3px 3px 0;
+      border: 1px solid transparent; border-left: none;
+      transition: background 0.15s;
+    }
+
+    .stat-cell .stat-value,
+    .strength-cell .str-value {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--parchment); opacity: 0.45;
+      transition: opacity 0.15s, color 0.15s; line-height: 1;
+    }
+
+    .stat-cell.active-stat,
+    .strength-cell.active-str {
+      background: rgba(200,150,42,0.12) !important;
+      border-color: var(--gold-dim) !important;
+    }
+    .stat-cell.active-stat .stat-value,
+    .strength-cell.active-str .str-value {
+      opacity: 1; color: var(--gold);
+      text-shadow: 0 0 10px rgba(200,150,42,0.6);
+    }
+
+    .stat-cell.skull-row,
+    .strength-cell.skull-row { background: transparent !important; border-color: transparent !important; }
+
+    .stat-cell.band-start,
+    .strength-cell.band-start { border-top-color: rgba(200,150,42,0.25) !important; }
+
+    .stat-header,
+    .strength-header {
+      font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold-dim); text-align: center; width: 36px;
+      opacity: 0.7; line-height: 1.2; padding-bottom: 2px;
+    }
+
+    /* STR bands */
+    .stat-cell[data-stat-id="str"][data-val="0"],
+    .strength-cell[data-str="0"] { background: rgba(100,20,20,0.18);  border-color: rgba(100,20,20,0.35); }
+    .stat-cell[data-stat-id="str"][data-val="1"],
+    .strength-cell[data-str="1"] { background: rgba(180,120,20,0.12); border-color: rgba(180,120,20,0.28); }
+    .stat-cell[data-stat-id="str"][data-val="2"],
+    .strength-cell[data-str="2"] { background: rgba(60,130,200,0.12); border-color: rgba(60,130,200,0.28); }
+    .stat-cell[data-stat-id="str"][data-val="3"],
+    .strength-cell[data-str="3"] { background: rgba(200,150,42,0.18); border-color: rgba(200,150,42,0.4); }
+
+    /* SPD bands */
+    .stat-cell[data-stat-id="spd"][data-val="0"]          { background: rgba(50,60,100,0.18);  border-color: rgba(50,60,100,0.35); }
+    .stat-cell[data-stat-id="spd"][data-val="1"]          { background: rgba(30,140,120,0.14); border-color: rgba(30,140,120,0.3); }
+    .stat-cell[data-stat-id="spd"][data-val="2"]          { background: rgba(60,180,220,0.14); border-color: rgba(60,180,220,0.3); }
+    .stat-cell[data-stat-id="spd"][data-val="2"].frenzy   { background: rgba(200,50,180,0.18); border-color: rgba(200,50,180,0.4); }
+
+    /* Mutation card spaces */
+    .track-space.card-space { border-color: #5a3a7a; background: #120e18; }
+
+    .card-icon {
+      font-size: 1.1rem; opacity: 0.7; line-height: 1;
+      position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+    }
+
+    .footer-note {
+      margin-top: 1.8rem;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.7rem;
+      color: var(--gold-dim);
+      text-align: center;
+      letter-spacing: 0.08em;
+      opacity: 0.6;
+    }
+    /* ── Inventory panel (right of player board) ── */
+    #player-board-outer {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+    }
+
+    .inventory-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding-top: 0.3rem;
+    }
+
+    .inventory-slot {
+      width: 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .inventory-slot-label {
+      font-size: 0.42rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.65;
+      text-align: center;
+      padding-bottom: 4px;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+    }
+
+    .inventory-card-zone {
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      min-height: 128px;
+      background: rgba(15,12,8,0.6);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+
+    .inventory-card-zone.inv-vehicle { border-color: rgba(180,120,20,0.3); }
+    .inventory-card-zone.inv-weapon  { border-color: rgba(176,48,48,0.3); }
+    .inventory-card-zone.inv-item    { border-color: rgba(85,119,204,0.3); }
+
+    .inventory-empty-icon {
+      font-size: 1.4rem;
+      opacity: 0.1;
+    }
+
+    .inventory-card-zone.inv-filled {
+      cursor: pointer;
+    }
+    .inventory-card-zone.inv-filled:hover {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 10px rgba(200,150,42,0.15);
+    }
+
+    /* Inventory card content — same visual style as loot cards */
+    .inv-card {
+      width: 100%;
+      height: 100%;
+      min-height: 128px;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 6px 5px;
+      gap: 3px;
+      animation: cardReveal 0.3s ease forwards;
+    }
+
+    /* ── Replace dialog ── */
+    #replace-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    #replace-dialog.open { display: flex; }
+
+    .replace-box {
+      background: #1a1610;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 1.6rem 2rem;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .replace-title {
+      font-family: 'Cinzel Decorative', cursive;
+      color: var(--gold);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+
+    .replace-body {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.72rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .replace-cards {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+    }
+
+    .replace-card-preview {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #100e0b;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-height: 100px;
+      max-width: 120px;
+    }
+
+    .replace-card-preview .preview-label {
+      font-size: 0.38rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      margin-bottom: 2px;
+    }
+
+    .replace-card-preview .preview-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      font-weight: 600;
+      color: var(--parchment);
+      line-height: 1.3;
+    }
+
+    .replace-card-preview .preview-stat {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.42rem;
+      color: var(--gold-dim);
+      margin-top: auto;
+    }
+
+    .replace-btns {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .replace-btn {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.6rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .replace-btn:hover  { opacity: 0.85; transform: translateY(-1px); }
+    .replace-btn:active { transform: scale(0.97); }
+
+    .btn-keep {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--parchment);
+    }
+    .btn-replace {
+      background: linear-gradient(135deg, #c8962a, #8a5e10);
+      border-color: var(--gold-dim);
+      color: var(--ink);
+    }
+    /* ── Threat resolution dialog ── */
+    #threat-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+    #threat-dialog.open { display: flex; }
+
+    .threat-box {
+      background: #160e0e;
+      border: 1px solid var(--threat-col);
+      border-radius: 6px;
+      padding: 1.6rem 2rem;
+      max-width: 380px;
+      width: 92%;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.9), 0 0 40px rgba(176,48,48,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .threat-title {
+      font-family: 'Cinzel Decorative', cursive;
+      color: var(--threat-col);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+      text-shadow: 0 0 16px rgba(176,48,48,0.5);
+    }
+
+    .threat-queue {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .threat-pip-indicator {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--threat-dim);
+      border: 1px solid var(--threat-col);
+      transition: background 0.2s;
+    }
+    .threat-pip-indicator.done { background: var(--threat-col); }
+
+    .threat-card-display {
+      border: 1px solid var(--threat-dim);
+      border-radius: 4px;
+      background: rgba(80,10,10,0.25);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 80px;
+    }
+
+    .threat-card-type {
+      font-size: 0.38rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 2px;
+      align-self: flex-start;
+    }
+    .ttype-break   { color: #6aaa54; border: 1px solid rgba(74,122,58,0.5); background: rgba(74,122,58,0.15); }
+    .ttype-setback { color: #e07070; border: 1px solid rgba(176,48,48,0.5); background: rgba(176,48,48,0.18); }
+    .ttype-monster { color: #c89030; border: 1px solid rgba(180,120,20,0.5); background: rgba(180,120,20,0.15); }
+
+    .threat-card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--parchment);
+      letter-spacing: 0.05em;
+    }
+
+    .threat-card-body {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.65rem;
+      color: var(--parchment);
+      opacity: 0.75;
+      line-height: 1.5;
+    }
+
+    .threat-battle-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      padding: 0.4rem 0;
+    }
+
+    .battle-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .battle-stat-label {
+      font-size: 0.4rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.7;
+    }
+    .battle-stat-value {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .battle-stat-value.player-str { color: var(--sanity-col); }
+    .battle-stat-value.monster-str { color: var(--threat-col); }
+
+    .battle-vs {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.65rem;
+      color: var(--gold-dim);
+      opacity: 0.6;
+    }
+
+    .battle-outcome {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      padding: 0.35rem;
+      border-radius: 3px;
+    }
+    .outcome-win  { color: #6aaa54; background: rgba(74,122,58,0.15); border: 1px solid rgba(74,122,58,0.4); }
+    .outcome-tie  { color: #c8962a; background: rgba(200,150,42,0.12); border: 1px solid rgba(200,150,42,0.35); }
+    .outcome-loss { color: #e07070; background: rgba(176,48,48,0.15); border: 1px solid rgba(176,48,48,0.4); }
+
+    .threat-effects-list {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.65rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .threat-continue-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--threat-col), #7a1a1a);
+      border: none;
+      border-radius: 3px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      align-self: stretch;
+    }
+    .threat-continue-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .threat-continue-btn:active { transform: scale(0.97); }
+
+    .threat-continue-btn.btn-gold {
+      background: linear-gradient(135deg, #c8962a, #8a5e10);
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+  <!-- ══════════════════════════════════════
+       GATHER BOARD
+  ══════════════════════════════════════ -->
+  <div class="board-frame" id="gather-board">
+    <div class="corner-br"></div>
+    <div class="corner-bl"></div>
+
+    <div class="board-title">Gather Board</div>
+    <div class="board-subtitle">The spoils of the wilds — if you can pay the price</div>
+    <div class="divider"></div>
+
+    <div class="draw-area">
+      <button class="draw-btn" id="draw-btn">Draw Cards</button>
+      <span class="deck-count" id="deck-count"></span>
+    </div>
+
+    <div class="cost-gradient-bar">
+      <span class="cost-bar-label">Cost ↑</span>
+      <div class="cost-bar-track"></div>
+    </div>
+
+    <div class="slots-row" id="slots-row"></div>
+
+    <div class="board-footer">
+      <div class="legend-item"><span class="legend-pip">🌾</span> Food cost</div>
+      <div class="legend-item"><span class="legend-pip">☣</span> Threats</div>
+      <div class="legend-item"><span class="legend-pip">📦</span> Loot card</div>
+    </div>
+  </div>
+
+  <div class="board-divider"></div>
+
+  <!-- ══════════════════════════════════════
+       THREAT RESOLUTION DIALOG
+  ══════════════════════════════════════ -->
+  <div id="threat-dialog">
+    <div class="threat-box">
+      <div class="threat-title">⚠ Threat Encountered</div>
+      <div class="threat-queue" id="threat-queue"></div>
+      <div class="threat-card-display" id="threat-card-display"></div>
+      <div class="threat-effects-list" id="threat-effects-list"></div>
+      <button class="threat-continue-btn" id="threat-continue-btn">Continue</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       REPLACE DIALOG
+  ══════════════════════════════════════ -->
+  <div id="replace-dialog">
+    <div class="replace-box">
+      <div class="replace-title">Slot Occupied</div>
+      <div class="replace-body" id="replace-body"></div>
+      <div class="replace-cards">
+        <div class="replace-card-preview" id="replace-current">
+          <div class="preview-label">Current</div>
+          <div class="preview-name" id="replace-current-name"></div>
+          <div class="preview-stat" id="replace-current-stat"></div>
+        </div>
+        <div class="replace-card-preview" id="replace-new">
+          <div class="preview-label">New</div>
+          <div class="preview-name" id="replace-new-name"></div>
+          <div class="preview-stat" id="replace-new-stat"></div>
+        </div>
+      </div>
+      <div class="replace-btns">
+        <button class="replace-btn btn-keep" id="btn-keep">Keep Current</button>
+        <button class="replace-btn btn-replace" id="btn-replace">Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PLAYER BOARD + INVENTORY
+  ══════════════════════════════════════ -->
+  <div id="player-board-outer">
+    <div class="board-frame" id="player-board">
+      <div class="corner-br"></div>
+      <div class="corner-bl"></div>
+
+      <div class="board-title">Player Board</div>
+      <div class="board-subtitle">Track your vital statistics</div>
+      <div class="divider"></div>
+
+      <div class="tracks-container" id="tracks-container"></div>
+
+      <div class="footer-note">Click a space or use ▲ ▼ to move your marker</div>
+    </div>
+
+    <!-- Inventory slots -->
+    <div class="inventory-panel" id="inventory-panel">
+      <div class="inventory-slot">
+        <div class="inventory-slot-label">🚗 Vehicle</div>
+        <div class="inventory-card-zone inv-vehicle" id="inv-vehicle">
+          <span class="inventory-empty-icon">🚗</span>
+        </div>
+      </div>
+      <div class="inventory-slot">
+        <div class="inventory-slot-label">🔧 Weapon</div>
+        <div class="inventory-card-zone inv-weapon" id="inv-weapon">
+          <span class="inventory-empty-icon">🔧</span>
+        </div>
+      </div>
+      <div class="inventory-slot">
+        <div class="inventory-slot-label">🎒 Item</div>
+        <div class="inventory-card-zone inv-item" id="inv-item">
+          <span class="inventory-empty-icon">🎒</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ═══════════════════════════════════════════
+     SHARED PLAYER STATE
+     All track controllers register themselves here
+     so the gather board can apply card effects.
+  ═══════════════════════════════════════════ */
+  const playerState = {
+    food:     { value: 5,  set: null },
+    health:   { value: 7,  set: null },
+    sanity:   { value: 6,  set: null },
+    mutation: { value: 1,  set: null },
+  };
+
+  /* ═══════════════════════════════════════════
+     TOAST UTILITY
+  ═══════════════════════════════════════════ */
+  let toastTimer = null;
+  function showToast(msg, isWarn = false, duration = 3000) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (isWarn ? ' toast-warn' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, duration);
+  }
+
+  /* ═══════════════════════════════════════════
+     GATHER BOARD
+  ═══════════════════════════════════════════ */
+
+  const SLOTS = [
+    { food: 2, threat: 0, alt: { food: 0, threat: 1 } },
+    { food: 1, threat: 1 },
+    { food: 1, threat: 1 },
+    { food: 1, threat: 2 },
+    { food: 1, threat: 2 },
+    { food: 1, threat: 3, reserved: true },
+    { food: 2, threat: 3, reserved: true },
+  ];
+
+  const SEPARATORS_AFTER = new Set([0, 2, 4, 5]);
+  const DRAW_SLOTS = 5;
+
+  let fullDeck      = [];
+  let drawPile      = [];
+  let lootZones     = [];
+  let slotCards     = [];   // card data currently in each slot (null if empty)
+  let cardSelected  = false; // has a card been selected this round?
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function updateDeckCount() {
+    const el = document.getElementById('deck-count');
+    el.textContent = drawPile.length > 0
+      ? `${drawPile.length} card${drawPile.length !== 1 ? 's' : ''} remaining`
+      : 'Deck exhausted';
+    document.getElementById('draw-btn').disabled = drawPile.length < DRAW_SLOTS;
+  }
+
+  const EFFECT_META = {
+    food:     { icon: '🌾', cls: 'ef-food'    },
+    health:   { icon: '❤️',  cls: 'ef-health'  },
+    sanity:   { icon: '🕯️', cls: 'ef-sanity'  },
+    mutation: { icon: '🧬', cls: 'ef-mutation' },
+  };
+
+  function renderCard(card) {
+    const wrap = document.createElement('div');
+    wrap.className = 'loot-card';
+
+    const badge = document.createElement('div');
+    badge.className = `card-type-badge badge-${card.type}`;
+    badge.textContent = card.type;
+    wrap.appendChild(badge);
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    if (card.effects && Object.keys(card.effects).length > 0) {
+      const efRow = document.createElement('div');
+      efRow.className = 'card-effects';
+      for (const [key, val] of Object.entries(card.effects)) {
+        const meta = EFFECT_META[key];
+        if (!meta) continue;
+        const chip = document.createElement('div');
+        chip.className = 'effect-chip';
+        const ico = document.createElement('span');
+        ico.className = `ef-icon ${meta.cls}`;
+        ico.textContent = meta.icon;
+        const num = document.createElement('span');
+        num.className = val >= 0 ? 'ef-pos' : 'ef-neg';
+        num.textContent = (val > 0 ? '+' : '') + val;
+        chip.appendChild(ico); chip.appendChild(num);
+        efRow.appendChild(chip);
+      }
+      wrap.appendChild(efRow);
+    }
+
+    if (card.strength != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      stat.innerHTML = `🔧 STR ${card.strength}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(stat);
+    }
+    if (card.move != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      stat.innerHTML = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(stat);
+    }
+    if (card.text) {
+      const txt = document.createElement('div');
+      txt.className = 'card-text';
+      txt.textContent = card.text;
+      wrap.appendChild(txt);
+    }
+
+    const val = document.createElement('div');
+    val.className = 'card-value';
+    val.textContent = card.value;
+    wrap.appendChild(val);
+
+    return wrap;
+  }
+
+  function placeCards(cards) {
+    const sorted = [...cards].sort((a, b) => (a.value ?? 0) - (b.value ?? 0));
+    slotCards = Array(SLOTS.length).fill(null);
+    sorted.forEach((card, i) => {
+      slotCards[i] = card;
+      const zone = lootZones[i];
+      zone.innerHTML = '';
+      zone.classList.add('has-card');
+      zone.classList.remove('locked');
+      zone.appendChild(renderCard(card));
+    });
+  }
+
+  function clearLootZones() {
+    lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
+      zone.innerHTML = '';
+      zone.classList.remove('has-card', 'locked');
+      slotCards[i] = null;
+      const icon = document.createElement('span');
+      icon.className = 'loot-icon';
+      icon.textContent = '📦';
+      zone.appendChild(icon);
+      const lbl = document.createElement('div');
+      lbl.className = 'loot-label';
+      lbl.textContent = 'loot';
+      zone.appendChild(lbl);
+    });
+  }
+
+  function setAllSlotsLocked(locked) {
+    lootZones.slice(0, DRAW_SLOTS).forEach(zone => {
+      if (zone.classList.contains('has-card')) {
+        zone.classList.toggle('locked', locked);
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     INVENTORY
+  ═══════════════════════════════════════════ */
+  const inventory = { vehicle: null, weapon: null, item: null };
+
+  const INV_ICONS = { vehicle: '🚗', weapon: '🔧', item: '🎒' };
+
+  function cardPreviewStat(card) {
+    if (card.strength != null) return `STR ${card.strength}${card.uses ? ' · ' + card.uses + ' uses' : ''}`;
+    if (card.move     != null) return `MOVE ${card.move}${card.uses ? ' · ' + card.uses + ' uses' : ''}`;
+    if (card.text)              return card.text.slice(0, 40) + (card.text.length > 40 ? '…' : '');
+    return '';
+  }
+
+  function renderInventoryCard(card) {
+    const wrap = document.createElement('div');
+    wrap.className = 'inv-card';
+
+    const badge = document.createElement('div');
+    badge.className = `card-type-badge badge-${card.type}`;
+    badge.textContent = card.type;
+    wrap.appendChild(badge);
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    if (card.strength != null) {
+      const s = document.createElement('div');
+      s.className = 'card-stat';
+      s.innerHTML = `🔧 STR ${card.strength}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(s);
+    }
+    if (card.move != null) {
+      const s = document.createElement('div');
+      s.className = 'card-stat';
+      s.innerHTML = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(s);
+    }
+    if (card.text) {
+      const t = document.createElement('div');
+      t.className = 'card-text';
+      t.textContent = card.text;
+      wrap.appendChild(t);
+    }
+    return wrap;
+  }
+
+  function setInventorySlot(type, card) {
+    inventory[type] = card;
+    const zone = document.getElementById(`inv-${type}`);
+    zone.innerHTML = '';
+    if (card) {
+      zone.classList.add('inv-filled');
+      zone.appendChild(renderInventoryCard(card));
+    } else {
+      zone.classList.remove('inv-filled');
+      const icon = document.createElement('span');
+      icon.className = 'inventory-empty-icon';
+      icon.textContent = INV_ICONS[type];
+      zone.appendChild(icon);
+    }
+  }
+
+  /* ── Replace dialog ─────────────────────────────────────────────── */
+  let replaceResolve = null; // resolve fn for the pending promise
+
+  function promptReplace(type, currentCard, newCard) {
+    return new Promise(resolve => {
+      replaceResolve = resolve;
+
+      document.getElementById('replace-body').textContent =
+        `Your ${type} slot is occupied. Replace it with "${newCard.name}"?`;
+      document.getElementById('replace-current-name').textContent = currentCard.name;
+      document.getElementById('replace-current-stat').textContent = cardPreviewStat(currentCard);
+      document.getElementById('replace-new-name').textContent = newCard.name;
+      document.getElementById('replace-new-stat').textContent = cardPreviewStat(newCard);
+
+      document.getElementById('replace-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('btn-keep').addEventListener('click', () => {
+    document.getElementById('replace-dialog').classList.remove('open');
+    if (replaceResolve) { replaceResolve(false); replaceResolve = null; }
+  });
+
+  document.getElementById('btn-replace').addEventListener('click', () => {
+    document.getElementById('replace-dialog').classList.remove('open');
+    if (replaceResolve) { replaceResolve(true); replaceResolve = null; }
+  });
+
+  /* ═══════════════════════════════════════════
+     THREAT DECK
+  ═══════════════════════════════════════════ */
+  let threatFull = [];
+  let threatPile = [];
+
+  async function loadThreatDeck() {
+    try {
+      const res  = await fetch('threat-deck.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      threatFull = data.threat_deck;
+      threatPile = shuffle([...threatFull]);
+      console.log(`✓ Loaded ${threatFull.length} threat cards`);
+    } catch (e) {
+      console.warn('Could not load threat-deck.json:', e.message);
+    }
+  }
+
+  function drawThreatCard() {
+    if (threatPile.length === 0) {
+      threatPile = shuffle([...threatFull]);
+    }
+    return threatPile.splice(0, 1)[0] ?? null;
+  }
+
+  /* ── Compute player's current total strength ── */
+  function getPlayerStrength() {
+    const healthVal = playerState.health.value;
+    // health → STR: 0→0, 1-2→0, 3-6→1, 7-9→2, 10→3
+    let str = 0;
+    if (healthVal === 10)       str = 3;
+    else if (healthVal >= 7)    str = 2;
+    else if (healthVal >= 3)    str = 1;
+    const weaponBonus = inventory.weapon?.strength ?? 0;
+    return str + weaponBonus;
+  }
+
+  /* ── Apply an effects object to player state ── */
+  function applyEffects(effects) {
+    const lines = [];
+    for (const [track, amount] of Object.entries(effects)) {
+      if (!playerState[track]) continue;
+      const current = playerState[track].value;
+      const next = Math.max(0, Math.min(10, current + amount));
+      if (playerState[track].set) playerState[track].set(next);
+      lines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`);
+    }
+    return lines;
+  }
+
+  /* ── Show one threat card in the dialog, resolve it, wait for dismiss ── */
+  function resolveThreatCard(card, queueEl, queueDots, currentIdx) {
+    return new Promise(resolve => {
+      // Mark pip as active
+      queueDots[currentIdx]?.classList.add('done');
+
+      const display  = document.getElementById('threat-card-display');
+      const effectsEl = document.getElementById('threat-effects-list');
+      const btn      = document.getElementById('threat-continue-btn');
+      display.innerHTML = '';
+      effectsEl.innerHTML = '';
+      btn.className = 'threat-continue-btn';
+
+      // Type badge
+      const badge = document.createElement('div');
+      badge.className = `threat-card-type ttype-${card.type}`;
+      badge.textContent = card.type;
+      display.appendChild(badge);
+
+      // Name
+      const nameEl = document.createElement('div');
+      nameEl.className = 'threat-card-name';
+      nameEl.textContent = card.name;
+      display.appendChild(nameEl);
+
+      const bodyEl = document.createElement('div');
+      bodyEl.className = 'threat-card-body';
+
+      let effectLines = [];
+      let lootLostThisCard = false;
+
+      if (card.type === 'break') {
+        bodyEl.textContent = 'The path is clear. No threat.';
+        btn.classList.add('btn-gold');
+
+      } else if (card.type === 'setback') {
+        const parts = [];
+        if (card.effects) {
+          for (const [t, v] of Object.entries(card.effects)) {
+            parts.push(`${EFFECT_META[t]?.icon ?? ''} ${t} ${v > 0 ? '+' : ''}${v}`);
+          }
+          effectLines = applyEffects(card.effects);
+        }
+        bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
+
+      } else if (card.type === 'monster') {
+        const playerStr  = getPlayerStrength();
+        const monsterStr = card.strength ?? 0;
+        const weaponStr  = inventory.weapon?.strength ?? 0;
+
+        // Battle row
+        const battleRow = document.createElement('div');
+        battleRow.className = 'threat-battle-row';
+
+        const playerSide = document.createElement('div');
+        playerSide.className = 'battle-stat';
+        playerSide.innerHTML = `
+          <span class="battle-stat-label">Your STR${weaponStr ? ` (+${weaponStr} weapon)` : ''}</span>
+          <span class="battle-stat-value player-str">${playerStr}</span>`;
+
+        const vsEl = document.createElement('div');
+        vsEl.className = 'battle-vs';
+        vsEl.textContent = 'vs';
+
+        const monsterSide = document.createElement('div');
+        monsterSide.className = 'battle-stat';
+        monsterSide.innerHTML = `
+          <span class="battle-stat-label">${card.name} STR</span>
+          <span class="battle-stat-value monster-str">${monsterStr}</span>`;
+
+        battleRow.appendChild(playerSide);
+        battleRow.appendChild(vsEl);
+        battleRow.appendChild(monsterSide);
+        display.appendChild(battleRow);
+
+        // Outcome
+        const outcomeEl = document.createElement('div');
+        outcomeEl.className = 'battle-outcome';
+
+        const negateDamage = (dmg) => Object.fromEntries(
+          Object.entries(dmg).map(([k, v]) => [k, -v])
+        );
+
+        if (playerStr > monsterStr) {
+          outcomeEl.classList.add('outcome-win');
+          outcomeEl.textContent = '⚔ Victory — loot secured!';
+          bodyEl.textContent = 'You overpower the creature.';
+          btn.classList.add('btn-gold');
+        } else if (playerStr === monsterStr) {
+          outcomeEl.classList.add('outcome-tie');
+          outcomeEl.textContent = '⚔ Tie — loot secured, but at a cost';
+          bodyEl.textContent = 'You defeat it, but not without harm.';
+          if (card.damage) effectLines = applyEffects(negateDamage(card.damage));
+        } else {
+          outcomeEl.classList.add('outcome-loss');
+          outcomeEl.textContent = '⚔ Defeat — loot lost';
+          bodyEl.textContent = 'The creature bests you.';
+          if (card.damage) effectLines = applyEffects(negateDamage(card.damage));
+        }
+
+        lootLostThisCard = (playerStr < monsterStr);
+
+        display.appendChild(outcomeEl);
+      }
+
+      display.appendChild(bodyEl);
+
+      // Effect lines under the card
+      effectLines.forEach(line => {
+        const p = document.createElement('div');
+        p.textContent = line;
+        effectsEl.appendChild(p);
+      });
+
+      // Wire up continue button (only fires once)
+      const handler = () => {
+        btn.removeEventListener('click', handler);
+        resolve({ lootLost: lootLostThisCard });
+      };
+      btn.addEventListener('click', handler);
+    });
+  }
+
+  /* ── Draw & resolve N threat cards sequentially ── */
+  async function resolveThreatCards(count) {
+    if (!count || count <= 0 || threatFull.length === 0) return { lootLost: false };
+
+    const dialog   = document.getElementById('threat-dialog');
+    const queueEl  = document.getElementById('threat-queue');
+
+    // Build pip indicators
+    queueEl.innerHTML = '';
+    const dots = [];
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'threat-pip-indicator';
+      queueEl.appendChild(dot);
+      dots.push(dot);
+    }
+
+    dialog.classList.add('open');
+
+    let lootLost = false;
+    for (let i = 0; i < count; i++) {
+      const card = drawThreatCard();
+      if (!card) break;
+      const result = await resolveThreatCard(card, queueEl, dots, i);
+      if (result?.lootLost) lootLost = true;
+    }
+
+    dialog.classList.remove('open');
+    return { lootLost };
+  }
+
+  /* ── Card selection handler ─────────────────────────────────────── */
+  async function onCardSelected(slotIndex) {
+    if (cardSelected) return;
+    const card = slotCards[slotIndex];
+    if (!card) return;
+
+    const slotDef  = SLOTS[slotIndex];
+    const foodCost = slotDef.food;
+    const threatCount = slotDef.threat ?? 0;
+
+    // 1. Pay food cost
+    const newFood = Math.max(0, playerState.food.value - foodCost);
+    if (playerState.food.set) playerState.food.set(newFood);
+
+    // 2. Lock selection for this round
+    cardSelected = true;
+    setAllSlotsLocked(true);
+
+    // 3. Resolve threat cards (may block loot)
+    let lootBlocked = false;
+    if (threatCount > 0) {
+      const result = await resolveThreatCards(threatCount);
+      lootBlocked = result.lootLost;
+    }
+
+    // 4. Resolve loot card (unless a monster defeat blocked it)
+    let effectLines = [];
+
+    if (lootBlocked) {
+      effectLines.push('❌ Loot lost — defeated in battle');
+    } else if (card.type === 'gather') {
+      if (card.effects) {
+        for (const [track, amount] of Object.entries(card.effects)) {
+          const rounded = Math.round(amount);
+          if (!rounded || !playerState[track]) continue;
+          const next = Math.max(0, Math.min(10, playerState[track].value + rounded));
+          if (playerState[track].set) playerState[track].set(next);
+          effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
+        }
+      }
+    } else {
+      const type = card.type;
+      if (inventory[type]) {
+        const doReplace = await promptReplace(type, inventory[type], card);
+        if (doReplace) {
+          setInventorySlot(type, card);
+          effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+        } else {
+          effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+        }
+      } else {
+        setInventorySlot(type, card);
+        effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+      }
+    }
+
+    // 5. Toast summary
+    const costLine = `🌾 −${foodCost} food paid`;
+    showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
+
+    // 6. Auto-redraw after delay
+    await new Promise(r => setTimeout(r, 1800));
+
+    if (drawPile.length >= DRAW_SLOTS) {
+      const slotsRowEl = document.getElementById('slots-row');
+      slotsRowEl.classList.add('redrawing');
+      await new Promise(r => setTimeout(r, 250));
+      clearLootZones();
+      const drawn = drawPile.splice(0, DRAW_SLOTS);
+      placeCards(drawn);
+      updateDeckCount();
+      cardSelected = false;
+      slotsRowEl.classList.remove('redrawing');
+    } else {
+      clearLootZones();
+      updateDeckCount();
+      cardSelected = false;
+      showToast('The deck is exhausted.', true);
+    }
+  }
+
+  /* ── Slot builder ─────────────────────────────────────────────── */
+  function buildCostPip(type, count) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cost-pip';
+    const icon = document.createElement('span');
+    icon.className = `pip-icon pip-${type}`;
+    icon.textContent = type === 'food' ? '🌾' : '☣';
+    const cnt = document.createElement('span');
+    cnt.className = 'pip-count';
+    cnt.textContent = `×${count}`;
+    wrap.appendChild(icon); wrap.appendChild(cnt);
+    return wrap;
+  }
+
+  function buildSlot(slotDef, index) {
+    const col = document.createElement('div');
+    col.className = 'slot-col' + (slotDef.reserved ? ' reserved-slot' : '');
+
+    const num = document.createElement('div');
+    num.className = 'slot-number';
+    num.textContent = index + 1;
+    col.appendChild(num);
+
+    const threatZone = document.createElement('div');
+    threatZone.className = 'threat-zone';
+    if (slotDef.threat > 0) {
+      const pips = document.createElement('div');
+      pips.className = 'threat-pips';
+      for (let i = 0; i < slotDef.threat; i++) {
+        const pip = document.createElement('div');
+        pip.className = 'threat-pip';
+        pip.textContent = '☣';
+        pips.appendChild(pip);
+      }
+      threatZone.appendChild(pips);
+      const lbl = document.createElement('div');
+      lbl.className = 'threat-label';
+      lbl.textContent = slotDef.threat === 1 ? '1 threat' : `${slotDef.threat} threats`;
+      threatZone.appendChild(lbl);
+    } else {
+      const lbl = document.createElement('div');
+      lbl.className = 'threat-label';
+      lbl.textContent = 'no threat';
+      threatZone.appendChild(lbl);
+    }
+    col.appendChild(threatZone);
+
+    const bridge = document.createElement('div');
+    bridge.className = 'cost-bridge';
+    if (slotDef.food > 0)   bridge.appendChild(buildCostPip('food', slotDef.food));
+    if (slotDef.threat > 0) bridge.appendChild(buildCostPip('threat', slotDef.threat));
+    if (slotDef.alt) {
+      const or = document.createElement('div');
+      or.className = 'cost-or';
+      or.style.cssText = 'width:100%;text-align:center;';
+      or.textContent = '— or —';
+      bridge.appendChild(or);
+      bridge.appendChild(buildCostPip('threat', slotDef.alt.threat));
+    }
+    col.appendChild(bridge);
+
+    const lootZone = document.createElement('div');
+    lootZone.className = 'loot-zone' + (slotDef.reserved ? ' reserved' : '');
+
+    // Only non-reserved slots get a click handler
+    if (!slotDef.reserved) {
+      lootZone.addEventListener('click', async () => {
+        if (!lootZone.classList.contains('has-card')) return;
+        if (lootZone.classList.contains('locked')) return;
+        if (cardSelected) return;
+        await onCardSelected(index);
+      });
+    }
+
+    const lootIcon = document.createElement('span');
+    lootIcon.className = 'loot-icon';
+    lootIcon.textContent = '📦';
+    lootZone.appendChild(lootIcon);
+    const lootLabel = document.createElement('div');
+    lootLabel.className = 'loot-label';
+    lootLabel.textContent = slotDef.reserved ? 'reserved' : 'loot';
+    lootZone.appendChild(lootLabel);
+    col.appendChild(lootZone);
+    lootZones.push(lootZone);
+
+    return col;
+  }
+
+  const slotsRow = document.getElementById('slots-row');
+  SLOTS.forEach((slot, i) => {
+    slotsRow.appendChild(buildSlot(slot, i));
+    if (SEPARATORS_AFTER.has(i)) {
+      const sep = document.createElement('div');
+      sep.className = 'slot-separator';
+      slotsRow.appendChild(sep);
+    }
+  });
+
+  async function loadDeck() {
+    const countEl = document.getElementById('deck-count');
+    const drawBtn = document.getElementById('draw-btn');
+    try {
+      countEl.textContent = 'Loading deck…';
+      const res = await fetch('loot-deck.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the same folder?`);
+      const data = await res.json();
+      if (!data.loot_deck || !Array.isArray(data.loot_deck)) throw new Error('Unexpected JSON structure');
+      fullDeck = data.loot_deck;
+      drawPile = shuffle(fullDeck);
+      updateDeckCount();
+    } catch (e) {
+      countEl.textContent = `⚠ ${e.message}`;
+      countEl.style.color = '#c94040';
+      drawBtn.disabled = true;
+    }
+  }
+
+  document.getElementById('draw-btn').addEventListener('click', () => {
+    if (drawPile.length < DRAW_SLOTS) return;
+    const drawn = drawPile.splice(0, DRAW_SLOTS);
+    clearLootZones();
+    placeCards(drawn);
+    updateDeckCount();
+    cardSelected = false;
+  });
+
+  loadDeck();
+
+  /* ═══════════════════════════════════════════
+     PLAYER BOARD
+  ═══════════════════════════════════════════ */
+
+  const TRACKS = [
+    { id: 'food',     label: 'Food',     icon: '🌾', defaultValue: 5 },
+    { id: 'health',   label: 'Health',   icon: '🩸', defaultValue: 7 },
+    { id: 'sanity',   label: 'Sanity',   icon: '🕯️', defaultValue: 6 },
+    { id: 'mutation', label: 'Mutation', icon: '🧬', defaultValue: 1 },
+  ];
+
+  const SPACES = 10;
+
+  function getStrength(health) {
+    if (health === 10) return 3;
+    if (health >= 7)   return 2;
+    if (health > 2)    return 1;
+    return 0;
+  }
+
+  function getBand(health) {
+    if (health === 10) return 3;
+    if (health >= 7)   return 2;
+    if (health > 2)    return 1;
+    return 0;
+  }
+
+  function getSpeed(sanity) {
+    if (sanity === 10) return 2;
+    if (sanity > 5)    return 1;
+    if (sanity > 1)    return 0;
+    if (sanity === 1)  return 2;
+    return 0;
+  }
+
+  function getSpeedBand(sanity) {
+    if (sanity === 10) return 'top2';
+    if (sanity > 5)    return 'mid1';
+    if (sanity > 1)    return 'low0';
+    if (sanity === 1)  return 'frenzy';
+    return 'skull';
+  }
+
+  function buildStatSidebar(wrapper, statId, label, getCellConfig) {
+    const group = document.createElement('div');
+    group.className = 'track-group';
+    group.appendChild(wrapper);
+
+    const sidebar = document.createElement('div');
+    sidebar.className = 'stat-sidebar';
+
+    const spacer = document.createElement('div');
+    spacer.className = 'stat-spacer';
+    sidebar.appendChild(spacer);
+
+    const hdr = document.createElement('div');
+    hdr.className = 'stat-header';
+    hdr.textContent = label;
+    sidebar.appendChild(hdr);
+
+    const cellsEl = document.createElement('div');
+    cellsEl.className = 'stat-cells';
+
+    const statCells = [];
+    let prevBand = null;
+    for (let i = SPACES; i >= 0; i--) {
+      const { val, band, isSkull, isFrenzy } = getCellConfig(i);
+      const cell = document.createElement('div');
+      cell.className = 'stat-cell';
+      cell.setAttribute('data-stat-id', statId);
+      cell.setAttribute('data-val', val);
+      if (band !== prevBand) { cell.classList.add('band-start'); prevBand = band; }
+      if (isSkull)  cell.classList.add('skull-row');
+      if (isFrenzy) cell.classList.add('frenzy');
+      if (!isSkull) {
+        const span = document.createElement('span');
+        span.className = 'stat-value';
+        span.textContent = val;
+        cell.appendChild(span);
+      }
+      statCells.push({ el: cell, trackVal: i });
+      cellsEl.appendChild(cell);
+    }
+
+    sidebar.appendChild(cellsEl);
+    group.appendChild(sidebar);
+
+    return {
+      group,
+      renderStat(trackVal) {
+        statCells.forEach(({ el, trackVal: tv }) => el.classList.toggle('active-stat', tv === trackVal));
+      }
+    };
+  }
+
+  function buildTrack(track) {
+    const state = { value: track.defaultValue };
+
+    // Register the setter in playerState so gather board can apply effects
+    playerState[track.id].value = state.value;
+    playerState[track.id].set = (newVal) => {
+      state.value = newVal;
+      playerState[track.id].value = newVal;
+      render();
+    };
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'track-wrapper';
+    wrapper.setAttribute('data-track', track.id);
+
+    const labelTop = document.createElement('div');
+    labelTop.className = 'track-label';
+    labelTop.innerHTML = `<span class="track-icon">${track.icon}</span>`;
+    wrapper.appendChild(labelTop);
+
+    const isMutation = track.id === 'mutation';
+    const MUTATION_SKULL = 10;
+    const MUTATION_CARDS = new Set([4, 9]);
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'ctrl-btn';
+    upBtn.textContent = '▲';
+    upBtn.title = `Increase ${track.label}`;
+    upBtn.addEventListener('click', () => {
+      if (isMutation) { if (state.value > 0)     { state.value--; playerState[track.id].value = state.value; render(); } }
+      else            { if (state.value < SPACES) { state.value++; playerState[track.id].value = state.value; render(); } }
+    });
+    wrapper.appendChild(upBtn);
+
+    const trackEl = document.createElement('div');
+    trackEl.className = 'track';
+
+    const displayOrder = [];
+    if (isMutation) { for (let i = 0; i <= SPACES; i++) displayOrder.push(i); }
+    else            { for (let i = SPACES; i >= 0; i--) displayOrder.push(i); }
+
+    const spaces = [];
+    for (const i of displayOrder) {
+      const isSkull = isMutation ? (i === MUTATION_SKULL) : (i === 0);
+      const isCard  = isMutation && MUTATION_CARDS.has(i);
+
+      const space = document.createElement('div');
+      space.className = 'track-space' + (isSkull ? ' skull-space' : '') + (isCard ? ' card-space' : '');
+
+      if (isSkull) {
+        const skull = document.createElement('span');
+        skull.className = 'skull-icon';
+        skull.textContent = '☠';
+        space.appendChild(skull);
+      } else {
+        const num = document.createElement('span');
+        num.className = 'space-num';
+        num.textContent = i;
+        space.appendChild(num);
+      }
+
+      if (isCard) {
+        const cardEl = document.createElement('span');
+        cardEl.className = 'card-icon';
+        cardEl.textContent = '🃏';
+        space.appendChild(cardEl);
+      }
+
+      space.addEventListener('click', () => {
+        state.value = i;
+        playerState[track.id].value = i;
+        render();
+      });
+      spaces.push({ el: space, val: i });
+      trackEl.appendChild(space);
+    }
+
+    wrapper.appendChild(trackEl);
+
+    const downBtn = document.createElement('button');
+    downBtn.className = 'ctrl-btn';
+    downBtn.textContent = '▼';
+    downBtn.title = `Decrease ${track.label}`;
+    downBtn.addEventListener('click', () => {
+      if (isMutation) { if (state.value < SPACES) { state.value++; playerState[track.id].value = state.value; render(); } }
+      else            { if (state.value > 0)       { state.value--; playerState[track.id].value = state.value; render(); } }
+    });
+    wrapper.appendChild(downBtn);
+
+    const labelBottom = document.createElement('div');
+    labelBottom.className = 'track-label';
+    labelBottom.textContent = track.label;
+    wrapper.appendChild(labelBottom);
+
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+
+    let renderStrength = () => {};
+    let renderSpeed    = () => {};
+
+    function render() {
+      spaces.forEach(({ el, val }) => {
+        const active = val === state.value;
+        el.classList.toggle('has-marker', active);
+        if (active) el.appendChild(marker);
+      });
+      if (isMutation) {
+        upBtn.disabled   = state.value <= 0;
+        downBtn.disabled = state.value >= SPACES;
+      } else {
+        upBtn.disabled   = state.value >= SPACES;
+        downBtn.disabled = state.value <= 0;
+      }
+      if (track.id === 'health') renderStrength(state.value);
+      if (track.id === 'sanity') renderSpeed(state.value);
+    }
+
+    render();
+
+    if (track.id === 'health') {
+      const group = document.createElement('div');
+      group.className = 'health-track-group';
+      group.appendChild(wrapper);
+
+      const sidebar = document.createElement('div');
+      sidebar.className = 'strength-sidebar';
+      const spacer = document.createElement('div');
+      spacer.className = 'strength-spacer';
+      sidebar.appendChild(spacer);
+      const hdr = document.createElement('div');
+      hdr.className = 'strength-header';
+      hdr.textContent = 'STR';
+      sidebar.appendChild(hdr);
+      const cellsEl = document.createElement('div');
+      cellsEl.className = 'strength-cells';
+      const strCells = [];
+      for (let i = SPACES; i >= 0; i--) {
+        const cell = document.createElement('div');
+        cell.className = 'strength-cell';
+        const str = getStrength(i);
+        cell.setAttribute('data-str', str);
+        const bandAbove = (i < SPACES) ? getBand(i + 1) : -1;
+        if (getBand(i) !== bandAbove) cell.classList.add('band-start');
+        if (i === 0) {
+          cell.classList.add('skull-row');
+        } else {
+          const v = document.createElement('span');
+          v.className = 'str-value';
+          v.textContent = str;
+          cell.appendChild(v);
+        }
+        strCells.push({ el: cell, health: i });
+        cellsEl.appendChild(cell);
+      }
+      sidebar.appendChild(cellsEl);
+      group.appendChild(sidebar);
+      renderStrength = function(healthVal) {
+        strCells.forEach(({ el, health }) => el.classList.toggle('active-str', health === healthVal));
+      };
+      renderStrength(state.value);
+      return group;
+    }
+
+    if (track.id === 'sanity') {
+      const { group, renderStat } = buildStatSidebar(wrapper, 'spd', 'SPD', (i) => ({
+        val:      getSpeed(i),
+        band:     getSpeedBand(i),
+        isSkull:  i === 0,
+        isFrenzy: getSpeedBand(i) === 'frenzy',
+      }));
+      renderSpeed = renderStat;
+      renderSpeed(state.value);
+      return group;
+    }
+
+    return wrapper;
+  }
+
+  const tracksContainer = document.getElementById('tracks-container');
+  TRACKS.forEach(t => tracksContainer.appendChild(buildTrack(t)));
+
+  loadThreatDeck();
+</script>
+</body>
+</html>

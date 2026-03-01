@@ -1,0 +1,518 @@
+{
+  "loot_deck": [
+    {
+      "name": "Monster carcass",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "food": 6.0,
+        "mutation": 2.0
+      },
+      "value": 1.0
+    },
+    {
+      "name": "Psychadelic shrooms",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "food": 4.0,
+        "sanity": -1.0
+      },
+      "value": 1.9
+    },
+    {
+      "name": "Mushrooms",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 2.0
+      },
+      "value": 2.0
+    },
+    {
+      "name": "Can of beans",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 2.0
+      },
+      "value": 2.0
+    },
+    {
+      "name": "Bandaids",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 1.0
+      },
+      "value": 2.0
+    },
+    {
+      "name": "Opened ration packet",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "food": 4.0,
+        "health": -1.0
+      },
+      "value": 2.0
+    },
+    {
+      "name": "Anti-viral",
+      "start": true,
+      "type": "item",
+      "text": "Block mutation x1",
+      "value": 2.0
+    },
+    {
+      "name": "Deck of cards",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "sanity": 1.0
+      },
+      "value": 2.1
+    },
+    {
+      "name": "Animal carcass",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 5.0,
+        "mutation": 1.0
+      },
+      "value": 2.5
+    },
+    {
+      "name": "Unmarked bottle",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "health": 1.0,
+        "sanity": 0.67,
+        "mutation": 0.17
+      },
+      "text": "1-3 +2 health, 4-5 +2 sanity, 6 = mutation",
+      "value": 2.98
+    },
+    {
+      "name": "Apples",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 3.0
+      },
+      "value": 3.0
+    },
+    {
+      "name": "Bomb",
+      "start": false,
+      "type": "weapon",
+      "text": "Single use (1D)",
+      "strength": 3.5,
+      "uses": 1,
+      "value": 3.5
+    },
+    {
+      "name": "Gauze",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 2.0
+      },
+      "value": 4.0
+    },
+    {
+      "name": "Ammo",
+      "start": false,
+      "type": "item",
+      "text": "Use once: Reload weapon",
+      "value": 4.0
+    },
+    {
+      "name": "Fuel Can",
+      "start": false,
+      "type": "item",
+      "text": "Use once: Refill vehicle",
+      "value": 4.0
+    },
+    {
+      "name": "Anti-virals",
+      "start": false,
+      "type": "item",
+      "text": "Block mutation x2",
+      "value": 4.0
+    },
+    {
+      "name": "Amo",
+      "start": false,
+      "type": "item",
+      "text": "Use once: Reload weapon",
+      "value": 4.0
+    },
+    {
+      "name": "Fuel Can",
+      "start": false,
+      "type": "item",
+      "text": "Use once: Refuel vehicle",
+      "value": 4.0
+    },
+    {
+      "name": "Matches",
+      "start": false,
+      "type": "item",
+      "text": "Reroll x2",
+      "value": 4.0
+    },
+    {
+      "name": "Pain meds",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 1.0,
+        "sanity": 1.0
+      },
+      "value": 4.1
+    },
+    {
+      "name": "Blackberries",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 3.0,
+        "health": 1.0
+      },
+      "value": 5.0
+    },
+    {
+      "name": "Area map",
+      "start": false,
+      "type": "item",
+      "text": "Use once: Re-arrange cards on Gather board",
+      "value": 5.0
+    },
+    {
+      "name": "Hammer",
+      "start": true,
+      "type": "weapon",
+      "strength": 1.0,
+      "uses": 5,
+      "value": 5.0
+    },
+    {
+      "name": "Hiking sticks",
+      "start": true,
+      "type": "vehicle",
+      "move": 1,
+      "uses": 10,
+      "value": 5.0
+    },
+    {
+      "name": "Strawberries",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 3.0,
+        "sanity": 1.0
+      },
+      "value": 5.1
+    },
+    {
+      "name": "Stash of ration packs",
+      "start": false,
+      "type": "item",
+      "text": "Food x5",
+      "value": 5.5
+    },
+    {
+      "name": "First aid kit (tainted)",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "health": 4.0,
+        "mutation": 1.0
+      },
+      "value": 5.5
+    },
+    {
+      "name": "Luminous vial",
+      "start": false,
+      "type": "gather",
+      "effects": {
+        "sanity": 4.0,
+        "mutation": 1.0
+      },
+      "value": 5.9
+    },
+    {
+      "name": "Camoflauge",
+      "start": false,
+      "type": "item",
+      "text": "Draw different monster (once per turn)",
+      "value": 6.0
+    },
+    {
+      "name": "Holster",
+      "start": true,
+      "type": "item",
+      "text": "Extra weapon slot",
+      "value": 6.0
+    },
+    {
+      "name": "Fish",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 4.0,
+        "health": 1.0
+      },
+      "value": 6.0
+    },
+    {
+      "name": "First aid kit",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 3.0
+      },
+      "value": 6.0
+    },
+    {
+      "name": "Torch",
+      "start": false,
+      "type": "item",
+      "text": "Reroll x3",
+      "value": 6.0
+    },
+    {
+      "name": "Preserved meat",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 4.0,
+        "sanity": 1.0
+      },
+      "value": 6.1
+    },
+    {
+      "name": "Splint",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 2.0,
+        "sanity": 1.0
+      },
+      "value": 6.1
+    },
+    {
+      "name": "Medicinal herbs",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 1.0,
+        "sanity": 2.0
+      },
+      "value": 6.2
+    },
+    {
+      "name": "Fresh clothes",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "sanity": 3.0
+      },
+      "value": 6.3
+    },
+    {
+      "name": "Backpack",
+      "start": true,
+      "type": "item",
+      "text": "Extra item slot",
+      "value": 7.0
+    },
+    {
+      "name": "Granade",
+      "start": false,
+      "type": "weapon",
+      "text": "Single use (2D)",
+      "strength": 7.0,
+      "uses": 1,
+      "value": 7.0
+    },
+    {
+      "name": "Chocolate bar",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "food": 1.0,
+        "sanity": 3.0
+      },
+      "value": 7.3
+    },
+    {
+      "name": "Small car",
+      "start": true,
+      "type": "vehicle",
+      "move": 3,
+      "uses": 3,
+      "value": 8.1
+    },
+    {
+      "name": "Joke book",
+      "start": true,
+      "type": "gather",
+      "effects": {
+        "health": 1.0,
+        "sanity": 3.0
+      },
+      "value": 8.3
+    },
+    {
+      "name": "Bikes",
+      "start": true,
+      "type": "vehicle",
+      "text": "1 move if any player has 0 strength",
+      "move": 2,
+      "uses": 10,
+      "value": 9.5
+    },
+    {
+      "name": "Binoculars",
+      "start": true,
+      "type": "item",
+      "text": "Reveal Threat Card (per turn)",
+      "value": 10.0
+    },
+    {
+      "name": "Handgun",
+      "start": true,
+      "type": "weapon",
+      "strength": 5.0,
+      "uses": 2,
+      "value": 10.0
+    },
+    {
+      "name": "Compass",
+      "start": false,
+      "type": "item",
+      "text": "Peek at top Gather card, replace or discard (once per round)",
+      "value": 10.0
+    },
+    {
+      "name": "Tent",
+      "start": false,
+      "type": "item",
+      "text": "Health +1 x4 (all players)",
+      "value": 10.0
+    },
+    {
+      "name": "Firestarter kit",
+      "start": false,
+      "type": "item",
+      "text": "Sanity +1 x4 (all players)",
+      "value": 10.0
+    },
+    {
+      "name": "Shovel",
+      "start": true,
+      "type": "weapon",
+      "strength": 2.0,
+      "uses": 5,
+      "value": 10.0
+    },
+    {
+      "name": "Minivan",
+      "start": false,
+      "type": "vehicle",
+      "move": 4,
+      "uses": 3,
+      "value": 10.8
+    },
+    {
+      "name": "Bow and arrows",
+      "start": true,
+      "type": "weapon",
+      "strength": 4.0,
+      "uses": 3,
+      "value": 12.0
+    },
+    {
+      "name": "Shotgun",
+      "start": false,
+      "type": "weapon",
+      "strength": 6.0,
+      "uses": 2,
+      "value": 12.0
+    },
+    {
+      "name": "Service van",
+      "start": false,
+      "type": "vehicle",
+      "move": 5,
+      "uses": 3,
+      "value": 13.5
+    },
+    {
+      "name": "Rifle",
+      "start": false,
+      "type": "weapon",
+      "strength": 7.0,
+      "uses": 2,
+      "value": 14.0
+    },
+    {
+      "name": "Mountain Bikes",
+      "start": false,
+      "type": "vehicle",
+      "text": "1 move if any player has 0 strength",
+      "move": 3,
+      "uses": 10,
+      "value": 14.5
+    },
+    {
+      "name": "Pickup Truck",
+      "start": false,
+      "type": "vehicle",
+      "text": "All players +1 strength",
+      "move": 6,
+      "uses": 2,
+      "value": 14.8
+    },
+    {
+      "name": "Hatchet",
+      "start": true,
+      "type": "weapon",
+      "strength": 3.0,
+      "uses": 5,
+      "value": 15.0
+    },
+    {
+      "name": "Scoped Rifle",
+      "start": false,
+      "type": "weapon",
+      "strength": 8.0,
+      "uses": 2,
+      "value": 16.0
+    },
+    {
+      "name": "Mutant Claw",
+      "start": false,
+      "type": "weapon",
+      "effects": {
+        "mutation": 1.0
+      },
+      "strength": 4.0,
+      "uses": 5,
+      "value": 17.5
+    },
+    {
+      "name": "Monster Truck",
+      "start": false,
+      "type": "vehicle",
+      "text": "All players +2 strength",
+      "move": 6,
+      "uses": 2,
+      "value": 18.8
+    }
+  ]
+}

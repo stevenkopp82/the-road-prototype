@@ -1,0 +1,98 @@
+{
+  "threat_deck": [
+    {
+      "name": "Meadow",
+      "start": true,
+      "type": "break"
+    },
+    {
+      "name": "Brook",
+      "start": true,
+      "type": "break"
+    },
+    {
+      "name": "Injury",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "health": -1
+      }
+    },
+    {
+      "name": "Injury",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "health": -1
+      }
+    },
+    {
+      "name": "Disturbance",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "sanity": -1
+      }
+    },
+    {
+      "name": "Disturbance",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "sanity": -1
+      }
+    },
+    {
+      "name": "Infection",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "mutation": 1
+      }
+    },
+    {
+      "name": "Infection",
+      "start": true,
+      "type": "setback",
+      "effects": {
+        "mutation": 1
+      }
+    },
+    {
+      "name": "Rabid fox",
+      "start": true,
+      "type": "monster",
+      "strength": 1,
+      "damage": {
+        "health": 1
+      }
+    },
+    {
+      "name": "Feral dog",
+      "start": true,
+      "type": "monster",
+      "strength": 2,
+      "damage": {
+        "sanity": 1
+      }
+    },
+    {
+      "name": "Snake pit",
+      "start": true,
+      "type": "monster",
+      "strength": 3,
+      "damage": {
+        "mutation": 1
+      }
+    },
+    {
+      "name": "Wolf",
+      "start": true,
+      "type": "monster",
+      "strength": 4,
+      "damage": {
+        "health": 2
+      }
+    }
+  ]
+}
