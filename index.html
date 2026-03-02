@@ -36,9 +36,9 @@
       --food-pip:    #c87820;
       --food-pip-dim:#6b3e10;
 
-      --card-w:      100px;
-      --card-h:      140px;
-      --threat-h:    110px;
+      --card-w:      86px;
+      --card-h:      120px;
+      --threat-h:    90px;
     }
 
     /* ── Page layout ── */
@@ -49,10 +49,11 @@
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230d0b08'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23ffffff' opacity='0.02'/%3E%3C/svg%3E");
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2.5rem 2rem 3rem;
-      gap: 2.5rem;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem;
+      gap: 2rem;
       font-family: 'Cinzel', serif;
     }
 
@@ -70,7 +71,7 @@
       background: var(--panel);
       border: 2px solid var(--border);
       border-radius: 4px;
-      padding: 2rem 2.2rem;
+      padding: 1.5rem 1.8rem;
       position: relative;
       box-shadow:
         0 0 0 1px #1e1810,
@@ -100,18 +101,8 @@
       font-size: 1rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.6rem;
       text-shadow: 0 0 20px rgba(200,150,42,0.4);
-    }
-
-    .board-subtitle {
-      font-family: 'IM Fell English', serif;
-      color: var(--gold-dim);
-      text-align: center;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      font-style: italic;
-      margin-bottom: 1.5rem;
     }
 
     .divider {
@@ -574,20 +565,20 @@
     ═══════════════════════════════════════════════ */
 
     #player-board {
-      padding: 2.5rem 2.5rem 2rem;
+      padding: 1.8rem 1.5rem 1.5rem;
     }
 
     .tracks-container {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 1rem;
     }
 
     .track-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .track-label {
@@ -602,12 +593,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
     }
 
     .track-space {
-      width: 52px;
-      height: 42px;
+      width: 44px;
+      height: 34px;
       border: 1px solid var(--border);
       border-radius: 3px;
       background: #0e0c09;
@@ -641,8 +632,8 @@
     .track-space.has-marker { background: #1a1508; }
 
     .marker {
-      width: 30px;
-      height: 30px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       border: 2px solid;
       position: relative;
@@ -675,25 +666,6 @@
     [data-track="mutation"] .marker { border-color: var(--mutate-col); color: var(--mutate-col); box-shadow: var(--mutate-glow); }
     [data-track="mutation"] .track-space:hover { border-color: color-mix(in srgb, var(--mutate-col) 40%, var(--border)); }
 
-    .ctrl-btn {
-      width: 24px;
-      height: 24px;
-      background: #1a1508;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--parchment);
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.15s, background 0.15s;
-      line-height: 1;
-    }
-
-    .ctrl-btn:hover  { background: #251d0a; border-color: var(--gold-dim); color: var(--gold); }
-    .ctrl-btn:active { transform: scale(0.92); }
-
     .track-icon { font-size: 1.1rem; opacity: 0.8; }
 
     /* Stat sidebars */
@@ -703,14 +675,14 @@
     .stat-sidebar, .strength-sidebar { display: flex; flex-direction: column; align-items: stretch; }
 
     .stat-spacer,
-    .strength-spacer { height: calc(1.1rem + 24px + 0.75rem + 0.75rem + 4px); flex-shrink: 0; }
+    .strength-spacer { height: calc(1.1rem + 0.5rem + 2px); flex-shrink: 0; }
 
     .stat-cells,
-    .strength-cells { display: flex; flex-direction: column; gap: 4px; }
+    .strength-cells { display: flex; flex-direction: column; gap: 2px; }
 
     .stat-cell,
     .strength-cell {
-      width: 36px; height: 42px;
+      width: 32px; height: 34px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 0 3px 3px 0;
       border: 1px solid transparent; border-left: none;
@@ -820,7 +792,7 @@
     .inventory-card-zone {
       border: 1px dashed var(--border);
       border-radius: 4px;
-      min-height: 128px;
+      min-height: 108px;
       background: rgba(15,12,8,0.6);
       position: relative;
       display: flex;
@@ -851,7 +823,7 @@
     .inv-card {
       width: 100%;
       height: 100%;
-      min-height: 128px;
+      min-height: 108px;
       display: flex;
       flex-direction: column;
       padding: 6px 6px 5px;
@@ -1148,6 +1120,98 @@
     .threat-continue-btn.btn-gold {
       background: linear-gradient(135deg, #c8962a, #8a5e10);
     }
+    /* ── Payment choice dialog (slot 1) ── */
+    #payment-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+    #payment-dialog.open { display: flex; }
+
+    .payment-box {
+      background: #111008;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 1.6rem 2rem;
+      max-width: 340px;
+      width: 92%;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .payment-title {
+      font-family: 'Cinzel Decorative', cursive;
+      color: var(--gold);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+
+    .payment-subtitle {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.7rem;
+      color: var(--parchment);
+      opacity: 0.75;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .payment-options {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .payment-option {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      background: transparent;
+      font-family: 'Cinzel', serif;
+    }
+    .payment-option:hover  { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+    .payment-option:active { transform: scale(0.97); }
+
+    .payment-option.opt-food {
+      border-color: var(--food-pip);
+      color: var(--food-pip);
+    }
+    .payment-option.opt-threat {
+      border-color: var(--threat-col);
+      color: var(--threat-col);
+    }
+
+    .payment-option-icon { font-size: 1.6rem; line-height: 1; }
+
+    .payment-option-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .payment-option-desc {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.5rem;
+      opacity: 0.7;
+      text-align: center;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -1162,7 +1226,6 @@
     <div class="corner-bl"></div>
 
     <div class="board-title">Gather Board</div>
-    <div class="board-subtitle">The spoils of the wilds — if you can pay the price</div>
     <div class="divider"></div>
 
     <div class="draw-area">
@@ -1184,7 +1247,27 @@
     </div>
   </div>
 
-  <div class="board-divider"></div>
+  <!-- ══════════════════════════════════════
+       PAYMENT CHOICE DIALOG (slot 1)
+  ══════════════════════════════════════ -->
+  <div id="payment-dialog">
+    <div class="payment-box">
+      <div class="payment-title">How Will You Pay?</div>
+      <div class="payment-subtitle">Slot 1 is free of threats — but nothing comes without a price.</div>
+      <div class="payment-options">
+        <button class="payment-option opt-food" id="btn-pay-food">
+          <span class="payment-option-icon">🌾</span>
+          <span class="payment-option-label">Pay 2 Food</span>
+          <span class="payment-option-desc">Safe passage.<br>No threats drawn.</span>
+        </button>
+        <button class="payment-option opt-threat" id="btn-pay-threat">
+          <span class="payment-option-icon">☣</span>
+          <span class="payment-option-label">Draw a Threat</span>
+          <span class="payment-option-desc">Risk the unknown.<br>Keep your food.</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════
        THREAT RESOLUTION DIALOG
@@ -1234,12 +1317,11 @@
       <div class="corner-bl"></div>
 
       <div class="board-title">Player Board</div>
-      <div class="board-subtitle">Track your vital statistics</div>
       <div class="divider"></div>
 
       <div class="tracks-container" id="tracks-container"></div>
 
-      <div class="footer-note">Click a space or use ▲ ▼ to move your marker</div>
+      <div class="footer-note">Click a space to move your marker</div>
     </div>
 
     <!-- Inventory slots -->
@@ -1300,11 +1382,9 @@
     { food: 1, threat: 1 },
     { food: 1, threat: 2 },
     { food: 1, threat: 2 },
-    { food: 1, threat: 3, reserved: true },
-    { food: 2, threat: 3, reserved: true },
   ];
 
-  const SEPARATORS_AFTER = new Set([0, 2, 4, 5]);
+  const SEPARATORS_AFTER = new Set([0, 2]);
   const DRAW_SLOTS = 5;
 
   let fullDeck      = [];
@@ -1737,6 +1817,26 @@
     return { lootLost };
   }
 
+  /* ── Payment choice for slot 1 (2 food OR 1 threat) ── */
+  let paymentResolve = null;
+
+  function promptPaymentChoice() {
+    return new Promise(resolve => {
+      paymentResolve = resolve;
+      document.getElementById('payment-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('btn-pay-food').addEventListener('click', () => {
+    document.getElementById('payment-dialog').classList.remove('open');
+    if (paymentResolve) { paymentResolve('food'); paymentResolve = null; }
+  });
+
+  document.getElementById('btn-pay-threat').addEventListener('click', () => {
+    document.getElementById('payment-dialog').classList.remove('open');
+    if (paymentResolve) { paymentResolve('threat'); paymentResolve = null; }
+  });
+
   /* ── Card selection handler ─────────────────────────────────────── */
   async function onCardSelected(slotIndex) {
     if (cardSelected) return;
@@ -1744,8 +1844,20 @@
     if (!card) return;
 
     const slotDef  = SLOTS[slotIndex];
-    const foodCost = slotDef.food;
-    const threatCount = slotDef.threat ?? 0;
+    const isSlot1  = slotIndex === 0;
+
+    // 1. For slot 1, ask the player how they want to pay
+    let foodCost    = slotDef.food;   // default: 2
+    let threatCount = slotDef.threat ?? 0; // default: 0
+
+    if (isSlot1) {
+      const choice = await promptPaymentChoice();
+      if (choice === 'threat') {
+        foodCost    = 0;   // waive food cost
+        threatCount = 1;   // draw 1 threat instead
+      }
+      // choice === 'food': keep defaults (pay 2 food, no threat)
+    }
 
     // 1. Pay food cost
     const newFood = Math.max(0, playerState.food.value - foodCost);
@@ -1794,7 +1906,7 @@
     }
 
     // 5. Toast summary
-    const costLine = `🌾 −${foodCost} food paid`;
+    const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid` : `☣ threat drawn instead of food`;
     showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
 
     // 6. Auto-redraw after delay
@@ -2065,16 +2177,6 @@
     const MUTATION_SKULL = 10;
     const MUTATION_CARDS = new Set([4, 9]);
 
-    const upBtn = document.createElement('button');
-    upBtn.className = 'ctrl-btn';
-    upBtn.textContent = '▲';
-    upBtn.title = `Increase ${track.label}`;
-    upBtn.addEventListener('click', () => {
-      if (isMutation) { if (state.value > 0)     { state.value--; playerState[track.id].value = state.value; render(); } }
-      else            { if (state.value < SPACES) { state.value++; playerState[track.id].value = state.value; render(); } }
-    });
-    wrapper.appendChild(upBtn);
-
     const trackEl = document.createElement('div');
     trackEl.className = 'track';
 
@@ -2120,16 +2222,6 @@
 
     wrapper.appendChild(trackEl);
 
-    const downBtn = document.createElement('button');
-    downBtn.className = 'ctrl-btn';
-    downBtn.textContent = '▼';
-    downBtn.title = `Decrease ${track.label}`;
-    downBtn.addEventListener('click', () => {
-      if (isMutation) { if (state.value < SPACES) { state.value++; playerState[track.id].value = state.value; render(); } }
-      else            { if (state.value > 0)       { state.value--; playerState[track.id].value = state.value; render(); } }
-    });
-    wrapper.appendChild(downBtn);
-
     const labelBottom = document.createElement('div');
     labelBottom.className = 'track-label';
     labelBottom.textContent = track.label;
@@ -2147,13 +2239,6 @@
         el.classList.toggle('has-marker', active);
         if (active) el.appendChild(marker);
       });
-      if (isMutation) {
-        upBtn.disabled   = state.value <= 0;
-        downBtn.disabled = state.value >= SPACES;
-      } else {
-        upBtn.disabled   = state.value >= SPACES;
-        downBtn.disabled = state.value <= 0;
-      }
       if (track.id === 'health') renderStrength(state.value);
       if (track.id === 'sanity') renderSpeed(state.value);
     }

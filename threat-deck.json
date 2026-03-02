@@ -82,7 +82,7 @@
       "type": "monster",
       "strength": 3,
       "damage": {
-        "mutation": 1
+        "mutation": -1
       }
     },
     {
