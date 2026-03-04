@@ -800,6 +800,66 @@
     .inventory-card-zone.inv-weapon  { border-color: rgba(176,48,48,0.3); }
     .inventory-card-zone.inv-item    { border-color: rgba(85,119,204,0.3); }
 
+    /* Uses states — shared by weapons and vehicles */
+    .inventory-card-zone.item-has-uses  { border-color: rgba(74,160,74,0.7); box-shadow: 0 0 8px rgba(74,160,74,0.2); }
+    .inventory-card-zone.item-depleted  { border-color: rgba(176,48,48,0.7); box-shadow: 0 0 8px rgba(176,48,48,0.15); }
+
+    /* Uses pip row at bottom of inventory weapon card */
+    .weapon-uses-row {
+      display: flex;
+      gap: 4px;
+      padding: 5px 6px 4px;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: auto;
+    }
+
+    .use-pip {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: rgba(74,160,74,0.7);
+      border: 1px solid rgba(74,160,74,0.9);
+      box-shadow: 0 0 4px rgba(74,160,74,0.4);
+    }
+
+    .use-pip.used {
+      background: rgba(80,60,60,0.4);
+      border-color: rgba(120,80,80,0.4);
+      box-shadow: none;
+    }
+
+    /* Weapon toggle button in battle */
+    .weapon-toggle-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.3rem;
+    }
+
+    .weapon-toggle-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .weapon-toggle-btn:hover  { opacity: 0.85; transform: translateY(-1px); }
+    .weapon-toggle-btn.active {
+      background: rgba(74,160,74,0.2);
+      border-color: rgba(74,160,74,0.7);
+      color: #7dc466;
+    }
+    .weapon-toggle-btn.inactive {
+      background: rgba(80,60,60,0.2);
+      border-color: rgba(120,80,80,0.4);
+      color: #a08080;
+    }
+
     .inventory-empty-icon {
       font-size: 1.4rem;
       opacity: 0.1;
@@ -1206,12 +1266,105 @@
       text-align: center;
       line-height: 1.4;
     }
+    /* ── Game Over overlay ── */
+    #game-over {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      z-index: 900;
+      align-items: center;
+      justify-content: center;
+      transition: background 1.2s ease;
+    }
+    #game-over.open {
+      display: flex;
+      background: rgba(0,0,0,0.88);
+    }
+    #game-over.fading {
+      background: rgba(0,0,0,0.88);
+    }
+
+    .game-over-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      text-align: center;
+      max-width: 400px;
+      padding: 2.5rem 2rem;
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
+    }
+    #game-over.fading .game-over-box {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .game-over-icon {
+      font-size: 4rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 24px currentColor);
+    }
+    .game-over-icon.icon-death     { color: var(--health-col); }
+    .game-over-icon.icon-insanity  { color: var(--sanity-col); }
+    .game-over-icon.icon-mutation  { color: var(--mutate-col); }
+
+    .game-over-title {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .game-over-title.title-death    { color: var(--health-col); text-shadow: 0 0 30px rgba(201,64,64,0.6); }
+    .game-over-title.title-insanity { color: var(--sanity-col); text-shadow: 0 0 30px rgba(85,119,204,0.6); }
+    .game-over-title.title-mutation { color: var(--mutate-col); text-shadow: 0 0 30px rgba(139,74,200,0.6); }
+
+    .game-over-subtitle {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--parchment);
+      opacity: 0.75;
+      line-height: 1.6;
+    }
+
+    .game-over-restart {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      border-radius: 3px;
+      padding: 0.55rem 1.6rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .game-over-restart:hover { opacity: 0.88; transform: translateY(-1px); }
+    .game-over-restart:active { transform: scale(0.97); }
+
+    /* Food skull space — starvation icons */
+    [data-track="food"] .skull-space { border-color: rgba(200,120,20,0.5); background: #120c05; }
+    [data-track="food"] .skull-icon  { font-size: 0.9rem; display: flex; gap: 3px; align-items: center; }
   </style>
 </head>
 <body>
 
 <div id="toast"></div>
 <div id="card-magnifier"><div class="magnifier-inner" id="magnifier-inner"></div></div>
+
+<div id="game-over">
+  <div class="game-over-box">
+    <div class="game-over-icon" id="go-icon"></div>
+    <div class="game-over-title" id="go-title"></div>
+    <div class="game-over-subtitle" id="go-subtitle"></div>
+    <button class="game-over-restart" id="go-restart">Try Again</button>
+  </div>
+</div>
 
   <!-- ══════════════════════════════════════
        GATHER BOARD
@@ -1366,6 +1519,69 @@
   }
 
   /* ═══════════════════════════════════════════
+     GAME OVER
+  ═══════════════════════════════════════════ */
+  let gameOver = false;
+
+  const GAME_OVER_DEFS = {
+    health: {
+      icon: '🩸', iconCls: 'icon-death', titleCls: 'title-death',
+      title: 'You Have Fallen',
+      subtitle: 'Your wounds have taken their toll. There is no coming back from this.',
+    },
+    sanity: {
+      icon: '🌑', iconCls: 'icon-insanity', titleCls: 'title-insanity',
+      title: 'Lost to Madness',
+      subtitle: 'The darkness has claimed your mind. You wander, hollow, into the wastes.',
+    },
+    mutation: {
+      icon: '🧬', iconCls: 'icon-mutation', titleCls: 'title-mutation',
+      title: 'The Change is Complete',
+      subtitle: 'You are no longer who you were. The sanctuary was never yours to reach.',
+    },
+  };
+
+  function triggerGameOver(reason) {
+    if (gameOver) return;
+    gameOver = true;
+
+    const def = GAME_OVER_DEFS[reason];
+    const el  = document.getElementById('game-over');
+    document.getElementById('go-icon').textContent   = def.icon;
+    document.getElementById('go-icon').className     = `game-over-icon ${def.iconCls}`;
+    document.getElementById('go-title').textContent  = def.title;
+    document.getElementById('go-title').className    = `game-over-title ${def.titleCls}`;
+    document.getElementById('go-subtitle').textContent = def.subtitle;
+
+    el.classList.add('open');
+    // Trigger transition on next frame
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
+  }
+
+  document.getElementById('go-restart').addEventListener('click', () => {
+    location.reload();
+  });
+
+  /* ── Check for game over after any track change ── */
+  function checkGameOver(track, value) {
+    if (track === 'health'   && value <= 0)  { triggerGameOver('health');   return true; }
+    if (track === 'sanity'   && value <= 0)  { triggerGameOver('sanity');   return true; }
+    if (track === 'mutation' && value >= 10) { triggerGameOver('mutation'); return true; }
+    return false;
+  }
+
+  /* ── Apply starvation: health −1, sanity −1 ── */
+  function applyStarvation() {
+    const newHealth = Math.max(0, playerState.health.value - 1);
+    if (playerState.health.set) playerState.health.set(newHealth);
+    if (checkGameOver('health', newHealth)) return;
+
+    const newSanity = Math.max(0, playerState.sanity.value - 1);
+    if (playerState.sanity.set) playerState.sanity.set(newSanity);
+    checkGameOver('sanity', newSanity);
+  }
+
+  /* ═══════════════════════════════════════════
      GATHER BOARD
   ═══════════════════════════════════════════ */
 
@@ -1382,6 +1598,7 @@
 
   let fullDeck      = [];
   let drawPile      = [];
+  let deckLaps      = 0;    // how many times the full deck has been cycled
   let lootZones     = [];
   let slotCards     = [];   // card data currently in each slot (null if empty)
   let cardSelected  = false; // has a card been selected this round?
@@ -1397,8 +1614,9 @@
 
   function updateDeckCount() {
     const el = document.getElementById('deck-count');
+    const lapStr = deckLaps > 0 ? ` · lap ${deckLaps + 1}` : '';
     el.textContent = drawPile.length > 0
-      ? `${drawPile.length} card${drawPile.length !== 1 ? 's' : ''} remaining`
+      ? `${drawPile.length} card${drawPile.length !== 1 ? 's' : ''} remaining${lapStr}`
       : 'Deck exhausted';
     document.getElementById('draw-btn').disabled = drawPile.length < DRAW_SLOTS;
   }
@@ -1489,7 +1707,8 @@
     if (card.strength != null) {
       const stat = document.createElement('div');
       stat.className = 'card-stat';
-      stat.innerHTML = `🔧 STR ${card.strength}` + (card.uses ? ` · ${card.uses} uses` : '');
+      const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
+      stat.innerHTML = `🔧 STR ${card.strength}${classTag}` + (card.uses ? ` · ${card.uses} uses` : '');
       wrap.appendChild(stat);
     }
     if (card.move != null) {
@@ -1560,17 +1779,24 @@
      INVENTORY
   ═══════════════════════════════════════════ */
   const inventory = { vehicle: null, weapon: null, item: null };
+  // Track remaining uses separately so we don't mutate card data
+  let weaponUsesRemaining  = 0;
+  let vehicleUsesRemaining = 0;
 
   const INV_ICONS = { vehicle: '🚗', weapon: '🔧', item: '🎒' };
 
-  function cardPreviewStat(card) {
-    if (card.strength != null) return `STR ${card.strength}${card.uses ? ' · ' + card.uses + ' uses' : ''}`;
-    if (card.move     != null) return `MOVE ${card.move}${card.uses ? ' · ' + card.uses + ' uses' : ''}`;
-    if (card.text)              return card.text.slice(0, 40) + (card.text.length > 40 ? '…' : '');
+  function cardPreviewStat(card, usesOverride) {
+    const uses = usesOverride !== undefined ? usesOverride : card.uses;
+    if (card.strength != null) {
+      const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
+      return `STR ${card.strength}${classTag}${uses != null ? ' · ' + uses + ' uses' : ''}`;
+    }
+    if (card.move != null) return `MOVE ${card.move}${uses != null ? ' · ' + uses + ' uses' : ''}`;
+    if (card.text)          return card.text.slice(0, 40) + (card.text.length > 40 ? '…' : '');
     return '';
   }
 
-  function renderInventoryCard(card) {
+  function renderInventoryCard(card, usesRemaining) {
     const wrap = document.createElement('div');
     wrap.className = 'inv-card';
 
@@ -1589,7 +1815,8 @@
     if (card.strength != null) {
       const s = document.createElement('div');
       s.className = 'card-stat';
-      s.innerHTML = `🔧 STR ${card.strength}` + (card.uses ? ` · ${card.uses} uses` : '');
+      const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
+      s.innerHTML = `🔧 STR ${card.strength}${classTag}`;
       wrap.appendChild(s);
     }
     if (card.move != null) {
@@ -1604,16 +1831,64 @@
       t.textContent = card.text;
       wrap.appendChild(t);
     }
+
+    // Uses pip row — for weapons and vehicles
+    if ((card.type === 'weapon' || card.type === 'vehicle') && card.uses != null) {
+      const row = document.createElement('div');
+      row.className = 'weapon-uses-row';
+      for (let i = 0; i < card.uses; i++) {
+        const pip = document.createElement('div');
+        pip.className = 'use-pip' + (i >= usesRemaining ? ' used' : '');
+        row.appendChild(pip);
+      }
+      wrap.appendChild(row);
+    }
+
     return wrap;
+  }
+
+  function refreshWeaponZone() {
+    const card = inventory.weapon;
+    const zone = document.getElementById('inv-weapon');
+    if (!card) return;
+    zone.innerHTML = '';
+    zone.classList.add('inv-filled');
+    zone.classList.toggle('item-has-uses',  weaponUsesRemaining > 0);
+    zone.classList.toggle('item-depleted',  weaponUsesRemaining <= 0);
+    zone.appendChild(renderInventoryCard(card, weaponUsesRemaining));
+  }
+
+  function refreshVehicleZone() {
+    const card = inventory.vehicle;
+    const zone = document.getElementById('inv-vehicle');
+    if (!card) return;
+    zone.innerHTML = '';
+    zone.classList.add('inv-filled');
+    zone.classList.toggle('item-has-uses',  vehicleUsesRemaining > 0);
+    zone.classList.toggle('item-depleted',  vehicleUsesRemaining <= 0);
+    zone.appendChild(renderInventoryCard(card, vehicleUsesRemaining));
   }
 
   function setInventorySlot(type, card) {
     inventory[type] = card;
     const zone = document.getElementById(`inv-${type}`);
     zone.innerHTML = '';
+    zone.classList.remove('item-has-uses', 'item-depleted');
     if (card) {
       zone.classList.add('inv-filled');
-      zone.appendChild(renderInventoryCard(card));
+      if (type === 'weapon') {
+        weaponUsesRemaining = card.uses ?? 0;
+        zone.classList.toggle('item-has-uses', weaponUsesRemaining > 0);
+        zone.classList.toggle('item-depleted',  weaponUsesRemaining <= 0);
+        zone.appendChild(renderInventoryCard(card, weaponUsesRemaining));
+      } else if (type === 'vehicle') {
+        vehicleUsesRemaining = card.uses ?? 0;
+        zone.classList.toggle('item-has-uses', vehicleUsesRemaining > 0);
+        zone.classList.toggle('item-depleted',  vehicleUsesRemaining <= 0);
+        zone.appendChild(renderInventoryCard(card, vehicleUsesRemaining));
+      } else {
+        zone.appendChild(renderInventoryCard(card, undefined));
+      }
     } else {
       zone.classList.remove('inv-filled');
       const icon = document.createElement('span');
@@ -1633,7 +1908,10 @@
       document.getElementById('replace-body').textContent =
         `Your ${type} slot is occupied. Replace it with "${newCard.name}"?`;
       document.getElementById('replace-current-name').textContent = currentCard.name;
-      document.getElementById('replace-current-stat').textContent = cardPreviewStat(currentCard);
+      const currentUses = type === 'weapon' ? weaponUsesRemaining
+                        : type === 'vehicle' ? vehicleUsesRemaining
+                        : undefined;
+      document.getElementById('replace-current-stat').textContent = cardPreviewStat(currentCard, currentUses);
       document.getElementById('replace-new-name').textContent = newCard.name;
       document.getElementById('replace-new-stat').textContent = cardPreviewStat(newCard);
 
@@ -1677,16 +1955,27 @@
     return threatPile.splice(0, 1)[0] ?? null;
   }
 
-  /* ── Compute player's current total strength ── */
-  function getPlayerStrength() {
+  /* ── Compute player's base strength (no weapon) ── */
+  function getBaseStrength() {
     const healthVal = playerState.health.value;
-    // health → STR: 0→0, 1-2→0, 3-6→1, 7-9→2, 10→3
-    let str = 0;
-    if (healthVal === 10)       str = 3;
-    else if (healthVal >= 7)    str = 2;
-    else if (healthVal >= 3)    str = 1;
-    const weaponBonus = inventory.weapon?.strength ?? 0;
-    return str + weaponBonus;
+    if (healthVal === 10)    return 3;
+    if (healthVal >= 7)      return 2;
+    if (healthVal >= 3)      return 1;
+    return 0;
+  }
+
+  /* ── Full strength with weapon (if usable) ── */
+  function getPlayerStrength() {
+    const base = getBaseStrength();
+    const weaponBonus = (inventory.weapon && weaponUsesRemaining > 0) ? (inventory.weapon.strength ?? 0) : 0;
+    return base + weaponBonus;
+  }
+
+  /* ── Movement speed: SPD from sanity + vehicle move (if uses remain) ── */
+  function getPlayerSpeed() {
+    const spd     = getSpeed(playerState.sanity.value);
+    const vehMove = (inventory.vehicle && vehicleUsesRemaining > 0) ? (inventory.vehicle.move ?? 0) : 0;
+    return spd + vehMove;
   }
 
   /* ── Apply an effects object to player state ── */
@@ -1698,6 +1987,14 @@
       const next = Math.max(0, Math.min(10, current + amount));
       if (playerState[track].set) playerState[track].set(next);
       lines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`);
+      // Starvation: food just hit 0 via effect
+      if (track === 'food' && next === 0 && amount < 0) {
+        applyStarvation();
+        if (gameOver) return lines;
+      } else {
+        checkGameOver(track, next);
+        if (gameOver) return lines;
+      }
     }
     return lines;
   }
@@ -1748,9 +2045,14 @@
         bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
 
       } else if (card.type === 'monster') {
-        const playerStr  = getPlayerStrength();
+        const baseStr    = getBaseStrength();
         const monsterStr = card.strength ?? 0;
-        const weaponStr  = inventory.weapon?.strength ?? 0;
+        const weapon     = inventory.weapon;
+        const weaponStr  = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
+        const hasWeapon  = weapon != null && weaponUsesRemaining > 0;
+
+        // Weapon use state — default to using weapon if available
+        let usingWeapon = hasWeapon;
 
         // Battle row
         const battleRow = document.createElement('div');
@@ -1758,9 +2060,6 @@
 
         const playerSide = document.createElement('div');
         playerSide.className = 'battle-stat';
-        playerSide.innerHTML = `
-          <span class="battle-stat-label">Your STR${weaponStr ? ` (+${weaponStr} weapon)` : ''}</span>
-          <span class="battle-stat-value player-str">${playerStr}</span>`;
 
         const vsEl = document.createElement('div');
         vsEl.className = 'battle-vs';
@@ -1777,34 +2076,108 @@
         battleRow.appendChild(monsterSide);
         display.appendChild(battleRow);
 
-        // Outcome
+        // Weapon toggle (only shown if weapon with uses available)
+        if (hasWeapon) {
+          const toggleRow = document.createElement('div');
+          toggleRow.className = 'weapon-toggle-row';
+          const useBtn = document.createElement('button');
+          useBtn.className = 'weapon-toggle-btn active';
+          useBtn.textContent = `⚔ Use ${weapon.name} (${weaponUsesRemaining} use${weaponUsesRemaining !== 1 ? 's' : ''} left)`;
+          const skipBtn = document.createElement('button');
+          skipBtn.className = 'weapon-toggle-btn inactive';
+          skipBtn.textContent = 'Fight bare-handed';
+          toggleRow.appendChild(useBtn);
+          toggleRow.appendChild(skipBtn);
+          display.appendChild(toggleRow);
+
+          const updatePlayerSide = () => {
+            const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+            playerSide.innerHTML = `
+              <span class="battle-stat-label">Your STR${usingWeapon ? ` +${weaponStr} weapon` : ''}</span>
+              <span class="battle-stat-value player-str">${effStr}</span>`;
+          };
+
+          useBtn.addEventListener('click', () => {
+            usingWeapon = true;
+            useBtn.className  = 'weapon-toggle-btn active';
+            skipBtn.className = 'weapon-toggle-btn inactive';
+            updatePlayerSide();
+            updateOutcome();
+          });
+          skipBtn.addEventListener('click', () => {
+            usingWeapon = false;
+            useBtn.className  = 'weapon-toggle-btn inactive';
+            skipBtn.className = 'weapon-toggle-btn active';
+            updatePlayerSide();
+            updateOutcome();
+          });
+          updatePlayerSide();
+        } else {
+          playerSide.innerHTML = `
+            <span class="battle-stat-label">Your STR</span>
+            <span class="battle-stat-value player-str">${baseStr}</span>`;
+        }
+
+        // Outcome display (updated when toggle changes)
         const outcomeEl = document.createElement('div');
         outcomeEl.className = 'battle-outcome';
+        display.appendChild(outcomeEl);
 
         const negateDamage = (dmg) => Object.fromEntries(
           Object.entries(dmg).map(([k, v]) => [k, -v])
         );
 
-        if (playerStr > monsterStr) {
-          outcomeEl.classList.add('outcome-win');
-          outcomeEl.textContent = '⚔ Victory — loot secured!';
-          bodyEl.textContent = 'You overpower the creature.';
-          btn.classList.add('btn-gold');
-        } else if (playerStr === monsterStr) {
-          outcomeEl.classList.add('outcome-tie');
-          outcomeEl.textContent = '⚔ Tie — loot secured, but at a cost';
-          bodyEl.textContent = 'You defeat it, but not without harm.';
-          if (card.damage) effectLines = applyEffects(negateDamage(card.damage));
-        } else {
-          outcomeEl.classList.add('outcome-loss');
-          outcomeEl.textContent = '⚔ Defeat — loot lost';
-          bodyEl.textContent = 'The creature bests you.';
-          if (card.damage) effectLines = applyEffects(negateDamage(card.damage));
+        function updateOutcome() {
+          const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+          lootLostThisCard = effStr < monsterStr;
+          outcomeEl.className = 'battle-outcome';
+          effectLines = [];
+          if (effStr > monsterStr) {
+            outcomeEl.classList.add('outcome-win');
+            outcomeEl.textContent = '⚔ Victory — loot secured!';
+            bodyEl.textContent = 'You overpower the creature.';
+            btn.className = 'threat-continue-btn btn-gold';
+          } else if (effStr === monsterStr) {
+            outcomeEl.classList.add('outcome-tie');
+            outcomeEl.textContent = '⚔ Tie — loot secured, but at a cost';
+            bodyEl.textContent = 'You defeat it, but not without harm.';
+            if (card.damage) effectLines = card.damage ? Object.entries(card.damage).map(([k,v]) => `${EFFECT_META[k]?.icon ?? ''} ${k} −${v}`) : [];
+          } else {
+            outcomeEl.classList.add('outcome-loss');
+            outcomeEl.textContent = '⚔ Defeat — loot lost';
+            bodyEl.textContent = 'The creature bests you.';
+            if (card.damage) effectLines = card.damage ? Object.entries(card.damage).map(([k,v]) => `${EFFECT_META[k]?.icon ?? ''} ${k} −${v}`) : [];
+          }
+          // Show what damage will be applied (preview only, not applied yet)
+          effectsEl.innerHTML = '';
+          effectLines.forEach(line => {
+            const p = document.createElement('div');
+            p.textContent = line;
+            effectsEl.appendChild(p);
+          });
         }
 
-        lootLostThisCard = (playerStr < monsterStr);
+        updateOutcome();
 
-        display.appendChild(outcomeEl);
+        // Override the continue handler to consume a weapon use and apply damage
+        const origHandler = () => {
+          btn.removeEventListener('click', origHandler);
+          if (usingWeapon && hasWeapon) {
+            weaponUsesRemaining--;
+            refreshWeaponZone();
+          }
+          // Apply damage now (tie or loss)
+          const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+          if (effStr <= monsterStr && card.damage) {
+            applyEffects(negateDamage(card.damage));
+          }
+          resolve({ lootLost: lootLostThisCard });
+        };
+        btn.addEventListener('click', origHandler);
+
+        display.appendChild(bodyEl);
+        // Skip the default handler below — we set ours above
+        return;
       }
 
       display.appendChild(bodyEl);
@@ -1876,6 +2249,56 @@
     if (paymentResolve) { paymentResolve('threat'); paymentResolve = null; }
   });
 
+  /* ── Reload sound effect (Web Audio API) ── */
+  function playReloadSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const t = ctx.currentTime;
+
+      // Click-clack mechanism sound: two short metallic clicks
+      const click = (startTime, freq, dur) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = freq;
+        filter.Q.value = 0.8;
+        osc.type = 'square';
+        osc.frequency.value = freq * 0.5;
+        gain.gain.setValueAtTime(0.35, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + dur);
+      };
+
+      // Metallic slide
+      const slide = ctx.createOscillator();
+      const slideGain = ctx.createGain();
+      const slideFilter = ctx.createBiquadFilter();
+      slideFilter.type = 'highpass';
+      slideFilter.frequency.value = 800;
+      slide.type = 'sawtooth';
+      slide.frequency.setValueAtTime(300, t);
+      slide.frequency.linearRampToValueAtTime(600, t + 0.12);
+      slideGain.gain.setValueAtTime(0.15, t);
+      slideGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      slide.connect(slideFilter);
+      slideFilter.connect(slideGain);
+      slideGain.connect(ctx.destination);
+      slide.start(t);
+      slide.stop(t + 0.15);
+
+      // Two mechanical clicks
+      click(t + 0.12, 1800, 0.06);
+      click(t + 0.22, 2200, 0.05);
+
+      setTimeout(() => ctx.close(), 600);
+    } catch(e) { /* audio not available */ }
+  }
+
   /* ── Card selection handler ─────────────────────────────────────── */
   async function onCardSelected(slotIndex) {
     if (cardSelected) return;
@@ -1899,8 +2322,14 @@
     }
 
     // 1. Pay food cost
-    const newFood = Math.max(0, playerState.food.value - foodCost);
+    const prevFood = playerState.food.value;
+    const newFood  = Math.max(0, prevFood - foodCost);
     if (playerState.food.set) playerState.food.set(newFood);
+    // Starvation: food hits 0 this payment, or was already 0 and cost > 0
+    if (foodCost > 0 && (newFood === 0 || prevFood === 0)) {
+      applyStarvation();
+      if (gameOver) return;
+    }
 
     // 2. Lock selection for this round
     cardSelected = true;
@@ -1928,6 +2357,17 @@
           effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
         }
       }
+    } else if (card.name === 'Ammo') {
+      // Instant-use: reload a ranged weapon in inventory
+      const weapon = inventory.weapon;
+      if (weapon && weapon.weapon_class === 'ranged') {
+        weaponUsesRemaining = weapon.uses; // restore to original uses
+        refreshWeaponZone();
+        playReloadSound();
+        effectLines.push(`🔫 ${weapon.name} reloaded (${weapon.uses} uses restored)`);
+      } else {
+        effectLines.push('🔫 No ranged weapon to reload');
+      }
     } else {
       const type = card.type;
       if (inventory[type]) {
@@ -1948,8 +2388,26 @@
     const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid` : `☣ threat drawn instead of food`;
     showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
 
-    // 6. Auto-redraw after delay
+    // 6. Movement — discard cards from deck, consume 1 vehicle use
     await new Promise(r => setTimeout(r, 1800));
+    const speed = getPlayerSpeed();
+    if (speed > 0) {
+      discardForMovement(speed);
+      // Consume one vehicle use if vehicle contributed
+      const vehCard = inventory.vehicle;
+      const vehContributed = vehCard && vehicleUsesRemaining > 0 && (vehCard.move ?? 0) > 0;
+      if (vehContributed) {
+        vehicleUsesRemaining--;
+        refreshVehicleZone();
+      }
+      const baseSpd = getSpeed(playerState.sanity.value);
+      const vehLabel = vehContributed ? ` + ${vehCard.move} (${vehCard.name})` : '';
+      showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${vehLabel}\n${drawPile.length} cards to sanctuary`, false, 2500);
+      await new Promise(r => setTimeout(r, 2200));
+    }
+
+    // 7. Auto-redraw
+    if (speed === 0) await new Promise(r => setTimeout(r, 400));
 
     if (drawPile.length >= DRAW_SLOTS) {
       const slotsRowEl = document.getElementById('slots-row');
@@ -2052,6 +2510,23 @@
       slotsRow.appendChild(sep);
     }
   });
+
+  /* ── Discard cards from draw pile for movement, reshuffling if needed ── */
+  function discardForMovement(count) {
+    if (count <= 0) return [];
+    const discarded = [];
+    let remaining = count;
+    while (remaining > 0) {
+      if (drawPile.length === 0) {
+        // Reshuffle
+        drawPile = shuffle([...fullDeck]);
+        deckLaps++;
+      }
+      discarded.push(drawPile.splice(0, 1)[0]);
+      remaining--;
+    }
+    return discarded;
+  }
 
   async function loadDeck() {
     const countEl = document.getElementById('deck-count');
@@ -2220,7 +2695,13 @@
       if (isSkull) {
         const skull = document.createElement('span');
         skull.className = 'skull-icon';
-        skull.textContent = '☠';
+        // Food track skull: show what happens at 0 (starvation = health + sanity loss)
+        if (track.id === 'food') {
+          skull.innerHTML = '<span>🩸</span><span>🕯️</span>';
+          skull.title = 'Starvation: −1 health, −1 sanity';
+        } else {
+          skull.textContent = '☠';
+        }
         space.appendChild(skull);
       } else {
         const num = document.createElement('span');

@@ -109,7 +109,8 @@
       "text": "Single use (1D)",
       "strength": 3.5,
       "uses": 1,
-      "value": 3.5
+      "value": 3.5,
+      "weapon_class": "explosive"
     },
     {
       "name": "Gauze",
@@ -124,7 +125,7 @@
       "name": "Ammo",
       "start": false,
       "type": "item",
-      "text": "Use once: Reload weapon",
+      "text": "Use once: Reload range weapon",
       "value": 4.0
     },
     {
@@ -142,10 +143,10 @@
       "value": 4.0
     },
     {
-      "name": "Amo",
+      "name": "Ammo",
       "start": false,
       "type": "item",
-      "text": "Use once: Reload weapon",
+      "text": "Use once: Reload range weapon",
       "value": 4.0
     },
     {
@@ -195,7 +196,8 @@
       "type": "weapon",
       "strength": 1.0,
       "uses": 5,
-      "value": 5.0
+      "value": 5.0,
+      "weapon_class": "melee"
     },
     {
       "name": "Hiking sticks",
@@ -335,7 +337,8 @@
       "text": "Single use (2D)",
       "strength": 7.0,
       "uses": 1,
-      "value": 7.0
+      "value": 7.0,
+      "weapon_class": "explosive"
     },
     {
       "name": "Chocolate bar",
@@ -387,7 +390,8 @@
       "type": "weapon",
       "strength": 5.0,
       "uses": 2,
-      "value": 10.0
+      "value": 10.0,
+      "weapon_class": "ranged"
     },
     {
       "name": "Compass",
@@ -416,7 +420,8 @@
       "type": "weapon",
       "strength": 2.0,
       "uses": 5,
-      "value": 10.0
+      "value": 10.0,
+      "weapon_class": "melee"
     },
     {
       "name": "Minivan",
@@ -432,7 +437,8 @@
       "type": "weapon",
       "strength": 4.0,
       "uses": 3,
-      "value": 12.0
+      "value": 12.0,
+      "weapon_class": "ranged"
     },
     {
       "name": "Shotgun",
@@ -440,7 +446,8 @@
       "type": "weapon",
       "strength": 6.0,
       "uses": 2,
-      "value": 12.0
+      "value": 12.0,
+      "weapon_class": "ranged"
     },
     {
       "name": "Service van",
@@ -456,7 +463,8 @@
       "type": "weapon",
       "strength": 7.0,
       "uses": 2,
-      "value": 14.0
+      "value": 14.0,
+      "weapon_class": "ranged"
     },
     {
       "name": "Mountain Bikes",
@@ -482,7 +490,8 @@
       "type": "weapon",
       "strength": 3.0,
       "uses": 5,
-      "value": 15.0
+      "value": 15.0,
+      "weapon_class": "melee"
     },
     {
       "name": "Scoped Rifle",
@@ -490,7 +499,8 @@
       "type": "weapon",
       "strength": 8.0,
       "uses": 2,
-      "value": 16.0
+      "value": 16.0,
+      "weapon_class": "ranged"
     },
     {
       "name": "Mutant Claw",
@@ -501,7 +511,8 @@
       },
       "strength": 4.0,
       "uses": 5,
-      "value": 17.5
+      "value": 17.5,
+      "weapon_class": "melee"
     },
     {
       "name": "Monster Truck",
