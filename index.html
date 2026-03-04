@@ -115,42 +115,6 @@
        GATHER BOARD STYLES
     ═══════════════════════════════════════════════ */
 
-    .cost-gradient-bar {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.7rem;
-      gap: 0;
-    }
-
-    .cost-bar-label {
-      font-size: 0.5rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold-dim);
-      white-space: nowrap;
-      padding-right: 0.6rem;
-      opacity: 0.7;
-    }
-
-    .cost-bar-track {
-      flex: 1;
-      height: 3px;
-      background: linear-gradient(to right, var(--loot-dim), var(--gold-dim), var(--threat-dim));
-      border-radius: 2px;
-      position: relative;
-    }
-
-    .cost-bar-track::after {
-      content: '▶';
-      position: absolute;
-      right: -14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.55rem;
-      color: var(--threat-dim);
-      opacity: 0.7;
-    }
-
     .slots-row {
       display: flex;
       gap: 8px;
@@ -170,110 +134,56 @@
       letter-spacing: 0.12em;
       color: var(--gold-dim);
       opacity: 0.5;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       font-family: 'IM Fell English', serif;
     }
 
-    .threat-zone {
-      width: var(--card-w);
-      min-height: var(--threat-h);
-      border: 1px dashed var(--threat-dim);
-      border-radius: 4px 4px 0 0;
-      background: rgba(80, 10, 10, 0.15);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      padding-bottom: 6px;
-      gap: 4px;
-    }
-
-    .threat-pips {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      padding: 4px 0 2px;
-    }
-
-    .threat-pip {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 1px solid var(--threat-col);
-      background: rgba(176, 48, 48, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      color: var(--threat-col);
-      opacity: 0.75;
-    }
-
-    .threat-label {
-      font-size: 0.42rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--threat-col);
-      opacity: 0.55;
-    }
-
-    .threat-zone::before {
-      content: '';
-      position: absolute;
-      top: 8px; left: 8px; right: 8px;
-      height: calc(var(--threat-h) - 48px);
-      border: 1px dashed rgba(176, 48, 48, 0.2);
-      border-radius: 3px;
-      pointer-events: none;
-    }
-
-    .cost-bridge {
+    /* Compact cost header above each loot card */
+    .slot-cost {
       width: var(--card-w);
       background: #0f0c09;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 5px 4px;
       gap: 5px;
-      flex-wrap: wrap;
-      position: relative;
-    }
-
-    .cost-bridge::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(80,10,10,0.08), rgba(20,40,10,0.08));
-      pointer-events: none;
+      white-space: nowrap;
     }
 
     .cost-or {
       font-size: 0.45rem;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
+      color: var(--threat-col);
+      font-family: 'Cinzel', serif;
+      font-weight: 100;
+      opacity: 0.9;
+      padding: 0 1px;
+    }
+
+    .cost-sep {
+      font-size: 0.5rem;
       color: var(--gold-dim);
-      opacity: 0.6;
+      opacity: 0.5;
       font-family: 'IM Fell English', serif;
-      font-style: italic;
     }
 
     .cost-pip {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      font-size: 0.5rem;
+      gap: 2px;
     }
 
     .pip-icon { font-size: 0.9rem; line-height: 1; }
     .pip-count {
-      font-size: 0.6rem;
+      font-size: 0.7rem;
       color: var(--parchment);
-      opacity: 0.6;
       font-family: 'IM Fell English', serif;
       line-height: 1;
+      font-weight: 100;
     }
 
     .pip-food   { color: var(--food-pip); }
@@ -282,7 +192,8 @@
     .loot-zone {
       width: var(--card-w);
       height: var(--card-h);
-      border: 1px dashed var(--loot-dim);
+      border: 1px solid var(--border);
+      border-top: none;
       border-radius: 0 0 4px 4px;
       background: rgba(20, 50, 14, 0.12);
       position: relative;
@@ -318,11 +229,8 @@
       opacity: 0.45;
     }
 
-    .slot-col:nth-child(1) .loot-zone,
-    .slot-col:nth-child(1) .threat-zone  { border-left-color: rgba(74,122,58,0.45); }
-    .slot-col:nth-child(7) .loot-zone,
-    .slot-col:nth-child(7) .threat-zone  { border-color: rgba(176,48,48,0.4); }
-    .slot-col:nth-child(7) .threat-zone  { background: rgba(100,10,10,0.22); }
+    .slot-col:nth-child(1) .loot-zone { border-left-color: rgba(74,122,58,0.5); }
+    .slot-col:nth-child(1) .slot-cost  { border-left-color: rgba(74,122,58,0.5); }
 
     .slot-separator {
       width: 1px;
@@ -343,27 +251,78 @@
 
     .draw-btn {
       font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--ink);
-      background: linear-gradient(135deg, #c8962a, #8a5e10);
-      border: none;
-      border-radius: 3px;
-      padding: 0.5rem 1.4rem;
+      color: var(--gold);
+      background: #100e0b;
+      border: 1px solid var(--gold-dim);
+      border-radius: 5px;
+      width: 72px;
+      height: 100px;
       cursor: pointer;
-      box-shadow: 0 2px 12px rgba(200,150,42,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3);
+      transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Card back pattern — diamond grid */
+    .draw-btn::before {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 3px;
+      opacity: 0.4;
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(200,150,42,0.06) 0px,
+          rgba(200,150,42,0.06) 1px,
+          transparent 1px,
+          transparent 8px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(200,150,42,0.06) 0px,
+          rgba(200,150,42,0.06) 1px,
+          transparent 1px,
+          transparent 8px
+        );
+      pointer-events: none;
+    }
+
+    .draw-btn-icons {
+      display: flex;
+      gap: 2px;
+      font-size: 0.85rem;
+      opacity: 0.6;
+      position: relative;
+    }
+
+    .draw-btn-label {
+      font-size: 0.42rem;
+      letter-spacing: 0.2em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      position: relative;
     }
 
     .draw-btn:hover {
-      opacity: 0.92;
-      box-shadow: 0 4px 20px rgba(200,150,42,0.5);
-      transform: translateY(-1px);
+      border-color: var(--gold);
+      box-shadow: 0 4px 20px rgba(200,150,42,0.3), inset 0 0 20px rgba(200,150,42,0.04);
+      transform: translateY(-2px);
     }
+    .draw-btn:hover .draw-btn-icons { opacity: 0.9; }
 
     .draw-btn:active  { transform: scale(0.97); }
-    .draw-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .draw-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
     .deck-count {
       font-family: 'IM Fell English', serif;
@@ -391,24 +350,24 @@
     }
 
     .card-type-badge {
-      font-size: 0.38rem;
-      letter-spacing: 0.18em;
+      font-size: 0.44rem;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       padding: 1px 4px;
       border-radius: 2px;
       align-self: flex-start;
       line-height: 1.6;
     }
-    .badge-gather  { background: rgba(74,122,58,0.25);  color: #6aaa54; border: 1px solid rgba(74,122,58,0.4); }
-    .badge-item    { background: rgba(85,119,204,0.2);  color: #7090d0; border: 1px solid rgba(85,119,204,0.35); }
-    .badge-weapon  { background: rgba(176,48,48,0.2);   color: #cc6060; border: 1px solid rgba(176,48,48,0.35); }
-    .badge-vehicle { background: rgba(180,120,20,0.2);  color: #c89030; border: 1px solid rgba(180,120,20,0.35); }
+    .badge-gather  { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
+    .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
+    .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
+    .badge-vehicle { background: rgba(180,120,20,0.3);  color: #d8a040; border: 1px solid rgba(180,120,20,0.55); }
 
     .card-name {
       font-family: 'Cinzel', serif;
-      font-size: 0.52rem;
+      font-size: 0.6rem;
       font-weight: 600;
-      color: var(--parchment);
+      color: #f0e8d8;
       line-height: 1.25;
       letter-spacing: 0.04em;
     }
@@ -422,7 +381,7 @@
     .card-effects { display: flex; flex-wrap: wrap; gap: 3px; }
 
     .effect-chip {
-      font-size: 0.44rem;
+      font-size: 0.5rem;
       padding: 1px 4px;
       border-radius: 2px;
       display: flex;
@@ -430,17 +389,17 @@
       gap: 2px;
       font-family: 'IM Fell English', serif;
     }
-    .effect-chip .ef-icon { font-size: 0.7rem; line-height: 1; }
-    .ef-food     { color: #c87820; }
-    .ef-health   { color: #c94040; }
-    .ef-sanity   { color: #5577cc; }
-    .ef-mutation { color: #8b4ac8; }
-    .ef-pos      { color: var(--parchment); opacity: 0.8; }
-    .ef-neg      { color: #c94040; }
+    .effect-chip .ef-icon { font-size: 0.75rem; line-height: 1; }
+    .ef-food     { color: #e08c28; }
+    .ef-health   { color: #e05050; }
+    .ef-sanity   { color: #6688dd; }
+    .ef-mutation { color: #aa60e0; }
+    .ef-pos      { color: #ddd0b8; opacity: 1; }
+    .ef-neg      { color: #e05050; }
 
     .card-stat {
-      font-size: 0.44rem;
-      color: var(--gold-dim);
+      font-size: 0.5rem;
+      color: #b89848;
       font-family: 'IM Fell English', serif;
       font-style: italic;
       display: flex;
@@ -451,9 +410,9 @@
     .card-text {
       font-family: 'IM Fell English', serif;
       font-style: italic;
-      font-size: 0.44rem;
-      color: var(--parchment);
-      opacity: 0.55;
+      font-size: 0.5rem;
+      color: #c8bca8;
+      opacity: 1;
       line-height: 1.4;
       margin-top: auto;
     }
@@ -467,6 +426,41 @@
       opacity: 0.4;
       font-family: 'IM Fell English', serif;
     }
+
+    /* ── Card magnifier tooltip ── */
+    #card-magnifier {
+      position: fixed;
+      z-index: 800;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    #card-magnifier.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .magnifier-inner {
+      width: 200px;
+      background: #1a1610;
+      border: 1px solid var(--gold-dim);
+      border-radius: 5px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.85), 0 0 20px rgba(200,150,42,0.1);
+      padding: 10px 10px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      position: relative;
+    }
+
+    .magnifier-inner .card-type-badge  { font-size: 0.55rem; }
+    .magnifier-inner .card-name        { font-size: 0.85rem; }
+    .magnifier-inner .effect-chip      { font-size: 0.68rem; }
+    .magnifier-inner .effect-chip .ef-icon { font-size: 1rem; }
+    .magnifier-inner .card-stat        { font-size: 0.68rem; }
+    .magnifier-inner .card-text        { font-size: 0.65rem; }
+    .magnifier-inner .card-value       { font-size: 0.55rem; opacity: 0.5; }
 
     /* ── Card selection states ── */
     .loot-zone.has-card {
@@ -1217,6 +1211,7 @@
 <body>
 
 <div id="toast"></div>
+<div id="card-magnifier"><div class="magnifier-inner" id="magnifier-inner"></div></div>
 
   <!-- ══════════════════════════════════════
        GATHER BOARD
@@ -1229,13 +1224,11 @@
     <div class="divider"></div>
 
     <div class="draw-area">
-      <button class="draw-btn" id="draw-btn">Draw Cards</button>
+      <button class="draw-btn" id="draw-btn">
+        <span class="draw-btn-icons">📦</span>
+        <span class="draw-btn-label">Draw</span>
+      </button>
       <span class="deck-count" id="deck-count"></span>
-    </div>
-
-    <div class="cost-gradient-bar">
-      <span class="cost-bar-label">Cost ↑</span>
-      <div class="cost-bar-track"></div>
     </div>
 
     <div class="slots-row" id="slots-row"></div>
@@ -1357,7 +1350,7 @@
     food:     { value: 5,  set: null },
     health:   { value: 7,  set: null },
     sanity:   { value: 6,  set: null },
-    mutation: { value: 1,  set: null },
+    mutation: { value: 0,  set: null },
   };
 
   /* ═══════════════════════════════════════════
@@ -1408,6 +1401,46 @@
       ? `${drawPile.length} card${drawPile.length !== 1 ? 's' : ''} remaining`
       : 'Deck exhausted';
     document.getElementById('draw-btn').disabled = drawPile.length < DRAW_SLOTS;
+  }
+
+  /* ── Card magnifier ─────────────────────────────────────────────── */
+  const magnifier    = document.getElementById('card-magnifier');
+  const magnifierIn  = document.getElementById('magnifier-inner');
+  let magnifyTimer   = null;
+
+  function showMagnifier(card, anchorEl) {
+    clearTimeout(magnifyTimer);
+    magnifyTimer = setTimeout(() => {
+      // Build a full-size card clone inside the magnifier
+      magnifierIn.innerHTML = '';
+      magnifierIn.appendChild(renderCard(card));
+
+      // Position: prefer above the card, shift left so it doesn't clip right edge
+      const rect = anchorEl.getBoundingClientRect();
+      const mw = 200;
+      let left = rect.left + rect.width / 2 - mw / 2;
+      let top  = rect.top - 8; // will translate up via CSS
+
+      // Clamp horizontally
+      left = Math.max(8, Math.min(left, window.innerWidth - mw - 8));
+
+      // If too close to top, show below instead
+      const magnifierH = 250; // rough estimate
+      if (top - magnifierH < 8) {
+        magnifier.style.top  = (rect.bottom + 8) + 'px';
+        magnifier.style.transform = 'scale(0.92)';
+        magnifier.style.setProperty('--origin', 'top');
+      } else {
+        magnifier.style.top  = (top - magnifierH) + 'px';
+      }
+      magnifier.style.left = left + 'px';
+      magnifier.classList.add('visible');
+    }, 180); // short delay so fast mouse-overs don't flicker
+  }
+
+  function hideMagnifier() {
+    clearTimeout(magnifyTimer);
+    magnifier.classList.remove('visible');
   }
 
   const EFFECT_META = {
@@ -1490,6 +1523,12 @@
       zone.classList.add('has-card');
       zone.classList.remove('locked');
       zone.appendChild(renderCard(card));
+
+      // Magnifier on hover
+      zone.addEventListener('mouseenter', () => {
+        if (!zone.classList.contains('locked')) showMagnifier(card, zone);
+      });
+      zone.addEventListener('mouseleave', hideMagnifier);
     });
   }
 
@@ -1953,43 +1992,29 @@
     num.textContent = index + 1;
     col.appendChild(num);
 
-    const threatZone = document.createElement('div');
-    threatZone.className = 'threat-zone';
-    if (slotDef.threat > 0) {
-      const pips = document.createElement('div');
-      pips.className = 'threat-pips';
-      for (let i = 0; i < slotDef.threat; i++) {
-        const pip = document.createElement('div');
-        pip.className = 'threat-pip';
-        pip.textContent = '☣';
-        pips.appendChild(pip);
-      }
-      threatZone.appendChild(pips);
-      const lbl = document.createElement('div');
-      lbl.className = 'threat-label';
-      lbl.textContent = slotDef.threat === 1 ? '1 threat' : `${slotDef.threat} threats`;
-      threatZone.appendChild(lbl);
-    } else {
-      const lbl = document.createElement('div');
-      lbl.className = 'threat-label';
-      lbl.textContent = 'no threat';
-      threatZone.appendChild(lbl);
-    }
-    col.appendChild(threatZone);
+    // Compact cost header
+    const costEl = document.createElement('div');
+    costEl.className = 'slot-cost';
 
-    const bridge = document.createElement('div');
-    bridge.className = 'cost-bridge';
-    if (slotDef.food > 0)   bridge.appendChild(buildCostPip('food', slotDef.food));
-    if (slotDef.threat > 0) bridge.appendChild(buildCostPip('threat', slotDef.threat));
     if (slotDef.alt) {
-      const or = document.createElement('div');
+      // Slot 1: 2 food OR 1 threat — all on one line
+      costEl.appendChild(buildCostPip('food', slotDef.food));
+      const or = document.createElement('span');
       or.className = 'cost-or';
-      or.style.cssText = 'width:100%;text-align:center;';
-      or.textContent = '— or —';
-      bridge.appendChild(or);
-      bridge.appendChild(buildCostPip('threat', slotDef.alt.threat));
+      or.textContent = 'OR';
+      costEl.appendChild(or);
+      costEl.appendChild(buildCostPip('threat', slotDef.alt.threat));
+    } else {
+      if (slotDef.food > 0)   costEl.appendChild(buildCostPip('food', slotDef.food));
+      if (slotDef.food > 0 && slotDef.threat > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'cost-sep';
+        sep.textContent = '+';
+        costEl.appendChild(sep);
+      }
+      if (slotDef.threat > 0) costEl.appendChild(buildCostPip('threat', slotDef.threat));
     }
-    col.appendChild(bridge);
+    col.appendChild(costEl);
 
     const lootZone = document.createElement('div');
     lootZone.className = 'loot-zone' + (slotDef.reserved ? ' reserved' : '');
