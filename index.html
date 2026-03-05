@@ -1347,9 +1347,481 @@
     .game-over-restart:hover { opacity: 0.88; transform: translateY(-1px); }
     .game-over-restart:active { transform: scale(0.97); }
 
-    /* Food skull space — starvation icons */
+    .loot-zone.slot-disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+      border-style: dashed;
+      background: rgba(10,8,5,0.3);
+    }
+    .loot-zone.slot-disabled:hover {
+      border-color: var(--border);
+      box-shadow: none;
+      background: rgba(10,8,5,0.3);
+    }
+
+    /* ── You Win overlay ── */
+    #you-win {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      z-index: 900;
+      align-items: center;
+      justify-content: center;
+      transition: background 1.4s ease;
+    }
+    #you-win.open   { display: flex; }
+    #you-win.fading { background: rgba(0,0,0,0.88); }
+
+    .you-win-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      text-align: center;
+      max-width: 440px;
+      padding: 2.5rem 2rem;
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 1s ease 0.6s, transform 1s ease 0.6s;
+    }
+    #you-win.fading .you-win-box { opacity: 1; transform: scale(1); }
+
+    .you-win-icon {
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--gold);
+      filter: drop-shadow(0 0 28px rgba(200,150,42,0.7));
+    }
+    .you-win-title {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(200,150,42,0.6);
+    }
+    .you-win-subtitle {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      line-height: 1.7;
+    }
+    .you-win-restart {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      border-radius: 3px;
+      padding: 0.55rem 1.6rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .you-win-restart:hover  { opacity: 0.88; transform: translateY(-1px); }
+    .you-win-restart:active { transform: scale(0.97); }
     [data-track="food"] .skull-space { border-color: rgba(200,120,20,0.5); background: #120c05; }
     [data-track="food"] .skull-icon  { font-size: 0.9rem; display: flex; gap: 3px; align-items: center; }
+
+    /* ── Item discard picker dialog (when Backpack slots full) ── */
+    #discard-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+    #discard-dialog.open { display: flex; }
+    .discard-box {
+      background: #1a1508;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 1.6rem;
+      max-width: 360px;
+      width: 92%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+    .discard-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+    }
+    .discard-body {
+      font-family: 'IM Fell English', serif;
+      font-size: 0.75rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .discard-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .discard-option-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.8rem;
+      border-radius: 3px;
+      border: 1px solid rgba(176,48,48,0.5);
+      background: rgba(176,48,48,0.1);
+      color: #e07070;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .discard-option-btn:hover { background: rgba(176,48,48,0.22); border-color: rgba(176,48,48,0.7); }
+    .discard-option-btn:disabled {
+      opacity: 0.3; cursor: not-allowed;
+      background: rgba(60,60,60,0.1);
+      border-color: rgba(100,100,100,0.3);
+      color: #808080;
+    }
+    .discard-option-stat { font-size: 0.48rem; opacity: 0.65; font-family: 'IM Fell English', serif; font-style: italic; }
+    .discard-cancel-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.4rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--gold-dim);
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.15s;
+    }
+    .discard-cancel-btn:hover { opacity: 0.7; }
+    /* ── Area Map use-prompt dialog ── */
+    #areamap-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
+    }
+    #areamap-dialog.open { display: flex; }
+    .areamap-box {
+      background: #12100d;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 1.8rem 1.6rem;
+      max-width: 340px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: 0 0 30px rgba(200,150,42,0.2);
+    }
+    .areamap-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+    }
+    .areamap-body {
+      font-family: 'IM Fell English', serif;
+      font-size: 0.78rem;
+      color: var(--parchment);
+      opacity: 0.85;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .areamap-cost-preview {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+      text-align: center;
+      opacity: 0.75;
+    }
+    .areamap-btns { display: flex; gap: 0.6rem; justify-content: center; }
+    .areamap-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 1rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .areamap-btn:hover { opacity: 0.85; }
+    .am-use  { background: rgba(200,150,42,0.15); border-color: var(--gold-dim); color: var(--gold); }
+    .am-skip { background: rgba(60,50,30,0.3); border-color: rgba(120,100,50,0.4); color: #a09060; }
+
+    /* ── Item action button (Stash of ration packs, etc.) ── */
+      font-family: 'Cinzel', serif;
+      font-size: 0.48rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid rgba(85,119,204,0.6);
+      background: rgba(85,119,204,0.15);
+      color: #8aa8e8;
+      cursor: pointer;
+      margin: 4px 6px 2px;
+      transition: opacity 0.15s, background 0.15s;
+      display: block;
+    }
+    .item-action-btn:hover:not(:disabled) { background: rgba(85,119,204,0.28); }
+    .item-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ── Binoculars peek button on gather board ── */
+    .binoculars-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+      min-height: 1.4rem;
+    }
+    .peek-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.75rem;
+      border-radius: 3px;
+      border: 1px solid rgba(85,119,204,0.5);
+      background: rgba(85,119,204,0.12);
+      color: #8aa8e8;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .peek-btn:hover:not(:disabled) { background: rgba(85,119,204,0.25); }
+    .peek-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .peek-used-label {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.55rem;
+      color: var(--gold-dim);
+      opacity: 0.5;
+    }
+
+    /* ── Compass loot-peek bar (same style as binoculars bar) ── */
+    .compass-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+      min-height: 1.4rem;
+    }
+    .compass-peek-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.75rem;
+      border-radius: 3px;
+      border: 1px solid rgba(180,120,20,0.5);
+      background: rgba(180,120,20,0.1);
+      color: #d8a040;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .compass-peek-btn:hover:not(:disabled) { background: rgba(180,120,20,0.22); }
+    .compass-peek-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .compass-used-label {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.55rem;
+      color: var(--gold-dim);
+      opacity: 0.5;
+    }
+
+    /* ── Compass loot peek dialog ── */
+    #compass-peek-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
+    }
+    #compass-peek-dialog.open { display: flex; }
+    .compass-peek-box {
+      background: #12100d;
+      border: 1px solid rgba(180,120,20,0.5);
+      border-radius: 6px;
+      padding: 1.8rem 1.6rem;
+      max-width: 320px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      box-shadow: 0 0 40px rgba(180,120,20,0.2);
+    }
+    .compass-peek-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: #d8a040;
+      text-transform: uppercase;
+    }
+    .compass-peek-subtitle {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.6rem;
+      color: var(--gold-dim);
+      opacity: 0.65;
+    }
+
+    /* ── Anti-viral intercept dialog ── */
+    #antiviral-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
+    }
+    #antiviral-dialog.open { display: flex; }
+    .antiviral-box {
+      background: #1a1508;
+      border: 1px solid var(--mutate-col);
+      border-radius: 6px;
+      padding: 1.8rem 1.6rem;
+      max-width: 340px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      box-shadow: 0 0 40px rgba(139,74,200,0.3);
+    }
+    .antiviral-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      color: var(--mutate-col);
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .antiviral-body {
+      font-family: 'IM Fell English', serif;
+      font-size: 0.8rem;
+      color: var(--parchment);
+      opacity: 0.85;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .antiviral-uses {
+      font-size: 0.65rem;
+      color: var(--mutate-col);
+      opacity: 0.7;
+      text-align: center;
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+    }
+    .antiviral-btns { display: flex; gap: 0.6rem; justify-content: center; }
+    .antiviral-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 1rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .antiviral-btn:hover { opacity: 0.85; }
+    .av-block  { background: rgba(139,74,200,0.2); border-color: var(--mutate-col); color: #c080f0; }
+    .av-accept { background: rgba(60,40,40,0.4);   border-color: rgba(120,80,80,0.5); color: #a08080; }
+
+    /* ── Binoculars peek dialog ── */
+    #peek-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
+    }
+    #peek-dialog.open { display: flex; }
+    .peek-box {
+      background: #12100d;
+      border: 1px solid var(--sanity-col);
+      border-radius: 6px;
+      padding: 1.8rem 1.6rem;
+      max-width: 320px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      box-shadow: 0 0 40px rgba(85,119,204,0.25);
+    }
+    .peek-title { font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.15em; color: var(--sanity-col); text-transform: uppercase; }
+    .peek-card-display {
+      width: 100%;
+      background: rgba(85,119,204,0.06);
+      border: 1px solid rgba(85,119,204,0.25);
+      border-radius: 4px;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .peek-card-type {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 2px;
+      align-self: flex-start;
+    }
+    .ptype-break   { background: rgba(74,122,58,0.3);  color: #7dc466; border: 1px solid rgba(74,122,58,0.5); }
+    .ptype-setback { background: rgba(180,120,20,0.3); color: #d8a040; border: 1px solid rgba(180,120,20,0.5); }
+    .ptype-monster { background: rgba(176,48,48,0.3);  color: #e07070; border: 1px solid rgba(176,48,48,0.5); }
+    .peek-card-name   { font-family: 'Cinzel', serif; font-size: 0.7rem; color: #f0e8d8; }
+    .peek-card-detail { font-family: 'IM Fell English', serif; font-size: 0.65rem; color: #c8bca8; font-style: italic; }
+    .peek-btns { display: flex; gap: 0.6rem; }
+    .peek-btn-action {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.9rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .peek-btn-action:hover { opacity: 0.85; }
+    .peek-keep    { background: rgba(85,119,204,0.15); border-color: rgba(85,119,204,0.6); color: #8aa8e8; }
+    .peek-discard { background: rgba(176,48,48,0.15);  border-color: rgba(176,48,48,0.5);  color: #e07070; }
   </style>
 </head>
 <body>
@@ -1357,7 +1829,14 @@
 <div id="toast"></div>
 <div id="card-magnifier"><div class="magnifier-inner" id="magnifier-inner"></div></div>
 
-<div id="game-over">
+<div id="you-win">
+  <div class="you-win-box">
+    <div class="you-win-icon">🏛️</div>
+    <div class="you-win-title">The Sanctuary</div>
+    <div class="you-win-subtitle">Against all odds, you made it.<br>The gates open. You are safe — for now.</div>
+    <button class="you-win-restart" id="yw-restart">Play Again</button>
+  </div>
+</div>
   <div class="game-over-box">
     <div class="game-over-icon" id="go-icon"></div>
     <div class="game-over-title" id="go-title"></div>
@@ -1365,6 +1844,77 @@
     <button class="game-over-restart" id="go-restart">Try Again</button>
   </div>
 </div>
+
+  <!-- ══════════════════════════════════════
+       ITEM DISCARD PICKER
+  ══════════════════════════════════════ -->
+  <div id="discard-dialog">
+    <div class="discard-box">
+      <div class="discard-title">🎒 Backpack Full</div>
+      <div class="discard-body" id="discard-body">Choose an item to discard to make room.</div>
+      <div class="discard-options" id="discard-options"></div>
+      <button class="discard-cancel-btn" id="discard-cancel">Cancel — Don't Take Item</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       AREA MAP DIALOG
+  ══════════════════════════════════════ -->
+  <div id="areamap-dialog">
+    <div class="areamap-box">
+      <div class="areamap-title">🗺️ Area Map</div>
+      <div class="areamap-body" id="am-body">You have an Area Map. Use it to reduce this card's cost to 1 food and 0 threat?</div>
+      <div class="areamap-cost-preview" id="am-cost-preview"></div>
+      <div class="areamap-btns">
+        <button class="areamap-btn am-use"  id="am-btn-use">🗺️ Use Map</button>
+        <button class="areamap-btn am-skip" id="am-btn-skip">Save for Later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ANTI-VIRAL DIALOG
+  ══════════════════════════════════════ -->
+  <div id="antiviral-dialog">
+    <div class="antiviral-box">
+      <div class="antiviral-title">🧬 Mutation Incoming</div>
+      <div class="antiviral-body" id="av-body">You are about to gain a mutation point.</div>
+      <div class="antiviral-uses" id="av-uses"></div>
+      <div class="antiviral-btns">
+        <button class="antiviral-btn av-block"  id="av-btn-block">🧪 Use Anti-viral</button>
+        <button class="antiviral-btn av-accept" id="av-btn-accept">Accept Mutation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       COMPASS LOOT PEEK DIALOG
+  ══════════════════════════════════════ -->
+  <div id="compass-peek-dialog">
+    <div class="compass-peek-box">
+      <div class="compass-peek-title">🧭 Loot Preview</div>
+      <div class="compass-peek-subtitle">Top card of the loot deck</div>
+      <div class="peek-card-display" id="compass-card-display"></div>
+      <div class="peek-btns">
+        <button class="peek-btn-action peek-keep"    id="compass-btn-keep">Leave on Deck</button>
+        <button class="peek-btn-action peek-discard" id="compass-btn-discard">Discard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       BINOCULARS PEEK DIALOG
+  ══════════════════════════════════════ -->
+  <div id="peek-dialog">
+    <div class="peek-box">
+      <div class="peek-title">🔭 Threat Revealed</div>
+      <div class="peek-card-display" id="peek-card-display"></div>
+      <div class="peek-btns">
+        <button class="peek-btn-action peek-keep"    id="peek-btn-keep">Return to Deck</button>
+        <button class="peek-btn-action peek-discard" id="peek-btn-discard">Discard</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════
        GATHER BOARD
@@ -1382,6 +1932,21 @@
         <span class="draw-btn-label">Draw</span>
       </button>
       <span class="deck-count" id="deck-count"></span>
+    </div>
+
+    <div class="binoculars-bar" id="binoculars-bar" style="display:none;">
+      <button class="peek-btn" id="peek-threat-btn">🔭 Peek at Threat</button>
+      <span class="peek-used-label" id="peek-used-label"></span>
+    </div>
+
+    <div class="compass-bar" id="compass-bar" style="display:none;">
+      <button class="compass-peek-btn" id="compass-peek-btn">🧭 Peek at Loot (🌾−1)</button>
+      <span class="compass-used-label" id="compass-used-label"></span>
+    </div>
+
+    <div class="compass-bar" id="tent-bar" style="display:none;">
+      <button class="compass-peek-btn" id="tent-skip-btn" style="border-color:rgba(74,160,74,0.5);background:rgba(74,160,74,0.1);color:#7dc466;">⛺ Skip &amp; Redraw</button>
+      <span class="compass-used-label" id="tent-skip-label">Tent active — discard board &amp; redraw</span>
     </div>
 
     <div class="slots-row" id="slots-row"></div>
@@ -1485,10 +2050,8 @@
         </div>
       </div>
       <div class="inventory-slot">
-        <div class="inventory-slot-label">🎒 Item</div>
-        <div class="inventory-card-zone inv-item" id="inv-item">
-          <span class="inventory-empty-icon">🎒</span>
-        </div>
+        <div class="inventory-slot-label">🎒 Items</div>
+        <div id="item-slots-container" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
       </div>
     </div>
   </div>
@@ -1558,9 +2121,18 @@
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
   }
 
-  document.getElementById('go-restart').addEventListener('click', () => {
-    location.reload();
-  });
+  document.getElementById('go-restart').addEventListener('click', () => { location.reload(); });
+
+  /* ── You Win ── */
+  function triggerYouWin() {
+    if (gameOver) return;
+    gameOver = true;
+    const el = document.getElementById('you-win');
+    el.classList.add('open');
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
+  }
+
+  document.getElementById('yw-restart').addEventListener('click', () => { location.reload(); });
 
   /* ── Check for game over after any track change ── */
   function checkGameOver(track, value) {
@@ -1618,7 +2190,7 @@
     el.textContent = drawPile.length > 0
       ? `${drawPile.length} card${drawPile.length !== 1 ? 's' : ''} remaining${lapStr}`
       : 'Deck exhausted';
-    document.getElementById('draw-btn').disabled = drawPile.length < DRAW_SLOTS;
+    document.getElementById('draw-btn').disabled = drawPile.length < 1;
   }
 
   /* ── Card magnifier ─────────────────────────────────────────────── */
@@ -1734,27 +2306,42 @@
 
   function placeCards(cards) {
     const sorted = [...cards].sort((a, b) => (a.value ?? 0) - (b.value ?? 0));
-    slotCards = Array(SLOTS.length).fill(null);
-    sorted.forEach((card, i) => {
-      slotCards[i] = card;
-      const zone = lootZones[i];
-      zone.innerHTML = '';
-      zone.classList.add('has-card');
-      zone.classList.remove('locked');
-      zone.appendChild(renderCard(card));
+    const total  = DRAW_SLOTS;                // 5
+    const count  = sorted.length;             // 1–5
+    const offset = total - count;             // how many left slots are empty/disabled
 
-      // Magnifier on hover
-      zone.addEventListener('mouseenter', () => {
-        if (!zone.classList.contains('locked')) showMagnifier(card, zone);
-      });
-      zone.addEventListener('mouseleave', hideMagnifier);
+    slotCards = Array(total).fill(null);
+
+    lootZones.slice(0, total).forEach((zone, i) => {
+      zone.innerHTML = '';
+      zone.classList.remove('has-card', 'locked', 'slot-disabled');
+
+      if (i < offset) {
+        // Disabled empty slot on the left
+        zone.classList.add('slot-disabled');
+        const icon = document.createElement('span');
+        icon.className = 'loot-icon';
+        icon.textContent = '📦';
+        zone.appendChild(icon);
+      } else {
+        // Active card slot
+        const card = sorted[i - offset];
+        slotCards[i] = card;
+        zone.classList.add('has-card');
+        zone.appendChild(renderCard(card));
+
+        zone.addEventListener('mouseenter', () => {
+          if (!zone.classList.contains('locked')) showMagnifier(card, zone);
+        });
+        zone.addEventListener('mouseleave', hideMagnifier);
+      }
     });
   }
 
   function clearLootZones() {
     lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
       zone.innerHTML = '';
-      zone.classList.remove('has-card', 'locked');
+      zone.classList.remove('has-card', 'locked', 'slot-disabled');
       slotCards[i] = null;
       const icon = document.createElement('span');
       icon.className = 'loot-icon';
@@ -1778,10 +2365,31 @@
   /* ═══════════════════════════════════════════
      INVENTORY
   ═══════════════════════════════════════════ */
-  const inventory = { vehicle: null, weapon: null, item: null };
-  // Track remaining uses separately so we don't mutate card data
-  let weaponUsesRemaining  = 0;
-  let vehicleUsesRemaining = 0;
+  const inventory = { vehicle: null, weapon: null };
+  // Item slots: starts as [null] (1 slot), expands to [null, null, null] when Backpack equipped
+  let itemSlots      = [null];        // array of card|null
+  let itemUsesArr    = [0];           // parallel array of remaining uses
+  let itemSlotsCount = 1;             // 1 normally, 3 with Backpack
+
+  // Convenience: first item matching a predicate
+  const findItem = (pred) => itemSlots.find(c => c && pred(c)) ?? null;
+  // Convenience: index of first item matching predicate
+  const findItemIdx = (pred) => itemSlots.findIndex(c => c && pred(c));
+
+  // Legacy single-item accessor for code that checks inventory.item
+  Object.defineProperty(inventory, 'item', {
+    get() { return itemSlots.find(Boolean) ?? null; },
+    enumerable: false,
+  });
+
+  // Legacy itemUsesRemaining — points to the uses of the first filled item slot
+  // (used by anti-viral / stash code — they always reference their own slot explicitly now)
+  let _legacyItemUsesRemaining = 0;
+  Object.defineProperty(window, 'itemUsesRemaining', {
+    get()    { const i = itemSlots.findIndex(Boolean); return i >= 0 ? itemUsesArr[i] : 0; },
+    set(v)   { const i = itemSlots.findIndex(Boolean); if (i >= 0) itemUsesArr[i] = v; },
+    configurable: true,
+  });
 
   const INV_ICONS = { vehicle: '🚗', weapon: '🔧', item: '🎒' };
 
@@ -1832,8 +2440,8 @@
       wrap.appendChild(t);
     }
 
-    // Uses pip row — for weapons and vehicles
-    if ((card.type === 'weapon' || card.type === 'vehicle') && card.uses != null) {
+    // Uses pip row — for weapons, vehicles, and items with uses
+    if ((card.type === 'weapon' || card.type === 'vehicle' || card.type === 'item') && card.uses != null) {
       const row = document.createElement('div');
       row.className = 'weapon-uses-row';
       for (let i = 0; i < card.uses; i++) {
@@ -1847,14 +2455,80 @@
     return wrap;
   }
 
+  /* ── Render all item slots into #item-slots-container ── */
+  function renderItemSlots() {
+    const container = document.getElementById('item-slots-container');
+    container.innerHTML = '';
+    for (let i = 0; i < itemSlotsCount; i++) {
+      const zone = document.createElement('div');
+      zone.className = 'inventory-card-zone inv-item';
+      zone.id = `inv-item-${i}`;
+      const card = itemSlots[i];
+      if (card) {
+        zone.classList.add('inv-filled');
+        const uses = itemUsesArr[i];
+        if (card.uses != null) {
+          zone.classList.toggle('item-has-uses', uses > 0);
+          zone.classList.toggle('item-depleted', uses <= 0);
+        }
+        zone.appendChild(renderInventoryCard(card, card.uses != null ? uses : undefined));
+        attachItemActionButton(zone, card, i);
+      } else {
+        const icon = document.createElement('span');
+        icon.className = 'inventory-empty-icon';
+        icon.textContent = '🎒';
+        zone.appendChild(icon);
+      }
+      container.appendChild(zone);
+    }
+    updateItemBars();
+  }
+
+  function refreshItemZone() { renderItemSlots(); }
+
+  /* ── Get/set a specific item slot ── */
+  function getItemSlot(idx) { return itemSlots[idx] ?? null; }
+
+  function setItemSlot(idx, card) {
+    itemSlots[idx] = card;
+    itemUsesArr[idx] = card ? (card.uses ?? 0) : 0;
+    renderItemSlots();
+  }
+
+  /* ── Find the first empty item slot index, or -1 ── */
+  function firstEmptyItemSlot() { return itemSlots.findIndex(c => c === null); }
+
+  /* ── Equip Backpack: expand to 3 item slots, Backpack in slot 0 ── */
+  function equipBackpack(card) {
+    // Keep existing items in slots 1+ (shift them up if needed)
+    const existing = itemSlots.filter(Boolean);
+    itemSlotsCount = 3;
+    itemSlots = [card, null, null];
+    itemUsesArr = [0, 0, 0];
+    // Re-place any items that were already in inventory (up to 2)
+    existing.forEach((c, i) => {
+      if (i < 2) { itemSlots[i + 1] = c; }
+    });
+    renderItemSlots();
+  }
+
+  /* ── Remove Backpack: shrink back to 1 slot (keep first non-backpack item) ── */
+  function unequipBackpack() {
+    const nonBackpack = itemSlots.filter(c => c && c.name !== 'Backpack');
+    itemSlotsCount = 1;
+    itemSlots = [nonBackpack[0] ?? null];
+    itemUsesArr = [nonBackpack[0] ? (nonBackpack[0].uses ?? 0) : 0];
+    renderItemSlots();
+  }
+
   function refreshWeaponZone() {
     const card = inventory.weapon;
     const zone = document.getElementById('inv-weapon');
     if (!card) return;
     zone.innerHTML = '';
     zone.classList.add('inv-filled');
-    zone.classList.toggle('item-has-uses',  weaponUsesRemaining > 0);
-    zone.classList.toggle('item-depleted',  weaponUsesRemaining <= 0);
+    zone.classList.toggle('item-has-uses', weaponUsesRemaining > 0);
+    zone.classList.toggle('item-depleted', weaponUsesRemaining <= 0);
     zone.appendChild(renderInventoryCard(card, weaponUsesRemaining));
   }
 
@@ -1864,12 +2538,14 @@
     if (!card) return;
     zone.innerHTML = '';
     zone.classList.add('inv-filled');
-    zone.classList.toggle('item-has-uses',  vehicleUsesRemaining > 0);
-    zone.classList.toggle('item-depleted',  vehicleUsesRemaining <= 0);
+    zone.classList.toggle('item-has-uses', vehicleUsesRemaining > 0);
+    zone.classList.toggle('item-depleted', vehicleUsesRemaining <= 0);
     zone.appendChild(renderInventoryCard(card, vehicleUsesRemaining));
   }
 
+  // setInventorySlot only handles vehicle/weapon now; items use setItemSlot / equipBackpack
   function setInventorySlot(type, card) {
+    if (type === 'item') { throw new Error('Use setItemSlot for items'); }
     inventory[type] = card;
     const zone = document.getElementById(`inv-${type}`);
     zone.innerHTML = '';
@@ -1879,15 +2555,13 @@
       if (type === 'weapon') {
         weaponUsesRemaining = card.uses ?? 0;
         zone.classList.toggle('item-has-uses', weaponUsesRemaining > 0);
-        zone.classList.toggle('item-depleted',  weaponUsesRemaining <= 0);
+        zone.classList.toggle('item-depleted', weaponUsesRemaining <= 0);
         zone.appendChild(renderInventoryCard(card, weaponUsesRemaining));
       } else if (type === 'vehicle') {
         vehicleUsesRemaining = card.uses ?? 0;
         zone.classList.toggle('item-has-uses', vehicleUsesRemaining > 0);
-        zone.classList.toggle('item-depleted',  vehicleUsesRemaining <= 0);
+        zone.classList.toggle('item-depleted', vehicleUsesRemaining <= 0);
         zone.appendChild(renderInventoryCard(card, vehicleUsesRemaining));
-      } else {
-        zone.appendChild(renderInventoryCard(card, undefined));
       }
     } else {
       zone.classList.remove('inv-filled');
@@ -1898,7 +2572,376 @@
     }
   }
 
-  /* ── Replace dialog ─────────────────────────────────────────────── */
+  /* ── Area Map prompt ────────────────────────────────────────────── */
+  let areamapResolve = null;
+
+  function promptAreaMap(normalFoodCost, normalThreatCount) {
+    return new Promise(resolve => {
+      areamapResolve = resolve;
+      const normalDesc = normalThreatCount > 0
+        ? `${normalFoodCost > 0 ? normalFoodCost + ' food OR ' : ''}${normalThreatCount} threat`
+        : `${normalFoodCost} food`;
+      document.getElementById('am-cost-preview').textContent =
+        `Normal cost: ${normalDesc}  →  Map cost: 1 food, 0 threat`;
+      document.getElementById('areamap-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('am-btn-use').addEventListener('click', () => {
+    document.getElementById('areamap-dialog').classList.remove('open');
+    if (areamapResolve) { areamapResolve(true); areamapResolve = null; }
+  });
+
+  document.getElementById('am-btn-skip').addEventListener('click', () => {
+    document.getElementById('areamap-dialog').classList.remove('open');
+    if (areamapResolve) { areamapResolve(false); areamapResolve = null; }
+  });
+  let antiviralResolve = null;
+
+  function promptAntiviralBlock(mutationAmount, slotIdx) {
+    return new Promise(resolve => {
+      antiviralResolve = resolve;
+      const name = itemSlots[slotIdx]?.name ?? 'Anti-viral';
+      const uses = itemUsesArr[slotIdx] ?? 0;
+      document.getElementById('av-body').textContent =
+        `You are about to gain ${mutationAmount} mutation. Use your ${name} to block it?`;
+      document.getElementById('av-uses').textContent =
+        `${uses} use${uses !== 1 ? 's' : ''} remaining`;
+      document.getElementById('antiviral-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('av-btn-block').addEventListener('click', () => {
+    document.getElementById('antiviral-dialog').classList.remove('open');
+    if (antiviralResolve) { antiviralResolve(true); antiviralResolve = null; }
+  });
+
+  document.getElementById('av-btn-accept').addEventListener('click', () => {
+    document.getElementById('antiviral-dialog').classList.remove('open');
+    if (antiviralResolve) { antiviralResolve(false); antiviralResolve = null; }
+  });
+
+  /* ── Binoculars peek ─────────────────────────────────────────────── */
+  let peekResolve   = null;
+  let peekUsedThisTurn     = false;
+  let matchesUsedThisTurn  = false;
+  let torchUsedThisTurn    = false;
+  let tentUsedThisTurn     = false;
+  let tentActivatedThisTurn = false;  // set when Tent used; triggers skip-and-redraw flow
+
+  function promptPeekThreat() {
+    const card = peekThreatDeck(); // look without removing
+    if (!card) return;
+    return new Promise(resolve => {
+      peekResolve = resolve;
+      const disp = document.getElementById('peek-card-display');
+      disp.innerHTML = '';
+      const typeBadge = document.createElement('div');
+      typeBadge.className = `peek-card-type ptype-${card.type}`;
+      typeBadge.textContent = card.type;
+      disp.appendChild(typeBadge);
+      const nameEl = document.createElement('div');
+      nameEl.className = 'peek-card-name';
+      nameEl.textContent = card.name;
+      disp.appendChild(nameEl);
+      // Show relevant detail
+      let detail = '';
+      if (card.type === 'monster') detail = `STR ${card.strength ?? '?'}`;
+      else if (card.effects) detail = Object.entries(card.effects).map(([k,v]) => `${EFFECT_META[k]?.icon ?? k} ${v>0?'+':''}${v}`).join('  ');
+      if (detail) {
+        const detEl = document.createElement('div');
+        detEl.className = 'peek-card-detail';
+        detEl.textContent = detail;
+        disp.appendChild(detEl);
+      }
+      document.getElementById('peek-dialog').classList.add('open');
+    });
+  }
+
+  // Peek at top card without removing it
+  function peekThreatDeck() {
+    if (threatPile.length === 0) threatPile = shuffle([...threatFull]);
+    return threatPile[0] ?? null;
+  }
+
+  document.getElementById('peek-btn-keep').addEventListener('click', () => {
+    document.getElementById('peek-dialog').classList.remove('open');
+    if (peekResolve) { peekResolve('keep'); peekResolve = null; }
+  });
+
+  document.getElementById('peek-btn-discard').addEventListener('click', () => {
+    document.getElementById('peek-dialog').classList.remove('open');
+    // Remove the top card from the threat pile
+    if (threatPile.length > 0) threatPile.splice(0, 1);
+    if (peekResolve) { peekResolve('discard'); peekResolve = null; }
+  });
+
+  function updateBinocularsBar() {
+    const hasBinos = itemSlots.some(c => c?.name === 'Binoculars');
+    const bar = document.getElementById('binoculars-bar');
+    bar.style.display = hasBinos ? 'flex' : 'none';
+    if (!hasBinos) return;
+    const btn = document.getElementById('peek-threat-btn');
+    const lbl = document.getElementById('peek-used-label');
+    btn.disabled = peekUsedThisTurn || cardSelected;
+    lbl.textContent = peekUsedThisTurn ? 'Used this turn' : '';
+  }
+
+  function updateItemBars() {
+    updateBinocularsBar();
+    updateCompassBar();
+    updateTentSkipBtn();
+  }
+
+  function updateTentSkipBtn() {
+    const bar = document.getElementById('tent-bar');
+    bar.style.display = (tentActivatedThisTurn && !cardSelected) ? 'flex' : 'none';
+  }
+
+  document.getElementById('peek-threat-btn').addEventListener('click', async () => {
+    if (peekUsedThisTurn || cardSelected) return;
+    peekUsedThisTurn = true;
+    updateItemBars();
+    const result = await promptPeekThreat();
+    if (result === 'discard') showToast('🔭 Threat discarded', false, 2000);
+    else showToast('🔭 Threat returned to deck', false, 2000);
+  });
+
+  /* ── Compass: peek top loot card once per turn (costs 1 food) ─── */
+  let compassUsedThisTurn = false;
+  let compassPeekResolve  = null;
+
+  function updateCompassBar() {
+    const hasCompass = itemSlots.some(c => c?.name === 'Compass');
+    const bar = document.getElementById('compass-bar');
+    bar.style.display = hasCompass ? 'flex' : 'none';
+    if (!hasCompass) return;
+    const btn = document.getElementById('compass-peek-btn');
+    const lbl = document.getElementById('compass-used-label');
+    const noFood = playerState.food.value < 1;
+    btn.disabled = compassUsedThisTurn || cardSelected || drawPile.length === 0;
+    if (compassUsedThisTurn) {
+      lbl.textContent = 'Used this turn';
+    } else if (noFood) {
+      lbl.textContent = 'Not enough food';
+    } else {
+      lbl.textContent = '';
+    }
+  }
+
+  function promptCompassPeek() {
+    if (drawPile.length === 0) return Promise.resolve('keep');
+    const card = drawPile[0]; // peek without removing
+    return new Promise(resolve => {
+      compassPeekResolve = resolve;
+      const disp = document.getElementById('compass-card-display');
+      disp.innerHTML = '';
+
+      // Type badge
+      const typeBadge = document.createElement('div');
+      typeBadge.className = `peek-card-type ptype-${card.type ?? 'item'}`;
+      typeBadge.textContent = card.type ?? 'item';
+      disp.appendChild(typeBadge);
+
+      // Name
+      const nameEl = document.createElement('div');
+      nameEl.className = 'peek-card-name';
+      nameEl.textContent = card.name;
+      disp.appendChild(nameEl);
+
+      // Detail line
+      let detail = '';
+      if (card.strength != null) {
+        const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
+        detail = `STR ${card.strength}${classTag}`;
+      } else if (card.move != null) {
+        detail = `MOVE ${card.move}`;
+      } else if (card.effects) {
+        detail = Object.entries(card.effects)
+          .map(([k, v]) => `${EFFECT_META[k]?.icon ?? k} ${v > 0 ? '+' : ''}${v}`).join('  ');
+      } else if (card.text) {
+        detail = card.text;
+      }
+      if (detail) {
+        const detEl = document.createElement('div');
+        detEl.className = 'peek-card-detail';
+        detEl.textContent = detail;
+        disp.appendChild(detEl);
+      }
+
+      document.getElementById('compass-peek-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('compass-btn-keep').addEventListener('click', () => {
+    document.getElementById('compass-peek-dialog').classList.remove('open');
+    if (compassPeekResolve) { compassPeekResolve('keep'); compassPeekResolve = null; }
+  });
+
+  document.getElementById('compass-btn-discard').addEventListener('click', () => {
+    document.getElementById('compass-peek-dialog').classList.remove('open');
+    drawPile.splice(0, 1); // remove top card
+    updateDeckCount();
+    if (compassPeekResolve) { compassPeekResolve('discard'); compassPeekResolve = null; }
+  });
+
+  document.getElementById('compass-peek-btn').addEventListener('click', async () => {
+    if (compassUsedThisTurn || cardSelected || drawPile.length === 0) return;
+    if (playerState.food.value < 1) {
+      showToast('🧭 Not enough food to use Compass', true, 2000);
+      return;
+    }
+    // Pay 1 food
+    const newFood = playerState.food.value - 1;
+    if (playerState.food.set) playerState.food.set(newFood);
+    if (newFood === 0) { applyStarvation(); if (gameOver) return; }
+
+    compassUsedThisTurn = true;
+    updateCompassBar();
+    const result = await promptCompassPeek();
+    if (result === 'discard') showToast('🧭 Loot card discarded (1 food spent)', false, 2200);
+    else showToast('🧭 Card left on deck (1 food spent)', false, 2200);
+  });
+
+  /* ── Tent: skip-and-redraw handler ── */
+  document.getElementById('tent-skip-btn').addEventListener('click', async () => {
+    if (!tentActivatedThisTurn || cardSelected) return;
+    tentActivatedThisTurn = false;
+    cardSelected = true;
+    updateTentSkipBtn();
+    // Discard current board cards back (don't put in discard, just remove)
+    clearLootZones();
+    showToast('⛺ Tent — board cleared, redrawing…', false, 1800);
+    await new Promise(r => setTimeout(r, 1400));
+    // No movement phase
+    const count = Math.min(drawPile.length, DRAW_SLOTS);
+    if (count === 0) {
+      triggerYouWin();
+      return;
+    }
+    const slotsRowEl = document.getElementById('slots-row');
+    slotsRowEl.classList.add('redrawing');
+    await new Promise(r => setTimeout(r, 250));
+    const drawn = drawPile.splice(0, count);
+    placeCards(drawn);
+    updateDeckCount();
+    cardSelected = false;
+    tentUsedThisTurn = false;
+    peekUsedThisTurn = false;
+    compassUsedThisTurn = false;
+    matchesUsedThisTurn = false;
+    torchUsedThisTurn = false;
+    updateItemBars();
+    slotsRowEl.classList.remove('redrawing');
+  });
+
+  /* ── Attach per-turn action button to item slot ─────────────────── */
+  function attachItemActionButton(zone, card, slotIdx) {
+    if (!card) return;
+
+    // Helper: create a standard once-per-turn food-cost action button
+    const makeActionBtn = (label, usedFlagGetter, usedFlagSetter, onUse) => {
+      const btn = document.createElement('button');
+      btn.className = 'item-action-btn';
+      btn.textContent = label;
+      const refresh = () => {
+        const noUses = itemUsesArr[slotIdx] <= 0;
+        const noFood = playerState.food.value < 1;
+        const used   = usedFlagGetter();
+        btn.disabled = noUses || noFood || used;
+        btn.title = used ? 'Already used this turn'
+                  : noFood ? 'Not enough food'
+                  : noUses ? 'No uses remaining' : '';
+      };
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        // Pay 1 food
+        const newFood = playerState.food.value - 1;
+        if (playerState.food.set) playerState.food.set(newFood);
+        if (newFood === 0) { applyStarvation(); }
+        usedFlagSetter(true);
+        onUse(btn, slotIdx, refresh);
+      });
+      zone.appendChild(btn);
+      return { btn, refresh };
+    };
+
+    if (card.name === 'Stash of ration packs') {
+      const btn = document.createElement('button');
+      btn.className = 'item-action-btn';
+      btn.textContent = '🌾 Use (food +1)';
+      btn.disabled = itemUsesArr[slotIdx] <= 0;
+      btn.addEventListener('click', () => {
+        if (itemUsesArr[slotIdx] <= 0) return;
+        itemUsesArr[slotIdx]--;
+        const newFood = Math.min(10, playerState.food.value + 1);
+        if (playerState.food.set) playerState.food.set(newFood);
+        if (itemUsesArr[slotIdx] === 0) {
+          showToast('🌾 Stash used — food +1\n🎒 Stash depleted — discarded', false, 2500);
+          setItemSlot(slotIdx, null);
+        } else {
+          showToast('🌾 Stash used — food +1', false, 2000);
+          renderItemSlots();
+        }
+      });
+      zone.appendChild(btn);
+
+    } else if (card.name === 'Matches') {
+      makeActionBtn('🔥 Use (🌾−1 → ❤+1)',
+        () => matchesUsedThisTurn,
+        (v) => { matchesUsedThisTurn = v; },
+        (btn, idx, refresh) => {
+          itemUsesArr[idx]--;
+          const newHealth = Math.min(10, playerState.health.value + 1);
+          if (playerState.health.set) playerState.health.set(newHealth);
+          if (itemUsesArr[idx] === 0) {
+            showToast('🔥 Matches used — health +1\n🎒 Matches depleted — discarded', false, 2500);
+            setItemSlot(idx, null);
+          } else {
+            showToast('🔥 Matches used — health +1', false, 2000);
+            renderItemSlots();
+          }
+        }
+      );
+
+    } else if (card.name === 'Torch') {
+      makeActionBtn('🕯 Use (🌾−1 → 🧠+1)',
+        () => torchUsedThisTurn,
+        (v) => { torchUsedThisTurn = v; },
+        (btn, idx, refresh) => {
+          itemUsesArr[idx]--;
+          const newSanity = Math.min(10, playerState.sanity.value + 1);
+          if (playerState.sanity.set) playerState.sanity.set(newSanity);
+          if (itemUsesArr[idx] === 0) {
+            showToast('🕯 Torch used — sanity +1\n🎒 Torch depleted — discarded', false, 2500);
+            setItemSlot(idx, null);
+          } else {
+            showToast('🕯 Torch used — sanity +1', false, 2000);
+            renderItemSlots();
+          }
+        }
+      );
+
+    } else if (card.name === 'Tent') {
+      makeActionBtn('⛺ Use (🌾−1 → Redraw)',
+        () => tentUsedThisTurn,
+        (v) => { tentUsedThisTurn = v; },
+        (btn, idx, refresh) => {
+          itemUsesArr[idx]--;
+          tentActivatedThisTurn = true;
+          if (itemUsesArr[idx] === 0) {
+            showToast('⛺ Tent used — redrawing…\n🎒 Tent depleted — discarded', false, 2500);
+            setItemSlot(idx, null);
+          } else {
+            showToast('⛺ Tent used — select no cards to redraw', false, 2200);
+            renderItemSlots();
+          }
+          // Unlock the board so the player can choose "no card" (click selected card again, or we add a skip button)
+          updateTentSkipBtn();
+        }
+      );
+    }
+  }
   let replaceResolve = null; // resolve fn for the pending promise
 
   function promptReplace(type, currentCard, newCard) {
@@ -1908,7 +2951,7 @@
       document.getElementById('replace-body').textContent =
         `Your ${type} slot is occupied. Replace it with "${newCard.name}"?`;
       document.getElementById('replace-current-name').textContent = currentCard.name;
-      const currentUses = type === 'weapon' ? weaponUsesRemaining
+      const currentUses = type === 'weapon'  ? weaponUsesRemaining
                         : type === 'vehicle' ? vehicleUsesRemaining
                         : undefined;
       document.getElementById('replace-current-stat').textContent = cardPreviewStat(currentCard, currentUses);
@@ -1927,6 +2970,52 @@
   document.getElementById('btn-replace').addEventListener('click', () => {
     document.getElementById('replace-dialog').classList.remove('open');
     if (replaceResolve) { replaceResolve(true); replaceResolve = null; }
+  });
+
+  /* ── Discard picker: shown when all item slots are full ── */
+  let discardResolve = null;
+
+  function promptItemDiscard(incomingCard) {
+    return new Promise(resolve => {
+      discardResolve = resolve;
+
+      document.getElementById('discard-body').textContent =
+        `Your backpack is full. Discard an item to make room for "${incomingCard.name}".`;
+
+      const container = document.getElementById('discard-options');
+      container.innerHTML = '';
+
+      itemSlots.forEach((slotCard, idx) => {
+        if (!slotCard) return;
+        const btn = document.createElement('button');
+        btn.className = 'discard-option-btn';
+        const isBackpack = slotCard.name === 'Backpack';
+        btn.disabled = isBackpack;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = slotCard.name + (isBackpack ? ' (cannot discard)' : '');
+
+        const statSpan = document.createElement('span');
+        statSpan.className = 'discard-option-stat';
+        const uses = itemUsesArr[idx];
+        statSpan.textContent = cardPreviewStat(slotCard, slotCard.uses != null ? uses : undefined);
+
+        btn.appendChild(nameSpan);
+        btn.appendChild(statSpan);
+        btn.addEventListener('click', () => {
+          document.getElementById('discard-dialog').classList.remove('open');
+          if (discardResolve) { discardResolve(idx); discardResolve = null; }
+        });
+        container.appendChild(btn);
+      });
+
+      document.getElementById('discard-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('discard-cancel').addEventListener('click', () => {
+    document.getElementById('discard-dialog').classList.remove('open');
+    if (discardResolve) { discardResolve(-1); discardResolve = null; }
   });
 
   /* ═══════════════════════════════════════════
@@ -1967,8 +3056,12 @@
   /* ── Full strength with weapon (if usable) ── */
   function getPlayerStrength() {
     const base = getBaseStrength();
-    const weaponBonus = (inventory.weapon && weaponUsesRemaining > 0) ? (inventory.weapon.strength ?? 0) : 0;
-    return base + weaponBonus;
+    const weapon = inventory.weapon;
+    const weaponBonus = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
+    const camoBonus = itemSlots.some(c => c?.name === 'Camoflauge') ? 1 : 0;
+    const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
+    const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile && weaponBonus > 0) ? 2 : 0;
+    return base + weaponBonus + camoBonus + holsterBonus;
   }
 
   /* ── Movement speed: SPD from sanity + vehicle move (if uses remain) ── */
@@ -1979,11 +3072,32 @@
   }
 
   /* ── Apply an effects object to player state ── */
-  function applyEffects(effects) {
+  async function applyEffects(effects) {
     const lines = [];
     for (const [track, amount] of Object.entries(effects)) {
       if (!playerState[track]) continue;
       const current = playerState[track].value;
+
+      // Anti-viral intercept: mutation increase when anti-viral is in any item slot with uses
+      if (track === 'mutation' && amount > 0) {
+        const avIdx = itemSlots.findIndex((c, i) => c && (c.name === 'Anti-viral' || c.name === 'Anti-virals') && itemUsesArr[i] > 0);
+        if (avIdx >= 0) {
+          const blocked = await promptAntiviralBlock(amount, avIdx);
+          if (blocked) {
+            itemUsesArr[avIdx]--;
+            const avName = itemSlots[avIdx].name;
+            if (itemUsesArr[avIdx] <= 0) {
+              lines.push(`🧪 ${avName} used — mutation blocked! (depleted, discarded)`);
+              setItemSlot(avIdx, null);
+            } else {
+              renderItemSlots();
+              lines.push(`🧪 ${avName} used — mutation blocked! (${itemUsesArr[avIdx]} uses left)`);
+            }
+            continue;
+          }
+        }
+      }
+
       const next = Math.max(0, Math.min(10, current + amount));
       if (playerState[track].set) playerState[track].set(next);
       lines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`);
@@ -2000,8 +3114,8 @@
   }
 
   /* ── Show one threat card in the dialog, resolve it, wait for dismiss ── */
-  function resolveThreatCard(card, queueEl, queueDots, currentIdx) {
-    return new Promise(resolve => {
+  async function resolveThreatCard(card, queueEl, queueDots, currentIdx) {
+    return new Promise(async (resolve) => {
       // Mark pip as active
       queueDots[currentIdx]?.classList.add('done');
 
@@ -2040,7 +3154,7 @@
           for (const [t, v] of Object.entries(card.effects)) {
             parts.push(`${EFFECT_META[t]?.icon ?? ''} ${t} ${v > 0 ? '+' : ''}${v}`);
           }
-          effectLines = applyEffects(card.effects);
+          effectLines = await applyEffects(card.effects);
         }
         bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
 
@@ -2050,6 +3164,9 @@
         const weapon     = inventory.weapon;
         const weaponStr  = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
         const hasWeapon  = weapon != null && weaponUsesRemaining > 0;
+        const camoBonus  = itemSlots.some(c => c?.name === 'Camoflauge') ? 1 : 0;
+        const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
+        const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile) ? 2 : 0;
 
         // Weapon use state — default to using weapon if available
         let usingWeapon = hasWeapon;
@@ -2091,9 +3208,12 @@
           display.appendChild(toggleRow);
 
           const updatePlayerSide = () => {
-            const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+            const effStr = (usingWeapon ? baseStr + weaponStr : baseStr) + camoBonus + (usingWeapon ? holsterBonus : 0);
+            const weaponLabel  = usingWeapon ? ` +${weaponStr} weapon` : '';
+            const camoLabel    = camoBonus    ? ` +1 camo`             : '';
+            const holsterLabel = (usingWeapon && holsterBonus) ? ` +2 holster` : '';
             playerSide.innerHTML = `
-              <span class="battle-stat-label">Your STR${usingWeapon ? ` +${weaponStr} weapon` : ''}</span>
+              <span class="battle-stat-label">Your STR${weaponLabel}${camoLabel}${holsterLabel}</span>
               <span class="battle-stat-value player-str">${effStr}</span>`;
           };
 
@@ -2114,8 +3234,8 @@
           updatePlayerSide();
         } else {
           playerSide.innerHTML = `
-            <span class="battle-stat-label">Your STR</span>
-            <span class="battle-stat-value player-str">${baseStr}</span>`;
+            <span class="battle-stat-label">Your STR${camoBonus ? ' +1 camo' : ''}</span>
+            <span class="battle-stat-value player-str">${baseStr + camoBonus}</span>`;
         }
 
         // Outcome display (updated when toggle changes)
@@ -2128,7 +3248,7 @@
         );
 
         function updateOutcome() {
-          const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+          const effStr = (usingWeapon ? baseStr + weaponStr : baseStr) + camoBonus + (usingWeapon ? holsterBonus : 0);
           lootLostThisCard = effStr < monsterStr;
           outcomeEl.className = 'battle-outcome';
           effectLines = [];
@@ -2160,16 +3280,16 @@
         updateOutcome();
 
         // Override the continue handler to consume a weapon use and apply damage
-        const origHandler = () => {
+        const origHandler = async () => {
           btn.removeEventListener('click', origHandler);
           if (usingWeapon && hasWeapon) {
             weaponUsesRemaining--;
             refreshWeaponZone();
           }
           // Apply damage now (tie or loss)
-          const effStr = usingWeapon ? baseStr + weaponStr : baseStr;
+          const effStr = (usingWeapon ? baseStr + weaponStr : baseStr) + camoBonus + (usingWeapon ? holsterBonus : 0);
           if (effStr <= monsterStr && card.damage) {
-            applyEffects(negateDamage(card.damage));
+            await applyEffects(negateDamage(card.damage));
           }
           resolve({ lootLost: lootLostThisCard });
         };
@@ -2315,10 +3435,23 @@
     if (isSlot1) {
       const choice = await promptPaymentChoice();
       if (choice === 'threat') {
-        foodCost    = 0;   // waive food cost
-        threatCount = 1;   // draw 1 threat instead
+        foodCost    = 0;
+        threatCount = 1;
       }
       // choice === 'food': keep defaults (pay 2 food, no threat)
+    }
+
+    // 1a. Area Map — offer to override cost to 1 food / 0 threat
+    const areaMapIdx = itemSlots.findIndex((c, i) => c?.name === 'Area map' && itemUsesArr[i] > 0);
+    if (areaMapIdx >= 0 && (foodCost > 1 || threatCount > 0)) {
+      const useMap = await promptAreaMap(foodCost, threatCount);
+      if (useMap) {
+        foodCost    = 1;
+        threatCount = 0;
+        // Consume and discard the map
+        itemUsesArr[areaMapIdx] = 0;
+        setItemSlot(areaMapIdx, null);
+      }
     }
 
     // 1. Pay food cost
@@ -2350,8 +3483,13 @@
     } else if (card.type === 'gather') {
       if (card.effects) {
         for (const [track, amount] of Object.entries(card.effects)) {
-          const rounded = Math.round(amount);
+          let rounded = Math.round(amount);
           if (!rounded || !playerState[track]) continue;
+          // Firestarter kit: +1 extra food whenever food is collected
+          if (track === 'food' && rounded > 0 && itemSlots.some(c => c?.name === 'Firestarter kit')) {
+            rounded += 1;
+            effectLines.push(`🔥 Firestarter kit — +1 extra food`);
+          }
           const next = Math.max(0, Math.min(10, playerState[track].value + rounded));
           if (playerState[track].set) playerState[track].set(next);
           effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
@@ -2368,19 +3506,59 @@
       } else {
         effectLines.push('🔫 No ranged weapon to reload');
       }
+    } else if (card.name === 'Fuel Can') {
+      // Instant-use: refill a vehicle in inventory
+      const vehicle = inventory.vehicle;
+      if (vehicle) {
+        vehicleUsesRemaining = vehicle.uses; // restore to original uses
+        refreshVehicleZone();
+        effectLines.push(`⛽ ${vehicle.name} refuelled (${vehicle.uses} uses restored)`);
+      } else {
+        effectLines.push('⛽ No vehicle to refuel');
+      }
     } else {
       const type = card.type;
-      if (inventory[type]) {
-        const doReplace = await promptReplace(type, inventory[type], card);
-        if (doReplace) {
-          setInventorySlot(type, card);
-          effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+      if (type === 'item') {
+        // ── Item placement: Backpack-aware multi-slot logic ──
+        if (card.name === 'Backpack') {
+          // Backpack already in inventory — ignore (can't have two)
+          if (itemSlots.some(c => c?.name === 'Backpack')) {
+            effectLines.push('🎒 Already carrying a Backpack');
+          } else {
+            equipBackpack(card);
+            effectLines.push('🎒 Backpack equipped — 2 extra item slots unlocked');
+          }
         } else {
-          effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+          const emptyIdx = firstEmptyItemSlot();
+          if (emptyIdx >= 0) {
+            // Free slot available
+            setItemSlot(emptyIdx, card);
+            effectLines.push(`🎒 ${card.name} placed in item slot`);
+          } else {
+            // All slots full — prompt discard (cannot discard Backpack)
+            const discardIdx = await promptItemDiscard(card);
+            if (discardIdx >= 0) {
+              setItemSlot(discardIdx, card);
+              effectLines.push(`🎒 ${card.name} placed in item slot`);
+            } else {
+              effectLines.push('🎒 Item not taken');
+            }
+          }
         }
       } else {
-        setInventorySlot(type, card);
-        effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+        // Weapon or vehicle — existing single-slot replace dialog
+        if (inventory[type]) {
+          const doReplace = await promptReplace(type, inventory[type], card);
+          if (doReplace) {
+            setInventorySlot(type, card);
+            effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+          } else {
+            effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+          }
+        } else {
+          setInventorySlot(type, card);
+          effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
+        }
       }
     }
 
@@ -2392,7 +3570,9 @@
     await new Promise(r => setTimeout(r, 1800));
     const speed = getPlayerSpeed();
     if (speed > 0) {
-      discardForMovement(speed);
+      const { reachedEnd } = discardForMovement(speed);
+      updateDeckCount();
+
       // Consume one vehicle use if vehicle contributed
       const vehCard = inventory.vehicle;
       const vehContributed = vehCard && vehicleUsesRemaining > 0 && (vehCard.move ?? 0) > 0;
@@ -2402,6 +3582,14 @@
       }
       const baseSpd = getSpeed(playerState.sanity.value);
       const vehLabel = vehContributed ? ` + ${vehCard.move} (${vehCard.name})` : '';
+
+      if (reachedEnd) {
+        showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${vehLabel}\n🏛️ You reached the sanctuary!`, false, 3000);
+        await new Promise(r => setTimeout(r, 2000));
+        triggerYouWin();
+        return;
+      }
+
       showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${vehLabel}\n${drawPile.length} cards to sanctuary`, false, 2500);
       await new Promise(r => setTimeout(r, 2200));
     }
@@ -2409,21 +3597,29 @@
     // 7. Auto-redraw
     if (speed === 0) await new Promise(r => setTimeout(r, 400));
 
-    if (drawPile.length >= DRAW_SLOTS) {
+    if (drawPile.length === 0) {
+      clearLootZones();
+      updateDeckCount();
+      cardSelected = false;
+      triggerYouWin();
+    } else {
+      const count = Math.min(drawPile.length, DRAW_SLOTS);
       const slotsRowEl = document.getElementById('slots-row');
       slotsRowEl.classList.add('redrawing');
       await new Promise(r => setTimeout(r, 250));
       clearLootZones();
-      const drawn = drawPile.splice(0, DRAW_SLOTS);
+      const drawn = drawPile.splice(0, count);
       placeCards(drawn);
       updateDeckCount();
       cardSelected = false;
+      peekUsedThisTurn = false;
+      compassUsedThisTurn = false;
+      matchesUsedThisTurn = false;
+      torchUsedThisTurn = false;
+      tentUsedThisTurn = false;
+      tentActivatedThisTurn = false;
+      updateItemBars();
       slotsRowEl.classList.remove('redrawing');
-    } else {
-      clearLootZones();
-      updateDeckCount();
-      cardSelected = false;
-      showToast('The deck is exhausted.', true);
     }
   }
 
@@ -2511,21 +3707,15 @@
     }
   });
 
-  /* ── Discard cards from draw pile for movement, reshuffling if needed ── */
+  /* ── Discard cards from draw pile for movement ── */
+  /* Returns { reachedEnd: true } if the pile emptied during movement  */
   function discardForMovement(count) {
-    if (count <= 0) return [];
-    const discarded = [];
-    let remaining = count;
-    while (remaining > 0) {
-      if (drawPile.length === 0) {
-        // Reshuffle
-        drawPile = shuffle([...fullDeck]);
-        deckLaps++;
-      }
-      discarded.push(drawPile.splice(0, 1)[0]);
-      remaining--;
+    if (count <= 0) return { reachedEnd: false };
+    for (let i = 0; i < count; i++) {
+      if (drawPile.length === 0) return { reachedEnd: true };
+      drawPile.splice(0, 1);
     }
-    return discarded;
+    return { reachedEnd: drawPile.length === 0 };
   }
 
   async function loadDeck() {
@@ -2548,12 +3738,20 @@
   }
 
   document.getElementById('draw-btn').addEventListener('click', () => {
-    if (drawPile.length < DRAW_SLOTS) return;
-    const drawn = drawPile.splice(0, DRAW_SLOTS);
+    if (drawPile.length < 1) return;
+    const count = Math.min(drawPile.length, DRAW_SLOTS);
+    const drawn = drawPile.splice(0, count);
     clearLootZones();
     placeCards(drawn);
     updateDeckCount();
     cardSelected = false;
+    peekUsedThisTurn = false;
+    compassUsedThisTurn = false;
+    matchesUsedThisTurn = false;
+    torchUsedThisTurn = false;
+    tentUsedThisTurn = false;
+    tentActivatedThisTurn = false;
+    updateItemBars();
   });
 
   loadDeck();
@@ -2662,6 +3860,8 @@
       state.value = newVal;
       playerState[track.id].value = newVal;
       render();
+      // Refresh item action buttons when food changes (affects Matches/Torch/Tent/Compass)
+      if (track.id === 'food') renderItemSlots();
     };
 
     const wrapper = document.createElement('div');

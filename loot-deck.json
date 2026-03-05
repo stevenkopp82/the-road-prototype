@@ -62,7 +62,8 @@
       "start": true,
       "type": "item",
       "text": "Block mutation x1",
-      "value": 2.0
+      "value": 2.0,
+      "uses": 1
     },
     {
       "name": "Deck of cards",
@@ -132,7 +133,7 @@
       "name": "Fuel Can",
       "start": false,
       "type": "item",
-      "text": "Use once: Refill vehicle",
+      "text": "Use once: Refill vehicle uses",
       "value": 4.0
     },
     {
@@ -140,7 +141,8 @@
       "start": false,
       "type": "item",
       "text": "Block mutation x2",
-      "value": 4.0
+      "value": 4.0,
+      "uses": 2
     },
     {
       "name": "Ammo",
@@ -153,15 +155,16 @@
       "name": "Fuel Can",
       "start": false,
       "type": "item",
-      "text": "Use once: Refuel vehicle",
+      "text": "Use once: Refill vehicle uses",
       "value": 4.0
     },
     {
       "name": "Matches",
       "start": false,
       "type": "item",
-      "text": "Reroll x2",
-      "value": 4.0
+      "text": "3 uses: pay 1 food \u2192 +1 health (once per turn)",
+      "value": 4.0,
+      "uses": 3
     },
     {
       "name": "Pain meds",
@@ -187,8 +190,9 @@
       "name": "Area map",
       "start": false,
       "type": "item",
-      "text": "Use once: Re-arrange cards on Gather board",
-      "value": 5.0
+      "text": "Use once: Next card costs 1 food, 0 threat",
+      "value": 5.0,
+      "uses": 1
     },
     {
       "name": "Hammer",
@@ -221,8 +225,9 @@
       "name": "Stash of ration packs",
       "start": false,
       "type": "item",
-      "text": "Food x5",
-      "value": 5.5
+      "text": "Food +1 per use (5 uses)",
+      "value": 5.5,
+      "uses": 5
     },
     {
       "name": "First aid kit (tainted)",
@@ -255,7 +260,7 @@
       "name": "Holster",
       "start": true,
       "type": "item",
-      "text": "Extra weapon slot",
+      "text": "+2 STR when using ranged or explosive weapon in battle",
       "value": 6.0
     },
     {
@@ -281,8 +286,9 @@
       "name": "Torch",
       "start": false,
       "type": "item",
-      "text": "Reroll x3",
-      "value": 6.0
+      "text": "3 uses: pay 1 food \u2192 +1 sanity (once per turn)",
+      "value": 6.0,
+      "uses": 3
     },
     {
       "name": "Preserved meat",
@@ -327,7 +333,7 @@
       "name": "Backpack",
       "start": true,
       "type": "item",
-      "text": "Extra item slot",
+      "text": "Adds 2 extra item slots",
       "value": 7.0
     },
     {
@@ -397,21 +403,22 @@
       "name": "Compass",
       "start": false,
       "type": "item",
-      "text": "Peek at top Gather card, replace or discard (once per round)",
+      "text": "Once per turn: Peek top loot card (costs 1 food). Keep or discard.",
       "value": 10.0
     },
     {
       "name": "Tent",
       "start": false,
       "type": "item",
-      "text": "Health +1 x4 (all players)",
-      "value": 10.0
+      "text": "2 uses: pay 1 food \u2192 discard board, redraw 5 (no movement)",
+      "value": 10.0,
+      "uses": 2
     },
     {
       "name": "Firestarter kit",
       "start": false,
       "type": "item",
-      "text": "Sanity +1 x4 (all players)",
+      "text": "Passive: gain +1 food whenever you collect food",
       "value": 10.0
     },
     {
