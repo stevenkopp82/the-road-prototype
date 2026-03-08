@@ -2,533 +2,724 @@
   "loot_deck": [
     {
       "name": "Monster carcass",
-      "start": false,
+      "location": "sprawl",
       "type": "gather",
       "effects": {
-        "food": 6.0,
-        "mutation": 2.0
+        "food": 6,
+        "mutation": 2
       },
-      "value": 1.0
+      "value": 1,
+      "icon": "\ud83d\udc3e"
     },
     {
       "name": "Psychadelic shrooms",
-      "start": false,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 4.0,
-        "sanity": -1.0
+        "food": 4,
+        "sanity": -1
       },
-      "value": 1.9
+      "value": 1.9,
+      "icon": "\ud83c\udf44"
     },
     {
       "name": "Mushrooms",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 2.0
+        "food": 2
       },
-      "value": 2.0
+      "value": 2,
+      "icon": "\ud83c\udf44"
+    },
+    {
+      "name": "Mushrooms",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "food": 2
+      },
+      "value": 2,
+      "icon": "\ud83c\udf44"
     },
     {
       "name": "Can of beans",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 2.0
+        "food": 2
       },
-      "value": 2.0
+      "value": 2,
+      "icon": "\ud83e\udd6b"
     },
     {
       "name": "Bandaids",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 1.0
+        "health": 1
       },
-      "value": 2.0
+      "value": 2,
+      "icon": "\ud83e\ude79"
+    },
+    {
+      "name": "Bandaids",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "health": 1
+      },
+      "value": 2,
+      "icon": "\ud83e\ude79"
     },
     {
       "name": "Opened ration packet",
-      "start": false,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 4.0,
-        "health": -1.0
+        "food": 4,
+        "health": -1
       },
-      "value": 2.0
+      "value": 2,
+      "icon": "\ud83d\udce6"
     },
     {
       "name": "Anti-viral",
-      "start": true,
+      "location": "road",
       "type": "item",
       "text": "Block mutation x1",
-      "value": 2.0,
-      "uses": 1
+      "uses": 1,
+      "value": 2,
+      "icon": "\ud83e\uddea"
     },
     {
       "name": "Deck of cards",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "sanity": 1.0
+        "sanity": 1
       },
-      "value": 2.1
+      "value": 2.1,
+      "icon": "\ud83c\udccf"
     },
     {
       "name": "Animal carcass",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 5.0,
-        "mutation": 1.0
+        "food": 5,
+        "mutation": 1
       },
-      "value": 2.5
+      "value": 2.5,
+      "icon": "\ud83e\uddb4"
     },
     {
       "name": "Unmarked bottle",
-      "start": false,
+      "location": "hive",
       "type": "gather",
       "effects": {
-        "health": 2.0,
-        "mutation": 1.0
+        "health": 2,
+        "mutation": 1
       },
-      "value": 2.98
+      "value": 2.98,
+      "icon": "\ud83c\udf76"
     },
     {
       "name": "Apples",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 3.0
+        "food": 3
       },
-      "value": 3.0
+      "value": 3,
+      "icon": "\ud83c\udf4e"
     },
     {
       "name": "Bomb",
-      "start": false,
+      "location": "sprawl",
       "type": "weapon",
-      "text": "Single use (1D)",
-      "strength": 3.5,
+      "strength": 4,
       "uses": 1,
-      "value": 3.5,
-      "weapon_class": "explosive"
+      "weapon_class": "explosive",
+      "value": 4,
+      "icon": "\ud83d\udca3"
+    },
+    {
+      "name": "Apples",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "food": 3
+      },
+      "value": 3,
+      "icon": "\ud83c\udf4e"
     },
     {
       "name": "Gauze",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 2.0
+        "health": 2
       },
-      "value": 4.0
+      "value": 4,
+      "icon": "\ud83e\ude79"
     },
     {
       "name": "Ammo",
-      "start": false,
+      "location": "sprawl",
       "type": "item",
       "text": "Use once: Reload range weapon",
-      "value": 4.0
+      "value": 4,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Fuel Can",
-      "start": false,
+      "location": "hive",
       "type": "item",
       "text": "Use once: Refill vehicle uses",
-      "value": 4.0
+      "value": 4,
+      "icon": "\u26fd"
     },
     {
       "name": "Anti-virals",
-      "start": false,
+      "location": "sprawl",
       "type": "item",
       "text": "Block mutation x2",
-      "value": 4.0,
-      "uses": 2
+      "uses": 2,
+      "value": 4,
+      "icon": "\ud83e\uddea"
     },
     {
       "name": "Ammo",
-      "start": false,
+      "location": "hive",
       "type": "item",
       "text": "Use once: Reload range weapon",
-      "value": 4.0
+      "value": 4,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Fuel Can",
-      "start": false,
+      "location": "sprawl",
       "type": "item",
       "text": "Use once: Refill vehicle uses",
-      "value": 4.0
+      "value": 4,
+      "icon": "\u26fd"
     },
     {
       "name": "Matches",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "3 uses: pay 1 food \u2192 +1 health (once per turn)",
-      "value": 4.0,
-      "uses": 3
+      "text": "+1 food after any battle win or tie",
+      "uses": 3,
+      "value": 4,
+      "icon": "\ud83d\udd25"
     },
     {
       "name": "Pain meds",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 1.0,
-        "sanity": 1.0
+        "health": 1,
+        "sanity": 1
       },
-      "value": 4.1
+      "value": 4.1,
+      "icon": "\ud83d\udc8a"
+    },
+    {
+      "name": "Pain meds",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "health": 1,
+        "sanity": 1
+      },
+      "value": 4.1,
+      "icon": "\ud83d\udc8a"
     },
     {
       "name": "Blackberries",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 3.0,
-        "health": 1.0
+        "food": 3,
+        "health": 1
       },
-      "value": 5.0
+      "value": 5,
+      "icon": "\ud83e\uded0"
     },
     {
       "name": "Area map",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "Use once: Next card costs 1 food, 0 threat",
-      "value": 5.0,
-      "uses": 1
+      "text": "Passive: Slots 2 & 3 cost 1 less food",
+      "uses": 1,
+      "value": 5,
+      "icon": "\ud83d\uddfa\ufe0f"
     },
     {
       "name": "Hammer",
-      "start": true,
+      "location": "road",
       "type": "weapon",
-      "strength": 1.0,
+      "strength": 1,
       "uses": 5,
-      "value": 5.0,
-      "weapon_class": "melee"
+      "weapon_class": "melee",
+      "value": 5,
+      "icon": "\ud83d\udd28"
     },
     {
       "name": "Hiking sticks",
-      "start": true,
+      "location": "road",
       "type": "vehicle",
+      "uses": 5,
       "move": 1,
-      "uses": 10,
-      "value": 5.0
+      "value": 4.5,
+      "icon": "\ud83e\ude84"
     },
     {
       "name": "Strawberries",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 3.0,
-        "sanity": 1.0
+        "food": 3,
+        "sanity": 1
       },
-      "value": 5.1
+      "value": 5.1,
+      "icon": "\ud83c\udf53"
     },
     {
       "name": "Stash of ration packs",
-      "start": false,
+      "location": "sprawl",
       "type": "item",
-      "text": "Food +1 per use (5 uses)",
+      "text": "Passive: Absorbs starvation \u2014 sets food to 1 instead of starving (5 uses)",
+      "uses": 5,
       "value": 5.5,
-      "uses": 5
+      "icon": "\ud83c\udf92"
     },
     {
       "name": "First aid kit (tainted)",
-      "start": false,
+      "location": "sprawl",
       "type": "gather",
       "effects": {
-        "health": 4.0,
-        "mutation": 1.0
+        "health": 4,
+        "mutation": 1
       },
-      "value": 5.5
+      "value": 5.5,
+      "icon": "\ud83e\uddec"
     },
     {
       "name": "Luminous vial",
-      "start": false,
+      "location": "hive",
       "type": "gather",
       "effects": {
-        "sanity": 4.0,
-        "mutation": 1.0
+        "sanity": 4,
+        "mutation": 1
       },
-      "value": 5.9
+      "value": 5.9,
+      "icon": "\u2728"
     },
     {
-      "name": "Camoflauge",
-      "start": false,
+      "name": "Camouflage",
+      "location": "road",
       "type": "item",
-      "text": "Draw different monster (once per turn)",
-      "value": 6.0
+      "text": "Passive: +1 STR in all battles",
+      "value": 6,
+      "icon": "\ud83e\udee5"
     },
     {
       "name": "Holster",
-      "start": true,
+      "location": "road",
       "type": "item",
       "text": "+2 STR when using ranged or explosive weapon in battle",
-      "value": 6.0
+      "value": 6,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Fish",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 4.0,
-        "health": 1.0
+        "food": 4,
+        "health": 1
       },
-      "value": 6.0
+      "value": 6,
+      "icon": "\ud83d\udc1f"
     },
     {
       "name": "First aid kit",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 3.0
+        "health": 3
       },
-      "value": 6.0
+      "value": 6,
+      "icon": "\ud83e\ude7a"
+    },
+    {
+      "name": "First aid kit",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "health": 3
+      },
+      "value": 6,
+      "icon": "\ud83e\ude7a"
     },
     {
       "name": "Torch",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "3 uses: pay 1 food \u2192 +1 sanity (once per turn)",
-      "value": 6.0,
-      "uses": 3
+      "text": "At the start of your turn, may use to increase sanity by 1",
+      "uses": 3,
+      "value": 6,
+      "icon": "\ud83d\udd26"
     },
     {
       "name": "Preserved meat",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 4.0,
-        "sanity": 1.0
+        "food": 4,
+        "sanity": 1
       },
-      "value": 6.1
+      "value": 6.1,
+      "icon": "\ud83e\udd69"
     },
     {
       "name": "Splint",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 2.0,
-        "sanity": 1.0
+        "health": 2,
+        "sanity": 1
       },
-      "value": 6.1
+      "value": 6.1,
+      "icon": "\ud83e\uddb4"
     },
     {
       "name": "Medicinal herbs",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 1.0,
-        "sanity": 2.0
+        "health": 1,
+        "sanity": 2
       },
-      "value": 6.2
+      "value": 6.2,
+      "icon": "\ud83c\udf3f"
     },
     {
       "name": "Fresh clothes",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "sanity": 3.0
+        "sanity": 3
       },
-      "value": 6.3
+      "value": 6.3,
+      "icon": "\ud83d\udc55"
     },
     {
       "name": "Backpack",
-      "start": true,
+      "location": "road",
       "type": "item",
-      "text": "Adds 2 extra item slots",
-      "value": 7.0
+      "text": "Expand max food to 10",
+      "value": 7,
+      "icon": "\ud83c\udf92"
     },
     {
-      "name": "Granade",
-      "start": false,
+      "name": "Grenade",
+      "location": "hive",
       "type": "weapon",
-      "text": "Single use (2D)",
-      "strength": 7.0,
+      "strength": 7,
       "uses": 1,
-      "value": 7.0,
-      "weapon_class": "explosive"
+      "weapon_class": "explosive",
+      "value": 7,
+      "icon": "\ud83d\udca3"
     },
     {
       "name": "Chocolate bar",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "food": 1.0,
-        "sanity": 3.0
+        "food": 1,
+        "sanity": 3
       },
-      "value": 7.3
+      "value": 7.3,
+      "icon": "\ud83c\udf6b"
     },
     {
       "name": "Small car",
-      "start": true,
+      "location": "road",
       "type": "vehicle",
-      "move": 3,
       "uses": 3,
-      "value": 8.1
+      "move": 3,
+      "value": 8.1,
+      "icon": "\ud83d\ude97"
     },
     {
       "name": "Joke book",
-      "start": true,
+      "location": "road",
       "type": "gather",
       "effects": {
-        "health": 1.0,
-        "sanity": 3.0
+        "health": 1,
+        "sanity": 3
       },
-      "value": 8.3
+      "value": 8.3,
+      "icon": "\ud83d\udcd6"
     },
     {
       "name": "Bikes",
-      "start": true,
+      "location": "road",
       "type": "vehicle",
-      "text": "1 move if any player has 0 strength",
+      "uses": 5,
       "move": 2,
-      "uses": 10,
-      "value": 9.5
+      "value": 9.5,
+      "icon": "\ud83d\udeb2"
     },
     {
       "name": "Binoculars",
-      "start": true,
+      "location": "road",
       "type": "item",
-      "text": "Reveal Threat Card (per turn)",
-      "value": 10.0
+      "text": "Reduce threat cost on slots 4 and 5 by 1",
+      "value": 10,
+      "icon": "\ud83d\udd2d"
     },
     {
       "name": "Handgun",
-      "start": true,
+      "location": "road",
       "type": "weapon",
-      "strength": 5.0,
+      "strength": 5,
       "uses": 2,
-      "value": 10.0,
-      "weapon_class": "ranged"
+      "weapon_class": "ranged",
+      "value": 10,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Compass",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "Once per turn: Peek top loot card (costs 1 food). Keep or discard.",
-      "value": 10.0
+      "text": "+1 move",
+      "value": 10,
+      "icon": "\ud83e\udded"
     },
     {
       "name": "Tent",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "2 uses: pay 1 food \u2192 discard board, redraw 5 (no movement)",
-      "value": 10.0,
-      "uses": 2
+      "text": "Passive: When you gain health from a gather card, +1 extra health",
+      "uses": 2,
+      "value": 10,
+      "icon": "\u26fa"
     },
     {
       "name": "Firestarter kit",
-      "start": false,
+      "location": "road",
       "type": "item",
-      "text": "Passive: gain +1 food whenever you collect food",
-      "value": 10.0
+      "text": "When you gain food, +1 food",
+      "value": 10,
+      "icon": "\ud83d\udd25"
     },
     {
       "name": "Shovel",
-      "start": true,
+      "location": "road",
       "type": "weapon",
-      "strength": 2.0,
+      "strength": 2,
       "uses": 5,
-      "value": 10.0,
-      "weapon_class": "melee"
+      "weapon_class": "melee",
+      "value": 10,
+      "icon": "\u26cf\ufe0f"
     },
     {
       "name": "Minivan",
-      "start": false,
+      "location": "sprawl",
       "type": "vehicle",
-      "move": 4,
       "uses": 3,
-      "value": 10.8
+      "move": 4,
+      "value": 10.8,
+      "icon": "\ud83d\ude90"
     },
     {
       "name": "Bow and arrows",
-      "start": true,
+      "location": "road",
       "type": "weapon",
-      "strength": 4.0,
+      "strength": 4,
       "uses": 3,
-      "value": 12.0,
-      "weapon_class": "ranged"
+      "weapon_class": "ranged",
+      "value": 12,
+      "icon": "\ud83c\udff9"
     },
     {
       "name": "Shotgun",
-      "start": false,
+      "location": "sprawl",
       "type": "weapon",
-      "strength": 6.0,
+      "strength": 6,
       "uses": 2,
-      "value": 12.0,
-      "weapon_class": "ranged"
+      "weapon_class": "ranged",
+      "value": 12,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Service van",
-      "start": false,
+      "location": "hive",
       "type": "vehicle",
-      "move": 5,
       "uses": 3,
-      "value": 13.5
+      "move": 5,
+      "value": 13.5,
+      "icon": "\ud83d\ude9a"
     },
     {
       "name": "Rifle",
-      "start": false,
+      "location": "hive",
       "type": "weapon",
-      "strength": 7.0,
+      "strength": 7,
       "uses": 2,
-      "value": 14.0,
-      "weapon_class": "ranged"
+      "weapon_class": "ranged",
+      "value": 14,
+      "icon": "\ud83d\udd2b"
     },
     {
       "name": "Mountain Bikes",
-      "start": false,
+      "location": "sprawl",
       "type": "vehicle",
-      "text": "1 move if any player has 0 strength",
+      "uses": 5,
       "move": 3,
-      "uses": 10,
-      "value": 14.5
+      "value": 14.5,
+      "icon": "\ud83d\udeb5"
     },
     {
       "name": "Pickup Truck",
-      "start": false,
+      "location": "hive",
       "type": "vehicle",
-      "text": "All players +1 strength",
-      "move": 6,
       "uses": 2,
-      "value": 14.8
+      "move": 6,
+      "value": 14.8,
+      "icon": "\ud83d\udefb"
     },
     {
       "name": "Hatchet",
-      "start": true,
+      "location": "road",
       "type": "weapon",
-      "strength": 3.0,
+      "strength": 3,
       "uses": 5,
-      "value": 15.0,
-      "weapon_class": "melee"
+      "weapon_class": "melee",
+      "value": 15,
+      "icon": "\ud83e\ude93"
     },
     {
       "name": "Scoped Rifle",
-      "start": false,
+      "location": "hive",
       "type": "weapon",
-      "strength": 8.0,
+      "strength": 8,
       "uses": 2,
-      "value": 16.0,
-      "weapon_class": "ranged"
+      "weapon_class": "ranged",
+      "value": 16,
+      "icon": "\ud83c\udfaf"
     },
     {
       "name": "Mutant Claw",
-      "start": false,
+      "location": "sprawl",
       "type": "weapon",
       "effects": {
-        "mutation": 1.0
+        "mutation": 1
       },
-      "strength": 4.0,
+      "strength": 4,
       "uses": 5,
+      "weapon_class": "melee",
       "value": 17.5,
-      "weapon_class": "melee"
+      "icon": "\ud83e\udd85"
     },
     {
       "name": "Monster Truck",
-      "start": false,
+      "location": "sprawl",
       "type": "vehicle",
-      "text": "All players +2 strength",
-      "move": 6,
       "uses": 2,
-      "value": 18.8
+      "move": 6,
+      "value": 12,
+      "icon": "\ud83d\ude9b"
+    },
+    {
+      "name": "Acorns",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "food": 1
+      },
+      "value": 1,
+      "icon": "\ud83c\udf30"
+    },
+    {
+      "name": "Stick",
+      "location": "road",
+      "type": "weapon",
+      "strength": 1,
+      "uses": 2,
+      "weapon_class": "melee",
+      "value": 2,
+      "icon": "\ud83e\udeb5"
+    },
+    {
+      "name": "Pitchfork",
+      "location": "road",
+      "type": "weapon",
+      "strength": 2,
+      "uses": 4,
+      "weapon_class": "melee",
+      "value": 8,
+      "icon": "\ud83d\udd31"
+    },
+    {
+      "name": "Wrench",
+      "location": "road",
+      "type": "weapon",
+      "strength": 1,
+      "uses": 4,
+      "weapon_class": "melee",
+      "value": 4,
+      "icon": "\ud83d\udd27"
+    },
+    {
+      "name": "Scooter",
+      "location": "road",
+      "type": "vehicle",
+      "uses": 2,
+      "move": 2,
+      "value": 3.5,
+      "icon": "\ud83d\udef5"
+    },
+    {
+      "name": "Anti-virals",
+      "location": "hive",
+      "type": "item",
+      "text": "Block mutation x2",
+      "uses": 2,
+      "value": 4,
+      "icon": "\ud83e\uddea"
+    },
+    {
+      "name": "Ammo",
+      "location": "hive",
+      "type": "item",
+      "text": "Use once: Reload range weapon",
+      "value": 4,
+      "icon": "\ud83d\udd2b"
+    },
+    {
+      "name": "Brass knuckes",
+      "location": "hive",
+      "type": "weapon",
+      "strength": 3,
+      "uses": 5,
+      "weapon_class": "melee",
+      "value": 15,
+      "icon": "\u270a"
+    },
+    {
+      "name": "Edible Bugs",
+      "location": "road",
+      "type": "gather",
+      "effects": {
+        "food": 1
+      },
+      "value": 1,
+      "icon": "\ud83d\udc1b"
     }
   ]
 }

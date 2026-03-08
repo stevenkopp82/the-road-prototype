@@ -2,97 +2,324 @@
   "threat_deck": [
     {
       "name": "Meadow",
-      "start": true,
-      "type": "break"
+      "location": "The Road",
+      "type": "break",
+      "icon": "\ud83c\udf3e"
     },
     {
       "name": "Brook",
-      "start": true,
-      "type": "break"
+      "location": "The Road",
+      "type": "break",
+      "icon": "\ud83c\udf0a"
     },
     {
       "name": "Injury",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "health": -1
-      }
+      },
+      "icon": "\ud83e\udd15"
     },
     {
       "name": "Injury",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "health": -1
-      }
+      },
+      "icon": "\ud83e\udd15"
     },
     {
       "name": "Disturbance",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "sanity": -1
-      }
+      },
+      "icon": "\ud83d\ude28"
     },
     {
       "name": "Disturbance",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "sanity": -1
-      }
+      },
+      "icon": "\ud83d\ude28"
     },
     {
       "name": "Infection",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "mutation": 1
-      }
+      },
+      "icon": "\ud83e\udda0"
     },
     {
       "name": "Infection",
-      "start": true,
+      "location": "The Road",
       "type": "setback",
       "effects": {
         "mutation": 1
-      }
+      },
+      "icon": "\ud83e\udda0"
     },
     {
       "name": "Rabid fox",
-      "start": true,
+      "location": "The Road",
       "type": "monster",
       "strength": 1,
       "damage": {
-        "health": 1
-      }
+        "health": -1
+      },
+      "icon": "\ud83e\udd8a"
     },
     {
       "name": "Feral dog",
-      "start": true,
+      "location": "The Road",
       "type": "monster",
       "strength": 2,
       "damage": {
-        "sanity": 1
-      }
+        "sanity": -1
+      },
+      "icon": "\ud83d\udc15"
     },
     {
       "name": "Snake pit",
-      "start": true,
+      "location": "The Road",
       "type": "monster",
       "strength": 3,
       "damage": {
-        "mutation": -1
-      }
+        "mutation": 1
+      },
+      "icon": "\ud83d\udc0d"
     },
     {
       "name": "Wolf",
-      "start": true,
+      "location": "The Road",
       "type": "monster",
       "strength": 4,
       "damage": {
-        "health": 2
-      }
+        "health": -2
+      },
+      "icon": "\ud83d\udc3a"
+    },
+    {
+      "name": "Abandoned House",
+      "location": "The Sprawl",
+      "type": "break",
+      "icon": "\ud83c\udfda\ufe0f"
+    },
+    {
+      "name": "Midnight Bandit",
+      "location": "The Sprawl",
+      "type": "setback",
+      "discard_item": 1,
+      "icon": "\ud83c\udf11"
+    },
+    {
+      "name": "Injury",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "health": -1
+      },
+      "icon": "\ud83e\udd15"
+    },
+    {
+      "name": "Injury",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "health": -2
+      },
+      "icon": "\ud83e\udd15"
+    },
+    {
+      "name": "Disturbance",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "sanity": -1
+      },
+      "icon": "\ud83d\ude28"
+    },
+    {
+      "name": "Disturbance",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "sanity": -2
+      },
+      "icon": "\ud83d\ude28"
+    },
+    {
+      "name": "Infection",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "mutation": 1
+      },
+      "icon": "\ud83e\udda0"
+    },
+    {
+      "name": "Infection",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "mutation": 2
+      },
+      "icon": "\ud83e\udda0"
+    },
+    {
+      "name": "Raving survivor",
+      "location": "The Sprawl",
+      "type": "monster",
+      "strength": 3,
+      "damage": {
+        "sanity": -1
+      },
+      "icon": "\ud83e\udddf"
+    },
+    {
+      "name": "Lone bandit",
+      "location": "The Sprawl",
+      "type": "monster",
+      "strength": 5,
+      "damage": {
+        "mutation": 1
+      },
+      "icon": "\ud83d\udde1\ufe0f"
+    },
+    {
+      "name": "Backstabber",
+      "location": "The Sprawl",
+      "type": "monster",
+      "strength": 7,
+      "damage": {
+        "health": -1
+      },
+      "icon": "\ud83d\udd2a"
+    },
+    {
+      "name": "Cannibal hunter",
+      "location": "The Sprawl",
+      "type": "monster",
+      "strength": 8,
+      "damage": {
+        "sanity": -2
+      },
+      "icon": "\ud83d\udc80"
+    },
+    {
+      "name": "Safehouse",
+      "location": "The Hive",
+      "type": "break",
+      "icon": "\ud83c\udfe0"
+    },
+    {
+      "name": "The Rats",
+      "location": "The Hive",
+      "type": "setback",
+      "discard_item": 2,
+      "icon": "\ud83d\udc00"
+    },
+    {
+      "name": "Injury",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "health": -2
+      },
+      "icon": "\ud83e\udd15"
+    },
+    {
+      "name": "Injury",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "health": -2
+      },
+      "icon": "\ud83e\udd15"
+    },
+    {
+      "name": "Disturbance",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "sanity": -2
+      },
+      "icon": "\ud83d\ude28"
+    },
+    {
+      "name": "Disturbance",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "sanity": -2
+      },
+      "icon": "\ud83d\ude28"
+    },
+    {
+      "name": "Infection",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "mutation": 2
+      },
+      "icon": "\ud83e\udda0"
+    },
+    {
+      "name": "Infection",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "mutation": 2
+      },
+      "icon": "\ud83e\udda0"
+    },
+    {
+      "name": "Third-eye squirrel",
+      "location": "The Hive",
+      "type": "monster",
+      "strength": 5,
+      "damage": {
+        "mutation": 2
+      },
+      "icon": "\ud83d\udc3f\ufe0f"
+    },
+    {
+      "name": "Mutated bats",
+      "location": "The Hive",
+      "type": "monster",
+      "strength": 7,
+      "damage": {
+        "health": -2
+      },
+      "icon": "\ud83e\udd87"
+    },
+    {
+      "name": "Giant spider",
+      "location": "The Hive",
+      "type": "monster",
+      "strength": 9,
+      "damage": {
+        "sanity": -2
+      },
+      "icon": "\ud83d\udd77\ufe0f"
+    },
+    {
+      "name": "Fungal Bear",
+      "location": "The Hive",
+      "type": "monster",
+      "strength": 10,
+      "damage": {
+        "health": -1,
+        "mutation": 2
+      },
+      "icon": "\ud83d\udc3b"
     }
   ]
 }
