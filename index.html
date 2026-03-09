@@ -2563,23 +2563,75 @@
       letter-spacing: 0.22em;
       margin-bottom: 0.4rem;
     }
-    .sm-begin-btn {
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--ink);
-      background: linear-gradient(135deg, #c8962a, #8a620c);
-      border: none;
-      border-radius: 4px;
-      padding: 0.72rem 2.4rem;
-      cursor: pointer;
-      margin-top: 0.4rem;
-      box-shadow: 0 0 20px rgba(200,150,42,0.3);
-      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    .sm-difficulty {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
     }
-    .sm-begin-btn:hover  { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 28px rgba(200,150,42,0.45); }
-    .sm-begin-btn:active { transform: scale(0.97); }
+    .sm-difficulty-label {
+      font-family: 'Spectral', serif;
+      font-size: 0.62rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .sm-difficulty-btns {
+      display: flex;
+      gap: 0.6rem;
+      width: 100%;
+    }
+    .sm-diff-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.65rem 0.5rem;
+      border: 1px solid rgba(200,150,42,0.35);
+      background: rgba(200,150,42,0.08);
+      color: var(--ink);
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .sm-diff-btn:hover {
+      background: rgba(200,150,42,0.18);
+      border-color: rgba(200,150,42,0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(200,150,42,0.25);
+    }
+    .sm-diff-btn:active { transform: scale(0.97); }
+    .sm-diff-hard {
+      border-color: rgba(200,60,60,0.4);
+      background: rgba(200,60,60,0.07);
+    }
+    .sm-diff-hard:hover {
+      background: rgba(200,60,60,0.15);
+      border-color: rgba(200,60,60,0.7);
+      box-shadow: 0 4px 20px rgba(200,60,60,0.2);
+    }
+    .sm-diff-name {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f0e8d8;
+    }
+    .sm-diff-hard .sm-diff-name { color: #e08080; }
+    .sm-diff-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.52rem;
+      color: var(--gold-dim);
+      opacity: 0.7;
+      text-align: center;
+      line-height: 1.4;
+      letter-spacing: 0;
+      text-transform: none;
+    }
 
     /* ── Draw button card count ── */
     .draw-btn-count {
@@ -2612,6 +2664,26 @@
     .rules-btn:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
     #rules-btn-start  { top: 1.2rem; right: 1.2rem; }
     #rules-btn-game   { top: 1.2rem; right: 1.2rem; display: none; }
+    #restart-btn {
+      position: fixed;
+      top: 1.2rem;
+      left: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: rgba(10,8,6,0.85);
+      border: 1px solid rgba(180,60,60,0.4);
+      color: rgba(200,100,100,0.7);
+      border-radius: 4px;
+      padding: 0.38rem 0.75rem;
+      cursor: pointer;
+      display: none;
+      z-index: 800;
+      transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    #restart-btn:hover { color: #e08080; border-color: rgba(200,80,80,0.7); }
 
     #rulebook-modal {
       display: none;
@@ -2794,7 +2866,14 @@
       <span class="sm-goal-title">Your Objective</span>
       Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
     </div>
-    <button class="sm-begin-btn" id="sm-begin-btn">Begin the Journey</button>
+    <div class="sm-difficulty">
+      <div class="sm-difficulty-label">How much do you have left to lose?</div>
+      <div class="sm-difficulty-btns">
+        <button class="sm-diff-btn" data-deal="30"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
+        <button class="sm-diff-btn" data-deal="35"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
+        <button class="sm-diff-btn sm-diff-hard" data-deal="40"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2804,6 +2883,7 @@
 <!-- ? buttons — one overlaid on start menu, one on game screen -->
 <button class="rules-btn" id="rules-btn-start" title="Rulebook">?</button>
 <button class="rules-btn" id="rules-btn-game"  title="Rulebook">?</button>
+<button id="restart-btn">↩ Restart</button>
 
 <!-- ══════════════════════════════════════
      RULEBOOK MODAL
@@ -2824,6 +2904,7 @@
       <a class="rb-toc-link" href="#rb-gather">Gather Track</a>
       <a class="rb-toc-link" href="#rb-threats">Threats &amp; Combat</a>
       <a class="rb-toc-link" href="#rb-cards">Card Types</a>
+      <a class="rb-toc-link" href="#rb-mutations">Mutations</a>
       <a class="rb-toc-link" href="#rb-items">Item Reference</a>
       <a class="rb-toc-link" href="#rb-movement">Movement</a>
       <a class="rb-toc-link" href="#rb-locations">Locations</a>
@@ -2835,35 +2916,43 @@
     <!-- OVERVIEW -->
     <div class="rb-section-title" id="rb-overview">Overview</div>
     <div class="rb-body">
-      <p>The Road is a solo survival card game for one player. You play as a survivor navigating a post-apocalyptic wasteland, scavenging resources, fighting threats, and managing your dwindling body and mind across three dangerous locations before reaching the safety of The Sanctuary.</p>
-      <p>Each turn you reveal cards from the Gather Track and choose one to take. Every choice costs food, draws threats, or both. Resources, gear, and luck will determine whether you make it.</p>
+      <p>The Road is a solo survival card game. You play as a survivor navigating a post-apocalyptic wasteland, scavenging resources, fighting threats, and managing your health, sanity, and mutation across three dangerous locations before reaching The Sanctuary.</p>
+      <p>Each turn you reveal five cards on the Gather Track and choose one to take. Every choice costs food, draws threats, or both. The deck runs out — the journey ends. Make it count.</p>
     </div>
 
     <div class="rb-divider"></div>
 
     <!-- COMPONENTS -->
     <div class="rb-section-title" id="rb-components">Components</div>
-    <div class="rb-subsection">Loot Deck — 60 Cards</div>
+    <div class="rb-subsection">Loot Deck — 74 Cards</div>
     <div class="rb-body">
-      <p>The loot deck contains four card types: Gather (24), Items (17), Weapons (11), and Vehicles (8). The deck is split into a <strong>Starting Deck</strong> of 30 marked cards and a <strong>Reserve Deck</strong> of 30 cards that enter play gradually as gear is acquired.</p>
+      <p>The loot deck is split by location: <strong>50 Road cards</strong>, <strong>12 Sprawl cards</strong>, and <strong>12 Hive cards</strong>. Cards contain four types: Gather (resources), Items (passive or active gear), Weapons (combat tools), and Vehicles (movement). Only Road cards are used in the first leg; Sprawl and Hive cards enter play through a draft at each location transition.</p>
     </div>
-    <div class="rb-subsection">Threat Deck — 12 Cards</div>
+    <div class="rb-subsection">Threat Deck — 36 Cards</div>
     <div class="rb-body">
-      <p>The threat deck contains Breaks (safe), Setbacks (stat loss), and Monsters (combat). It is shuffled and drawn from when threat costs are paid. The threat deck reshuffles automatically when exhausted.</p>
+      <p>The threat deck contains 12 cards per location (The Road, The Sprawl, The Hive). When a threat cost is paid, the matching location's cards are drawn from a shuffled pile. The pile reshuffles automatically when exhausted. Types: <strong>Break</strong> (safe), <strong>Setback</strong> (stat loss), <strong>Monster</strong> (combat).</p>
     </div>
-    <div class="rb-subsection">Player Board</div>
+    <div class="rb-subsection">Mutant Deck — 9 Cards</div>
     <div class="rb-body">
-      <p>Tracks four stats — Food, Health, Sanity, and Mutation — each on a scale of 0–10. Two derived combat stats (STR and SPD) are calculated from your Health and Sanity.</p>
+      <p>When your Mutation marker crosses positions 4, 6, or 9 on the track, you draw a Mutant card. These grant permanent passive bonuses that stack across the run.</p>
     </div>
 
     <div class="rb-divider"></div>
 
     <!-- SETUP -->
-    <div class="rb-section-title" id="rb-setup">Setup</div>
+    <div class="rb-section-title" id="rb-setup">Setup &amp; Difficulty</div>
     <div class="rb-body">
-      <p>Shuffle the 30 starting loot cards into the <strong>draw pile</strong>. Shuffle the 30 reserve cards into the <strong>reserve pile</strong>, set aside face-down. Shuffle the threat deck separately.</p>
-      <p>Set starting stats: <strong>Food 5 · Health 7 · Sanity 6 · Mutation 1</strong>.</p>
-      <p>When you click <em>Begin the Journey</em>, five cards are automatically dealt to the Gather Track. You are on <strong>The Road</strong>.</p>
+      <p>On the title screen, choose your difficulty. This determines how many Road cards are dealt into your starting draw pile:</p>
+    </div>
+    <table class="rb-table">
+      <tr><th>Mode</th><th>Road Cards</th><th>Meaning</th></tr>
+      <tr><td>Cautious</td><td>30</td><td>Shorter journey — fewer threats, fewer turns to find resources.</td></tr>
+      <tr><td>Resolute</td><td>35</td><td>Balanced. More road, more chances, more danger.</td></tr>
+      <tr><td>Desperate</td><td>40</td><td>The full wasteland. Maximum threats and turns.</td></tr>
+    </table>
+    <div class="rb-body">
+      <p>Starting stats are always: <strong>Food 5 · Health 7 · Sanity 6 · Mutation 0</strong>. Five cards are automatically dealt to the Gather Track when the journey begins.</p>
+      <p>Cards beyond the deal count are permanently set aside — they never enter play. This creates variation between runs even at the same difficulty.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -2872,40 +2961,33 @@
     <div class="rb-section-title" id="rb-board">The Player Board</div>
     <div class="rb-subsection">Stats</div>
     <table class="rb-table">
-      <tr><th>Stat</th><th>Range</th><th>Effect at 0</th></tr>
-      <tr><td>🌾 Food</td><td>0–10</td><td>Starvation: −1 Health, −1 Sanity each time you pay a food cost while at 0.</td></tr>
+      <tr><th>Stat</th><th>Range</th><th>Effect at limit</th></tr>
+      <tr><td>🌾 Food</td><td>0–8 (10 with Backpack)</td><td>Starvation: −1 Health and −1 Sanity each time you pay a food cost while at 0. The Food track's skull space pulses red when you are starving.</td></tr>
       <tr><td>🩸 Health</td><td>0–10</td><td>Reaching 0 ends the game — <em>You Have Fallen.</em></td></tr>
       <tr><td>🕯️ Sanity</td><td>0–10</td><td>Reaching 0 ends the game — <em>Lost to Madness.</em></td></tr>
-      <tr><td>🧬 Mutation</td><td>0–10</td><td>Reaching 10 ends the game — <em>The Change is Complete.</em></td></tr>
+      <tr><td>🧬 Mutation</td><td>0–10</td><td>Reaching 10 ends the game — <em>The Change is Complete.</em> Crossing positions 4, 6, and 9 each trigger a Mutant card draw.</td></tr>
     </table>
     <div class="rb-subsection">Derived Stats</div>
     <table class="rb-table">
       <tr><th>Stat</th><th>Calculation</th><th>Values</th></tr>
-      <tr><td>⚔ STR (Strength)</td><td>Based on Health</td><td>Health 10 → STR 3 &nbsp;·&nbsp; Health 7–9 → STR 2 &nbsp;·&nbsp; Health 3–6 → STR 1 &nbsp;·&nbsp; Health 0–2 → STR 0</td></tr>
-      <tr><td>🚶 SPD (Speed)</td><td>Based on Sanity</td><td>Sanity 10 → SPD 2 &nbsp;·&nbsp; Sanity 6–9 → SPD 1 &nbsp;·&nbsp; Sanity 2–5 → SPD 0 &nbsp;·&nbsp; Sanity 1 → SPD 2 (frenzy) &nbsp;·&nbsp; Sanity 0 → Game Over</td></tr>
+      <tr><td>⚔ STR (Strength)</td><td>Based on Health</td><td>Health 7–10 → STR 2 &nbsp;·&nbsp; Health 3–6 → STR 1 &nbsp;·&nbsp; Health 0–2 → STR 0</td></tr>
+      <tr><td>🚶 SPD (Speed)</td><td>Based on Sanity</td><td>Sanity 10 → SPD 2 &nbsp;·&nbsp; Sanity 6–9 → SPD 1 &nbsp;·&nbsp; Sanity 2–5 → SPD 0 &nbsp;·&nbsp; Sanity 1 → SPD 2 (frenzy)</td></tr>
     </table>
-    <div class="rb-callout"><div class="rb-body">⚠ A Sanity of 1 causes frenzy — SPD jumps to 2. This is dangerous, as higher movement discards cards faster, accelerating your run through the location.</div></div>
-    <div class="rb-subsection">Mutation</div>
-    <div class="rb-body">
-      <p>Certain gather cards, monster defeats, and threat setbacks increase Mutation. At Mutation 4 and 9, a special warning marker appears. Reaching 10 ends the game immediately. Anti-viral items can block incoming Mutation.</p>
-    </div>
+    <div class="rb-callout"><div class="rb-body">⚠ A Sanity of 1 triggers frenzy — SPD jumps to 2. Higher movement burns through the deck faster, which can be dangerous or useful depending on the situation.</div></div>
 
     <div class="rb-divider"></div>
 
     <!-- TURN STRUCTURE -->
     <div class="rb-section-title" id="rb-turn">Turn Structure</div>
-    <div class="rb-body">
-      <p>Each turn follows these steps in order:</p>
-    </div>
     <table class="rb-table">
       <tr><th>#</th><th>Step</th><th>Notes</th></tr>
       <tr><td>1</td><td>Select a card</td><td>Click any face-up card on the Gather Track.</td></tr>
-      <tr><td>2</td><td>Pay the cost</td><td>Each slot has a food and/or threat cost. Slot 1 offers a choice: pay 2 food OR draw 1 threat instead.</td></tr>
-      <tr><td>3</td><td>Draw threats</td><td>If threat cards were owed, draw and resolve them one at a time. If a battle is lost, remaining threats are skipped.</td></tr>
-      <tr><td>4</td><td>Resolve the card</td><td>Apply the card's effect (gather stats, take gear, use instant item).</td></tr>
-      <tr><td>5</td><td>Discard board</td><td>All unselected cards are immediately discarded.</td></tr>
-      <tr><td>6</td><td>Move</td><td>Discard cards from the top of the draw pile equal to your SPD. Each vehicle use consumed moves you farther.</td></tr>
-      <tr><td>7</td><td>Redraw</td><td>Draw up to 5 new cards from the top of the draw pile to refill the Gather Track.</td></tr>
+      <tr><td>2</td><td>Pay the cost</td><td>Each slot has a food and/or threat cost (and sometimes a mutation cost in The Hive). Some slots offer a payment choice.</td></tr>
+      <tr><td>3</td><td>Resolve threats</td><td>Draw and resolve threat cards one at a time. A monster loss skips any remaining threats that turn.</td></tr>
+      <tr><td>4</td><td>Resolve the card</td><td>Apply the card's effect — gain stats, take gear, or use an instant item.</td></tr>
+      <tr><td>5</td><td>Discard board</td><td>All unselected cards are discarded.</td></tr>
+      <tr><td>6</td><td>Move</td><td>Discard cards from the draw pile equal to your SPD.</td></tr>
+      <tr><td>7</td><td>Redraw</td><td>Draw up to 5 new cards to refill the Gather Track. If the draw pile empties, the location transition triggers.</td></tr>
     </table>
 
     <div class="rb-divider"></div>
@@ -2913,19 +2995,37 @@
     <!-- GATHER TRACK -->
     <div class="rb-section-title" id="rb-gather">The Gather Track</div>
     <div class="rb-body">
-      <p>Five cards are dealt face-up at the start of each turn. They are sorted by value — cheaper cards appear on the left, more costly cards on the right.</p>
+      <p>Five cards are dealt face-up each turn. Slot costs vary by location. Slot 1 always offers a payment choice. You may only pick <strong>one card per turn</strong>.</p>
     </div>
+    <div class="rb-subsection">The Road — Slot Costs</div>
     <table class="rb-table">
-      <tr><th>Slot</th><th>Cost Option A</th><th>Cost Option B</th></tr>
-      <tr><td>Slot 1</td><td>2 Food</td><td>1 Threat card (player's choice)</td></tr>
-      <tr><td>Slot 2</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>Slot 3</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>Slot 4</td><td>1 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>Slot 5</td><td>1 Food + 2 Threats</td><td>—</td></tr>
+      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
+      <tr><td>1</td><td>2 Food</td><td>1 Threat</td></tr>
+      <tr><td>2</td><td>1 Food + 1 Threat</td><td>—</td></tr>
+      <tr><td>3</td><td>1 Food + 1 Threat</td><td>—</td></tr>
+      <tr><td>4</td><td>1 Food + 2 Threats</td><td>—</td></tr>
+      <tr><td>5</td><td>1 Food + 2 Threats</td><td>—</td></tr>
+    </table>
+    <div class="rb-subsection">The Sprawl — Slot Costs</div>
+    <table class="rb-table">
+      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
+      <tr><td>1</td><td>2 Food</td><td>1 Food + 1 Threat</td></tr>
+      <tr><td>2</td><td>1 Food + 1 Threat</td><td>—</td></tr>
+      <tr><td>3</td><td>2 Food + 1 Threat</td><td>—</td></tr>
+      <tr><td>4</td><td>1 Food + 2 Threats</td><td>—</td></tr>
+      <tr><td>5</td><td>1 Food + 3 Threats</td><td>—</td></tr>
+    </table>
+    <div class="rb-subsection">The Hive — Slot Costs</div>
+    <table class="rb-table">
+      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
+      <tr><td>1</td><td>1 Food + 1 Threat</td><td>2 Food + 1 Mutation</td></tr>
+      <tr><td>2</td><td>2 Food + 1 Threat</td><td>—</td></tr>
+      <tr><td>3</td><td>2 Food + 2 Threats</td><td>—</td></tr>
+      <tr><td>4</td><td>2 Food + 2 Threats + 1 Mutation</td><td>—</td></tr>
+      <tr><td>5</td><td>2 Food + 3 Threats + 1 Mutation</td><td>—</td></tr>
     </table>
     <div class="rb-body">
-      <p>You may only select <strong>one card per turn</strong>. All others are discarded at the end of the turn.</p>
-      <p>An <strong>Area Map</strong> item, if carried, can be activated before paying to reduce any card's cost to 1 food and 0 threats.</p>
+      <p>Items that reduce costs (Binoculars, Area Map, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -2935,26 +3035,27 @@
     <div class="rb-subsection">Threat Card Types</div>
     <table class="rb-table">
       <tr><th>Type</th><th>Effect</th></tr>
-      <tr><td>☀ Break</td><td>Safe card — no effect. (Meadow, Brook)</td></tr>
-      <tr><td>⚡ Setback</td><td>Immediate stat loss. (Injury: −1 Health · Disturbance: −1 Sanity · Infection: +1 Mutation)</td></tr>
-      <tr><td>💀 Monster</td><td>Triggers combat. Compare your STR to the monster's STR.</td></tr>
+      <tr><td>☀ Break</td><td>Safe card — no effect.</td></tr>
+      <tr><td>⚡ Setback</td><td>Immediate stat effect: Injury (−1 Health), Disturbance (−1 Sanity), Infection (+1 or +2 Mutation). Hive Infections are especially severe.</td></tr>
+      <tr><td>💀 Monster</td><td>Triggers combat. Compare your effective STR to the monster's STR.</td></tr>
     </table>
     <div class="rb-subsection">Combat Resolution</div>
     <div class="rb-body">
-      <p>When a monster is drawn, a battle screen appears showing your STR vs. the monster's STR. If you have a weapon with uses remaining, you may choose to use it (adding its STR bonus) or fight bare-handed.</p>
+      <p>When a monster is drawn, a battle screen appears. If you have a weapon with uses remaining, you may use it (adds its STR bonus) or fight bare-handed. Mutant bonuses (Forehead Tusk, Extra Arm, Hive Mind) apply automatically.</p>
     </div>
     <table class="rb-table">
       <tr><th>Outcome</th><th>Result</th></tr>
       <tr><td>Your STR &gt; Monster STR</td><td>Victory — loot secured, no damage.</td></tr>
-      <tr><td>Your STR = Monster STR</td><td>Tie — loot secured, but monster damage is applied.</td></tr>
-      <tr><td>Your STR &lt; Monster STR</td><td>Defeat — loot is lost and damage is applied. No further threat cards drawn this turn.</td></tr>
+      <tr><td>Your STR = Monster STR</td><td>Tie — loot secured, monster damage applied.</td></tr>
+      <tr><td>Your STR &lt; Monster STR</td><td>Defeat — loot lost, damage applied. The monster is <strong>injured</strong> (see below).</td></tr>
     </table>
+    <div class="rb-subsection">Injured Monsters</div>
     <div class="rb-body">
-      <p>Using a weapon consumes one of its uses. When a weapon's uses reach zero, it is removed from your inventory.</p>
+      <p>When you lose a battle, the monster is not fully defeated — it lingers at that slot with its remaining strength (monster STR − your STR). A 💀 badge shows on the slot cost. The next time you select that slot, you pay 1 extra food and must fight the injured monster first. Win or tie to clear it and proceed; lose again and it remains, weakened further.</p>
     </div>
-    <div class="rb-subsection">STR Bonuses from Items</div>
+    <div class="rb-subsection">STR Bonuses</div>
     <div class="rb-body">
-      <p><strong>Camouflage</strong> grants +1 STR in all battles while carried. <strong>Holster</strong> grants +2 STR when using a ranged or explosive weapon.</p>
+      <p><strong>Camouflage</strong> +1 STR in all battles. <strong>Holster</strong> +2 STR when using a ranged or explosive weapon. <strong>Forehead Tusk</strong> mutant +2 STR (stacks). <strong>Extra Arm</strong> mutant +3 STR with melee weapons only. <strong>Hive Mind</strong> mutant +3 STR in The Hive.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -2963,49 +3064,43 @@
     <div class="rb-section-title" id="rb-cards">Card Types</div>
     <div class="rb-subsection"><span class="rb-tag rb-tag-gather">Gather</span> Resource Cards</div>
     <div class="rb-body">
-      <p>Immediately apply the effects shown. Gather cards are discarded after use and return to the deck on the next location transition.</p>
+      <p>Apply effects immediately and discard. Gather cards cycle back into the deck at each location transition.</p>
     </div>
-    <table class="rb-table">
-      <tr><th>Card</th><th>Effect</th></tr>
-      <tr><td>Monster Carcass</td><td>+6 Food, +2 Mutation</td></tr>
-      <tr><td>Animal Carcass</td><td>+5 Food, +1 Mutation</td></tr>
-      <tr><td>Psychedelic Shrooms</td><td>+4 Food, −1 Sanity</td></tr>
-      <tr><td>Opened Ration Packet</td><td>+4 Food, −1 Health</td></tr>
-      <tr><td>Preserved Meat</td><td>+4 Food, +1 Sanity</td></tr>
-      <tr><td>Fish</td><td>+4 Food, +1 Health</td></tr>
-      <tr><td>Apples / Mushrooms / Can of Beans</td><td>+2–3 Food</td></tr>
-      <tr><td>Blackberries</td><td>+3 Food, +1 Health</td></tr>
-      <tr><td>Strawberries</td><td>+3 Food, +1 Sanity</td></tr>
-      <tr><td>Chocolate Bar</td><td>+1 Food, +3 Sanity</td></tr>
-      <tr><td>First Aid Kit</td><td>+3 Health</td></tr>
-      <tr><td>First Aid Kit (Tainted)</td><td>+4 Health, +1 Mutation</td></tr>
-      <tr><td>Gauze / Bandaids</td><td>+1–2 Health</td></tr>
-      <tr><td>Unmarked Bottle</td><td>+2 Health, +1 Mutation</td></tr>
-      <tr><td>Splint</td><td>+2 Health, +1 Sanity</td></tr>
-      <tr><td>Pain Meds</td><td>+1 Health, +1 Sanity</td></tr>
-      <tr><td>Medicinal Herbs</td><td>+1 Health, +2 Sanity</td></tr>
-      <tr><td>Luminous Vial</td><td>+4 Sanity, +1 Mutation</td></tr>
-      <tr><td>Fresh Clothes</td><td>+3 Sanity</td></tr>
-      <tr><td>Joke Book</td><td>+1 Health, +3 Sanity</td></tr>
-      <tr><td>Deck of Cards</td><td>+1 Sanity</td></tr>
-    </table>
     <div class="rb-subsection"><span class="rb-tag rb-tag-item">Item</span> Inventory Cards</div>
     <div class="rb-body">
-      <p>Items are placed into your item inventory (1 slot by default; 3 with a Backpack). If all slots are occupied, you must discard an existing item to make room — or decline the new card. A declined card goes to the discard pile. A replaced item goes permanently out of play.</p>
-      <p>Ammo and Fuel Can are instant-use items — they take effect immediately and are not stored.</p>
+      <p>Placed into your item slots (1 slot by default; 3 with a Backpack). If all slots are full, you must discard an existing item to make room. Items are passive or have limited active uses — see Item Reference below.</p>
     </div>
     <div class="rb-subsection"><span class="rb-tag rb-tag-ranged">Weapon</span> Combat Cards</div>
     <div class="rb-body">
-      <p>Weapons occupy a single weapon slot. If a weapon is already equipped, you may replace it — the old weapon goes out of play permanently. Weapons have a fixed number of uses; once depleted they are removed.</p>
-      <p>Weapons come in three classes: <span class="rb-tag rb-tag-melee">Melee</span> (high uses, lower STR), <span class="rb-tag rb-tag-ranged">Ranged</span> (lower uses, high STR — can be reloaded with Ammo), and <span class="rb-tag rb-tag-explosive">Explosive</span> (single use, very high STR).</p>
+      <p>Occupy a single weapon slot. Replacing a weapon permanently discards the old one. Weapons have limited uses; once depleted they are removed automatically. Three classes: <span class="rb-tag rb-tag-melee">Melee</span> (high uses, moderate STR), <span class="rb-tag rb-tag-ranged">Ranged</span> (lower uses, high STR — reload with Ammo), <span class="rb-tag rb-tag-explosive">Explosive</span> (single use, very high STR).</p>
     </div>
     <div class="rb-subsection"><span class="rb-tag rb-tag-vehicle">Vehicle</span> Movement Cards</div>
     <div class="rb-body">
-      <p>Vehicles occupy a single vehicle slot and add their Move value to your SPD each turn. One vehicle use is consumed per turn it contributes to movement. Fuel Cans restore all uses to a vehicle. When uses run out, the vehicle is removed from play.</p>
+      <p>Occupy a single vehicle slot and add their Move value to your SPD each turn. One use is consumed per turn the vehicle contributes to movement. Fuel Cans restore all uses. When uses run out, the vehicle is removed.</p>
     </div>
-    <div class="rb-subsection">Reserve Deck Unlocking</div>
+
+    <div class="rb-divider"></div>
+
+    <!-- MUTATIONS -->
+    <div class="rb-section-title" id="rb-mutations">Mutations</div>
     <div class="rb-body">
-      <p>Each time you successfully acquire an item, weapon, or vehicle, one card is drawn from the reserve pile and placed on top of the draw pile. This mechanic ensures harder, more powerful cards enter play only after gear has been collected.</p>
+      <p>Mutation increases from certain gather cards, monster defeats (ties and losses), threat setbacks, and Hive slot costs. All mutation is bad — the track moves in one direction only, toward game over at 10.</p>
+      <p>When your mutation marker crosses positions <strong>4</strong>, <strong>6</strong>, or <strong>9</strong> on the track, a Mutant card is drawn from the shuffled mutant deck. Each Mutant card grants a permanent passive bonus for the rest of the run.</p>
+    </div>
+    <table class="rb-table">
+      <tr><th>Mutant Card</th><th>Bonus</th></tr>
+      <tr><td>Forehead Tusk</td><td>+2 STR in all battles (stacks if drawn multiple times)</td></tr>
+      <tr><td>Elastic Tendons</td><td>+2 SPD per turn (stacks)</td></tr>
+      <tr><td>Regenerative Tissue</td><td>+1 extra Health whenever you gain Health (stacks with Tent passive)</td></tr>
+      <tr><td>Loss of Fear</td><td>+1 extra Sanity whenever you gain Sanity</td></tr>
+      <tr><td>Hive Mind</td><td>+3 STR in The Hive only</td></tr>
+      <tr><td>Feral Instinct</td><td>+2 Food on monster win or tie</td></tr>
+      <tr><td>Extra Arm</td><td>+3 STR when using a melee weapon</td></tr>
+      <tr><td>Glowing Fingers</td><td>−1 Threat cost when picking up an item card (min 0)</td></tr>
+      <tr><td>Future Flicker</td><td>−1 Threat cost on slots 4 &amp; 5 (stacks with Binoculars, min 1)</td></tr>
+    </table>
+    <div class="rb-body">
+      <p>Anti-viral items can block incoming Mutation — you are prompted automatically when mutation would increase while one is in your inventory.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3013,22 +3108,21 @@
     <!-- ITEM REFERENCE -->
     <div class="rb-section-title" id="rb-items">Item Quick Reference</div>
     <table class="rb-table">
-      <tr><th>Item</th><th>Uses</th><th>Effect</th></tr>
-      <tr><td>Anti-Viral</td><td>1</td><td>Block the next incoming Mutation gain. Prompts automatically.</td></tr>
-      <tr><td>Anti-Virals</td><td>2</td><td>Block up to two Mutation gains.</td></tr>
-      <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon in your inventory.</td></tr>
-      <tr><td>Area Map</td><td>1</td><td>Reduce a card's cost to 1 food and 0 threats before paying.</td></tr>
-      <tr><td>Backpack</td><td>Passive</td><td>Expands item inventory from 1 slot to 3 slots.</td></tr>
-      <tr><td>Binoculars</td><td>Once/turn</td><td>Peek at the top threat card. Keep or discard it. Free to use.</td></tr>
+      <tr><th>Item</th><th>Type</th><th>Effect</th></tr>
+      <tr><td>Anti-Viral / Anti-Virals</td><td>1–2 uses</td><td>Blocks an incoming Mutation gain. Prompts automatically when triggered.</td></tr>
+      <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon currently in your inventory.</td></tr>
+      <tr><td>Area Map</td><td>1 use</td><td>Before paying a slot cost, activate to reduce it to 1 Food and 0 Threats.</td></tr>
+      <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Also raises maximum Food from 8 to 10.</td></tr>
+      <tr><td>Binoculars</td><td>Passive</td><td>Reduces the threat cost on slots 4 and 5 by 1 (minimum 1 threat).</td></tr>
       <tr><td>Camouflage</td><td>Passive</td><td>+1 STR in all battles while carried.</td></tr>
-      <tr><td>Compass</td><td>Once/turn</td><td>Peek at the top loot card. Keep or discard it. Costs 1 food.</td></tr>
-      <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain food from a gather card, gain +1 extra food.</td></tr>
+      <tr><td>Compass</td><td>Passive</td><td>+1 SPD per turn (permanent movement bonus).</td></tr>
+      <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain Food from a gather card, gain +1 extra Food.</td></tr>
       <tr><td>Fuel Can</td><td>Instant</td><td>Fully restores all uses of your vehicle.</td></tr>
-      <tr><td>Holster</td><td>Passive</td><td>+2 STR in battles when using a ranged or explosive weapon.</td></tr>
-      <tr><td>Matches</td><td>3</td><td>Once per turn: pay 1 food to gain +1 health.</td></tr>
-      <tr><td>Stash of Ration Packs</td><td>5</td><td>Use at any time to gain +1 food. No turn limit.</td></tr>
-      <tr><td>Tent</td><td>2</td><td>Once per turn: pay 1 food to discard the current board and draw 5 new cards. Movement does not occur that turn.</td></tr>
-      <tr><td>Torch</td><td>3</td><td>Once per turn: pay 1 food to gain +1 sanity.</td></tr>
+      <tr><td>Holster</td><td>Passive</td><td>+2 STR when using a ranged or explosive weapon in battle.</td></tr>
+      <tr><td>Matches</td><td>3 uses, passive</td><td>On a monster win or tie, gain +1 Food. Triggers automatically.</td></tr>
+      <tr><td>Stash of Ration Packs</td><td>5 uses, passive</td><td>Absorbs starvation — when you would starve, a use is consumed and your Food is set to 1 instead. No health or sanity loss.</td></tr>
+      <tr><td>Tent</td><td>Passive</td><td>Whenever you gain Health, gain +1 extra Health (stacks with Regenerative Tissue).</td></tr>
+      <tr><td>Torch</td><td>3 uses, active</td><td>Once per turn: use the Torch button to gain +1 Sanity. No food cost.</td></tr>
     </table>
 
     <div class="rb-divider"></div>
@@ -3036,28 +3130,29 @@
     <!-- MOVEMENT -->
     <div class="rb-section-title" id="rb-movement">Movement</div>
     <div class="rb-body">
-      <p>After resolving a card and discarding the board, you move. Movement works by discarding cards from the top of the draw pile — one per point of SPD. Those cards go to the discard pile and will return in a future location.</p>
-      <p>Your base SPD is derived from Sanity (see table above). A vehicle in your inventory with uses remaining adds its Move value to your SPD. One vehicle use is consumed when a vehicle contributes to movement.</p>
+      <p>After resolving a card and discarding the board, you move. Movement discards cards from the top of the draw pile — one per point of SPD. Those cards go to the discard pile and return in a future location's deck.</p>
+      <p>Base SPD is derived from Sanity. A Compass adds +1 permanently. A vehicle adds its Move value per turn (consuming one use each turn). Elastic Tendons mutant adds +2 SPD per copy.</p>
     </div>
-    <div class="rb-callout"><div class="rb-body">If movement empties the draw pile, you immediately transition to the next location rather than continuing the current turn.</div></div>
+    <div class="rb-callout"><div class="rb-body">If movement empties the draw pile mid-turn, the location transition triggers immediately.</div></div>
 
     <div class="rb-divider"></div>
 
     <!-- LOCATIONS -->
     <div class="rb-section-title" id="rb-locations">Locations &amp; The Journey</div>
     <div class="rb-body">
-      <p>The game is divided into three legs of the journey, each represented by a pass through the deck. The journey bar at the top of the Gather Board tracks your progress.</p>
+      <p>The journey has three legs. The gather board's border and background shift with each location.</p>
     </div>
     <table class="rb-table">
-      <tr><th>Location</th><th>Deck</th><th>Flavour</th></tr>
-      <tr><td>🛣️ The Road</td><td>Pass 1 (starting 30)</td><td>Open wasteland. Manageable threats, scarce resources.</td></tr>
-      <tr><td>🏘️ The Sprawl</td><td>Pass 2 (all discard + reserves)</td><td>Silent suburbs. More gear, more danger.</td></tr>
-      <tr><td>🏙️ The Hive</td><td>Pass 3 (all discard + reserves)</td><td>Demolished city. High reward, high threat.</td></tr>
+      <tr><th>Location</th><th>Cards</th><th>Flavour</th></tr>
+      <tr><td>🛣️ The Road</td><td>Road deck (30–40 based on difficulty)</td><td>Open wasteland. Manageable threats, scarce resources.</td></tr>
+      <tr><td>🏘️ The Sprawl</td><td>Draft + discard pile</td><td>Silent suburbs. More gear, more danger.</td></tr>
+      <tr><td>🏙️ The Hive</td><td>Draft + discard pile</td><td>Demolished city. High reward, high threat. Mutation costs on some slots.</td></tr>
       <tr><td>🏛️ The Sanctuary</td><td>Win condition</td><td>Safety — if you can reach it.</td></tr>
     </table>
+    <div class="rb-subsection">Location Transitions &amp; The Draft</div>
     <div class="rb-body">
-      <p>When the draw pile is exhausted, all cards in the discard pile — including any reserve cards that entered play — are shuffled together to form the next location's deck. The deck grows over time as gear unlocks reserve cards.</p>
-      <p>The gather board's background tint changes subtly with each location: grey-black for The Road, dark green for The Sprawl, dark red for The Hive.</p>
+      <p>When the draw pile empties, a transition screen appears. For The Sprawl and The Hive, a <strong>draft</strong> follows: 7 location-specific cards are drawn from the pool and you choose 5 to keep. The 2 you don't pick return to the pool. Your new deck is those 5 cards plus your full discard pile, shuffled together. This is how Sprawl and Hive cards enter play.</p>
+      <p>Injured monsters are cleared on each location transition.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3066,7 +3161,7 @@
     <div class="rb-section-title" id="rb-endgame">Winning &amp; Losing</div>
     <div class="rb-subsection">Winning</div>
     <div class="rb-body">
-      <p>Exhaust the draw pile for the third time (completing The Hive) to reach The Sanctuary. The win screen appears and the game ends.</p>
+      <p>Exhaust the draw pile for the third time (completing The Hive) to reach The Sanctuary.</p>
     </div>
     <div class="rb-subsection">Losing</div>
     <div class="rb-body">
@@ -3079,9 +3174,9 @@
       <tr><td>Mutation reaches 10</td><td>The Change is Complete 🧬</td></tr>
     </table>
     <div class="rb-body">
-      <p>Starvation (food at 0 when a food cost is owed) triggers −1 Health and −1 Sanity simultaneously, potentially triggering two game-over conditions at once.</p>
+      <p>Starvation (food at 0 when a food cost is owed) applies −1 Health and −1 Sanity simultaneously. Either can trigger a game-over condition. A Stash of Ration Packs will absorb starvation if available.</p>
+      <p>Use the <strong>Restart</strong> button (top-left of the game screen) at any time to return to the title screen and start a new run.</p>
     </div>
-
   </div>
 </div>
 
@@ -3443,6 +3538,7 @@
   }
 
   document.getElementById('go-restart').addEventListener('click', () => { location.reload(); });
+  document.getElementById('restart-btn').addEventListener('click', () => { location.reload(); });
 
   /* ── Rulebook modal ─────────────────────────────────────────────── */
   function openRulebook() {
@@ -5698,7 +5794,7 @@
   let sprawlPool = [];  // 12 Sprawl cards, drawn from during draft
   let hivePool   = [];  // 12 Hive cards, drawn from during draft
 
-  async function loadDeck() {
+  async function loadDeck(dealCount = 40) {
     const titleEl = document.getElementById('gather-board-title');
     const drawBtn = document.getElementById('draw-btn');
     try {
@@ -5714,7 +5810,7 @@
       hivePool          = shuffle(fullDeck.filter(c => c.location === 'hive'));
 
       // Deal 40 Road cards to draw pile; the rest are permanently set aside
-      drawPile = roadCards.slice(0, 40);
+      drawPile = roadCards.slice(0, dealCount);
       // (roadCards beyond index 39 are intentionally discarded — variation between plays)
 
       console.log(`✓ Deck: ${drawPile.length} road cards dealt, ${roadCards.length - drawPile.length} road set aside`);
@@ -5866,19 +5962,20 @@
     updateItemBars();
   });
 
-  loadDeck();
   updateBoardLocation();
 
   /* ── Start menu: fade out then deal initial cards ── */
-  document.getElementById('sm-begin-btn').addEventListener('click', async () => {
-    const menu = document.getElementById('start-menu');
-    menu.classList.add('fade-out');
-    // Swap ? button visibility
-    document.getElementById('rules-btn-start').style.display = 'none';
-    document.getElementById('rules-btn-game').style.display  = 'flex';
-    // Wait for deck to be ready (loadDeck is async), then deal
-    const deal = () => {
-      if (drawPile.length === 0) { setTimeout(deal, 80); return; }
+  document.querySelectorAll('.sm-diff-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const dealCount = parseInt(btn.dataset.deal, 10);
+      const menu = document.getElementById('start-menu');
+      menu.classList.add('fade-out');
+      // Swap ? button visibility
+      document.getElementById('rules-btn-start').style.display = 'none';
+      document.getElementById('rules-btn-game').style.display  = 'flex';
+      document.getElementById('restart-btn').style.display = 'block';
+      // Load deck with chosen deal count, then deal initial cards
+      await loadDeck(dealCount);
       setTimeout(() => {
         menu.style.display = 'none';
         const count = Math.min(drawPile.length, DRAW_SLOTS);
@@ -5886,8 +5983,7 @@
         placeCards(drawn);
         updateDeckCount();
       }, 500); // slight delay to let fade finish
-    };
-    deal();
+    });
   });
 
   /* ═══════════════════════════════════════════
