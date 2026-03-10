@@ -529,7 +529,7 @@
     .draw-btn:hover .draw-btn-icons { opacity: 0.9; }
 
     .draw-btn:active  { transform: scale(0.97); }
-    .draw-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .draw-btn:disabled { opacity: 1; cursor: default; transform: none; pointer-events: none; }
 
     .discard-view-btn {
       font-size: 0.85rem;
@@ -2633,6 +2633,61 @@
       text-transform: none;
     }
 
+    .sm-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(200,150,42,0.2);
+      width: 100%;
+    }
+    .sm-link-rules {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: linear-gradient(135deg, #c8962a, #8a620c);
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 2rem;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 0 16px rgba(200,150,42,0.25);
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .sm-link-rules:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 22px rgba(200,150,42,0.4);
+    }
+    .sm-link-rules:active { transform: scale(0.97); }
+    .sm-link-video {
+      font-family: 'Spectral', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-dim);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.38rem 1rem;
+      border: 1px solid rgba(200,150,42,0.28);
+      border-radius: 3px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      background: rgba(200,150,42,0.05);
+    }
+    .sm-link-video:hover {
+      color: var(--gold);
+      border-color: rgba(200,150,42,0.55);
+      background: rgba(200,150,42,0.1);
+    }
+
     /* ── Draw button card count ── */
     .draw-btn-count {
       font-family: 'Spectral', serif;
@@ -2689,7 +2744,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      z-index: 990;
+      z-index: 1010;
       background: rgba(0,0,0,0.82);
       align-items: flex-start;
       justify-content: center;
@@ -2869,10 +2924,14 @@
     <div class="sm-difficulty">
       <div class="sm-difficulty-label">How much do you have left to lose?</div>
       <div class="sm-difficulty-btns">
-        <button class="sm-diff-btn" data-deal="30"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
-        <button class="sm-diff-btn" data-deal="35"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
-        <button class="sm-diff-btn sm-diff-hard" data-deal="40"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
+        <button class="sm-diff-btn" data-deal="30" data-food="8" data-health="8" data-sanity="8" data-mutation="0"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
+        <button class="sm-diff-btn" data-deal="35" data-food="7" data-health="7" data-sanity="7" data-mutation="1"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
+        <button class="sm-diff-btn sm-diff-hard" data-deal="40" data-food="6" data-health="6" data-sanity="6" data-mutation="2"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
       </div>
+    </div>
+    <div class="sm-links">
+      <button class="sm-link-rules" id="sm-rules-link">📖 Read the Rules</button>
+      <a class="sm-link-video" href="https://app.screencast.com/xJU4sjrrAD1Ih?conversation=GEKBVU0yOinwGbWrElrvFc" target="_blank" rel="noopener">▶ Watch the Instructional Video</a>
     </div>
   </div>
 </div>
@@ -3303,7 +3362,7 @@
     <div class="divider"></div>
 
     <div class="draw-area">
-      <button class="draw-btn" id="draw-btn">
+      <button class="draw-btn" id="draw-btn" disabled>
         <span class="draw-btn-icons">📦</span>
         <span class="draw-btn-label">Draw</span>
         <span class="draw-btn-count" id="draw-btn-count"></span>
@@ -3479,10 +3538,10 @@
      so the gather board can apply card effects.
   ═══════════════════════════════════════════ */
   const playerState = {
-    food:     { value: 5,  set: null },
+    food:     { value: 7,  set: null },
     health:   { value: 7,  set: null },
-    sanity:   { value: 6,  set: null },
-    mutation: { value: 0,  set: null },
+    sanity:   { value: 7,  set: null },
+    mutation: { value: 1,  set: null },
   };
 
   /* ═══════════════════════════════════════════
@@ -3538,6 +3597,7 @@
   }
 
   document.getElementById('go-restart').addEventListener('click', () => { location.reload(); });
+  document.getElementById('sm-rules-link').addEventListener('click', () => { openRulebook(); });
   document.getElementById('restart-btn').addEventListener('click', () => { location.reload(); });
 
   /* ── Rulebook modal ─────────────────────────────────────────────── */
@@ -5951,29 +6011,35 @@
     renderDiscardViewer();
   });
 
-  document.getElementById('draw-btn').addEventListener('click', () => {
-    if (drawPile.length < 1) return;
-    const count = Math.min(drawPile.length, DRAW_SLOTS);
-    const drawn = drawPile.splice(0, count);
-    clearLootZones();
-    placeCards(drawn);
-    updateDeckCount();
-    cardSelected = false;
-    updateItemBars();
-  });
+  // Draw is fully automatic — no manual draw-btn handler
 
   updateBoardLocation();
 
   /* ── Start menu: fade out then deal initial cards ── */
   document.querySelectorAll('.sm-diff-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const dealCount = parseInt(btn.dataset.deal, 10);
+      const dealCount  = parseInt(btn.dataset.deal,     10);
+      const startFood  = parseInt(btn.dataset.food,     10);
+      const startHealth= parseInt(btn.dataset.health,   10);
+      const startSanity= parseInt(btn.dataset.sanity,   10);
+      const startMut   = parseInt(btn.dataset.mutation, 10);
+      // Apply starting stats before tracks render
+      playerState.food.value     = startFood;
+      playerState.health.value   = startHealth;
+      playerState.sanity.value   = startSanity;
+      playerState.mutation.value = startMut;
+      // Also update TRACKS defaultValues so buildTrack initialises correctly
+      TRACKS.find(t => t.id === 'food').defaultValue     = startFood;
+      TRACKS.find(t => t.id === 'health').defaultValue   = startHealth;
+      TRACKS.find(t => t.id === 'sanity').defaultValue   = startSanity;
+      TRACKS.find(t => t.id === 'mutation').defaultValue = startMut;
       const menu = document.getElementById('start-menu');
       menu.classList.add('fade-out');
       // Swap ? button visibility
       document.getElementById('rules-btn-start').style.display = 'none';
       document.getElementById('rules-btn-game').style.display  = 'flex';
       document.getElementById('restart-btn').style.display = 'block';
+      // draw-btn is permanently disabled — all draws are automatic
       // Load deck with chosen deal count, then deal initial cards
       await loadDeck(dealCount);
       setTimeout(() => {
@@ -5991,9 +6057,9 @@
   ═══════════════════════════════════════════ */
 
   const TRACKS = [
-    { id: 'food',     label: 'Food',     icon: '🌾', defaultValue: 5 },
+    { id: 'food',     label: 'Food',     icon: '🌾', defaultValue: 7 },
     { id: 'health',   label: 'Health',   icon: '🩸', defaultValue: 7 },
-    { id: 'sanity',   label: 'Sanity',   icon: '🕯️', defaultValue: 6 },
+    { id: 'sanity',   label: 'Sanity',   icon: '🕯️', defaultValue: 7 },
     { id: 'mutation', label: 'Mutation', icon: '🧬', defaultValue: 1 },
   ];
 
@@ -6175,13 +6241,7 @@
         space.appendChild(cardEl);
       }
 
-      space.addEventListener('click', () => {
-        // Prevent clicking into locked food slots
-        if (isFoodLocked && maxFood < 10) return;
-        state.value = i;
-        playerState[track.id].value = i;
-        render();
-      });
+      // Track spaces are read-only — stat changes are driven by game logic only
       spaces.push({ el: space, val: i, isFoodLocked });
       trackEl.appendChild(space);
     }
