@@ -4,55 +4,55 @@
       "name": "Forehead tusk",
       "effect": "forehead_tusk",
       "text": "+2 strength",
-      "icon": "\ud83e\uddb7"
+      "icon": "🦷"
     },
     {
-      "name": "Elastic tendons",
-      "effect": "elastic_tendons",
-      "text": "+2 move",
-      "icon": "\ud83e\uddb5"
+      "name": "Hardened skin",
+      "effect": "hardened_skin",
+      "text": "After each battle win or tie, restore 1 pip to any one armor piece",
+      "icon": "🪨"
     },
     {
       "name": "Regenerative tissue",
       "effect": "regenerative_tissue",
       "text": "When you gain health, +1 extra health",
-      "icon": "\ud83d\udc9a"
+      "icon": "💚"
     },
     {
       "name": "Loss of fear",
       "effect": "loss_of_fear",
       "text": "When you gain sanity, +1 extra sanity",
-      "icon": "\ud83d\ude24"
+      "icon": "😤"
     },
     {
       "name": "Hive mind",
       "effect": "hive_mind",
       "text": "+3 strength in The Hive",
-      "icon": "\ud83e\udde0"
+      "icon": "🧠"
     },
     {
       "name": "Feral instinct",
       "effect": "feral_instinct",
       "text": "When you defeat a monster (win or tie), +2 food",
-      "icon": "\ud83d\udc3e"
+      "icon": "🐾"
     },
     {
       "name": "Extra arm",
       "effect": "extra_arm",
       "text": "+3 strength when using a melee weapon",
-      "icon": "\ud83d\udcaa"
+      "icon": "💪"
     },
     {
       "name": "Glowing fingers",
       "effect": "glowing_fingers",
-      "text": "\u22121 threat when picking up an item card",
-      "icon": "\u2728"
+      "text": "−1 threat when picking up an item card",
+      "icon": "✨"
     },
     {
       "name": "Future flicker",
       "effect": "future_flicker",
-      "text": "\u22121 threat on slots 4 & 5",
-      "icon": "\ud83d\udc41\ufe0f"
+      "text": "−1 threat on slots 4 & 5",
+      "icon": "👁️"
     }
   ]
 }

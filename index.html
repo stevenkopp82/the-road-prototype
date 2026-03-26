@@ -113,6 +113,108 @@
       line-height: 1;
     }
     /* ── Page layout ── */
+    html {
+      overflow-y: auto;
+    }
+
+    /* ── Game log panel ── */
+    #game-log {
+      display: none;
+      flex-direction: column;
+      width: 220px;
+      min-width: 220px;
+      max-height: calc(100vh - 5rem);
+      position: sticky;
+      top: 3.5rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px #1e1810, 0 0 30px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+    #game-log.log-visible { display: flex; }
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.7rem 0.4rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .log-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.48rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+    .log-clear-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.38rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid rgba(180,140,60,0.2);
+      color: rgba(180,140,60,0.45);
+      border-radius: 2px;
+      padding: 0.15rem 0.4rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .log-clear-btn:hover { color: var(--gold-dim); border-color: var(--gold-dim); }
+    .log-entries {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.4rem 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .log-turn-divider {
+      font-family: 'Cinzel', serif;
+      font-size: 0.38rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.5;
+      padding: 0.35rem 0.7rem 0.1rem;
+      border-top: 1px solid rgba(180,140,60,0.1);
+      margin-top: 0.2rem;
+    }
+    .log-turn-divider:first-child { border-top: none; margin-top: 0; }
+    .log-entry {
+      font-family: 'Spectral', serif;
+      font-size: 0.62rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      padding: 0.18rem 0.7rem;
+      line-height: 1.4;
+    }
+    .log-entry.log-warn  { color: #e07070; opacity: 1; }
+    .log-entry.log-good  { color: #7dc466; opacity: 1; }
+    .log-entry.log-gold  { color: var(--gold); opacity: 1; }
+    .log-entry.log-dim   { opacity: 0.45; }
+    /* Log toggle button */
+    #log-toggle-btn {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(10,8,6,0.9);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-dim);
+      border-radius: 4px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      z-index: 800;
+      display: none;
+      transition: color 0.15s, border-color 0.15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    #log-toggle-btn:hover { color: var(--gold); border-color: var(--gold); }
+
     body {
       background-color: var(--bg);
       background-image:
@@ -123,7 +225,7 @@
       flex-direction: row;
       align-items: flex-start;
       justify-content: flex-start;
-      padding: 1.5rem 1rem;
+      padding: 3.5rem 1rem 1.5rem;
       gap: 1rem;
       font-family: 'Cinzel', serif;
     }
@@ -677,6 +779,7 @@
     .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
     .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
     .badge-vehicle { background: rgba(180,120,20,0.3);  color: #d8a040; border: 1px solid rgba(180,120,20,0.55); }
+    .badge-armor   { background: rgba(80,140,200,0.28);  color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
 
     .card-name {
       font-family: 'Cinzel', serif;
@@ -2130,6 +2233,19 @@
 
     /* ── Anti-viral intercept dialog ── */
     /* ── Draft dialog ── */
+    #starting-gear-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 1050;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    #starting-gear-dialog.open { display: flex; }
+
     #draft-dialog {
       display: none;
       position: fixed;
@@ -2257,13 +2373,51 @@
       border: 1px solid var(--mutate-col);
       border-radius: 6px;
       padding: 1.8rem 1.6rem;
-      max-width: 320px;
-      width: 90%;
+      max-width: 560px;
+      width: 94%;
       display: flex;
       flex-direction: column;
       gap: 0.9rem;
       box-shadow: 0 0 50px rgba(139,74,200,0.45);
     }
+    .mutant-choice-row {
+      display: flex;
+      gap: 0.8rem;
+    }
+    .mutant-choice-card {
+      flex: 1;
+      background: rgba(139,74,200,0.08);
+      border: 1px solid rgba(139,74,200,0.3);
+      border-radius: 4px;
+      padding: 1rem 1rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .mutant-choice-card:hover {
+      border-color: var(--mutate-col);
+      background: rgba(139,74,200,0.18);
+      box-shadow: 0 0 14px rgba(139,74,200,0.35);
+    }
+    .mutant-choice-card .mutant-choose-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.38rem 0.9rem;
+      border-radius: 3px;
+      border: 1px solid var(--mutate-col);
+      background: rgba(139,74,200,0.18);
+      color: #c080f0;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 0.2rem;
+      width: 100%;
+    }
+    .mutant-choice-card .mutant-choose-btn:hover { opacity: 0.8; }
     .mutant-title {
       font-family: 'Cinzel', serif;
       font-size: 0.85rem;
@@ -2279,16 +2433,7 @@
       opacity: 0.6;
       text-align: center;
     }
-    .mutant-card-display {
-      background: rgba(139,74,200,0.08);
-      border: 1px solid rgba(139,74,200,0.3);
-      border-radius: 4px;
-      padding: 1rem 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      align-items: center;
-    }
+
     .mutant-card-name {
       font-family: 'Cinzel', serif;
       font-size: 0.82rem;
@@ -2319,6 +2464,29 @@
       transition: opacity 0.15s;
     }
     .mutant-btn:hover { opacity: 0.8; }
+
+    /* ── Variant selector ── */
+    .sm-variant { margin-bottom: 0.8rem; }
+    .sm-variant-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.14em; color: var(--parchment); opacity: 0.55; text-transform: uppercase; text-align: center; margin-bottom: 0.5rem; }
+    .sm-variant-btns { display: flex; gap: 0.6rem; justify-content: center; }
+    .sm-var-btn { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 1.1rem; border-radius: 3px; border: 1px solid rgba(180,160,100,0.3); background: rgba(180,160,100,0.06); color: var(--parchment); opacity: 0.55; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; transition: opacity 0.15s, border-color 0.15s, background 0.15s; }
+    .sm-var-btn.sm-var-active { border-color: var(--gold); background: rgba(180,160,100,0.14); opacity: 1; }
+    .sm-var-sub { font-size: 0.5rem; opacity: 0.7; font-family: 'Spectral', serif; text-transform: none; letter-spacing: 0; }
+
+    /* ── Armor inventory slots ── */
+    .inv-armor-panel { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .inventory-card-zone.inv-armor-head   { border-color: rgba(100,160,220,0.35); }
+    .inventory-card-zone.inv-armor-body   { border-color: rgba(140,100,200,0.35); }
+    .inventory-card-zone.inv-armor-acc    { border-color: rgba(80,180,120,0.35);  }
+    .armor-absorb-pips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 0.3rem; justify-content: center; }
+    .armor-pip { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); }
+    .armor-pip.pip-health   { background: #c94040; }
+    .armor-pip.pip-sanity   { background: #4a90c4; }
+    .armor-pip.pip-mutation { background: #8b4ac8; }
+    .armor-pip.pip-spent    { background: transparent; }
+
+    /* ── Sanity STR modifier sidebar (same structure as health STR) ── */
+    .sanity-str-sidebar { display: flex; flex-direction: column; align-items: stretch; }
     /* Mutant cards list panel */
     #mutant-cards-panel {
       margin-top: 0.6rem;
@@ -2469,7 +2637,7 @@
       inset: 0;
       z-index: 1000;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       background-color: var(--bg);
       background-image:
@@ -2477,7 +2645,7 @@
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230d0b08'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23ffffff' opacity='0.02'/%3E%3C/svg%3E");
       transition: opacity 0.9s ease;
       overflow-y: auto;
-      padding: 2rem;
+      padding: 4vh 2rem;
     }
     #start-menu.fade-out { opacity: 0; pointer-events: none; }
 
@@ -2921,6 +3089,13 @@
       <span class="sm-goal-title">Your Objective</span>
       Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
     </div>
+    <div class="sm-variant">
+      <div class="sm-variant-label">Choose your variant</div>
+      <div class="sm-variant-btns">
+        <button class="sm-var-btn sm-var-active" id="sm-var-normal" data-variant="normal">🚗 Normal<span class="sm-var-sub">Vehicles &amp; movement</span></button>
+        <button class="sm-var-btn" id="sm-var-armor" data-variant="armor">🛡️ Armor<span class="sm-var-sub">Wearable protection, no movement</span></button>
+      </div>
+    </div>
     <div class="sm-difficulty">
       <div class="sm-difficulty-label">How much do you have left to lose?</div>
       <div class="sm-difficulty-btns">
@@ -2956,6 +3131,7 @@
 
     <div class="rb-toc">
       <a class="rb-toc-link" href="#rb-overview">Overview</a>
+      <a class="rb-toc-link" href="#rb-variants">Variants</a>
       <a class="rb-toc-link" href="#rb-components">Components</a>
       <a class="rb-toc-link" href="#rb-setup">Setup</a>
       <a class="rb-toc-link" href="#rb-board">Player Board</a>
@@ -2981,19 +3157,59 @@
 
     <div class="rb-divider"></div>
 
+    <!-- VARIANTS -->
+    <div class="rb-section-title" id="rb-variants">Variants</div>
+    <div class="rb-body">
+      <p>Choose your variant on the title screen before selecting a difficulty. The variant changes several core systems and is locked in for the entire run.</p>
+    </div>
+    <table class="rb-table">
+      <tr><th>Variant</th><th>Key Differences</th></tr>
+      <tr><td>🚗 Normal</td><td>Vehicles, movement (SPD), Anti-Virals, and Fuel Cans are in play. Sanity determines SPD. The vehicle slot is active.</td></tr>
+      <tr><td>🛡️ Armor</td><td>No movement. No vehicles, Anti-Virals, or Fuel Cans. Three armor slots (Head, Body, Accessory) replace the vehicle slot. Sanity modifies STR instead of SPD.</td></tr>
+    </table>
+    <div class="rb-subsection">Armor Variant — Armor Cards</div>
+    <div class="rb-body">
+      <p>Armor cards are wearable protection that absorb incoming damage before it reaches your stat tracks. Each armor piece has a pool of absorption pips per damage type (Health, Sanity, or Mutation). When damage is dealt — from a monster tie or loss, or from a setback — armor absorbs it first, one pip at a time.</p>
+      <p><strong>Partial absorption:</strong> if a piece has 1 Health pip left and you take 2 Health damage, the armor absorbs 1 and you take 1. When all pips are gone, the armor is <strong>destroyed</strong> and removed from play permanently — it does not cycle back into the deck.</p>
+      <p>Absorption priority is Head → Body → Accessory. Each slot holds one armor piece. Replacing armor prompts you to confirm; the displaced piece is also destroyed, not discarded.</p>
+    </div>
+    <div class="rb-subsection">Armor Variant — Sanity &amp; STR</div>
+    <div class="rb-body">
+      <p>In the Armor variant, Sanity no longer drives movement. Instead it modifies your combat STR directly, shown on the sidebar next to the Sanity track.</p>
+    </div>
+    <table class="rb-table">
+      <tr><th>Sanity</th><th>STR Modifier</th><th>Note</th></tr>
+      <tr><td>8–10</td><td>+1</td><td>Clear-headed — fighting with purpose.</td></tr>
+      <tr><td>3–7</td><td>0</td><td>Holding it together.</td></tr>
+      <tr><td>2</td><td>−1</td><td>Cracking — panic impairs your fighting.</td></tr>
+      <tr><td>1</td><td>+2</td><td>Frenzy — reckless, savage, dangerous.</td></tr>
+      <tr><td>0</td><td>—</td><td>Game over.</td></tr>
+    </table>
+    <div class="rb-callout"><div class="rb-body">⚠ Frenzy (Sanity 1) gives +2 STR — your most powerful combat state — but one more Sanity hit ends the run. Armor that absorbs sanity damage becomes critical insurance at this threshold.</div></div>
+
+    <div class="rb-divider"></div>
+
     <!-- COMPONENTS -->
     <div class="rb-section-title" id="rb-components">Components</div>
-    <div class="rb-subsection">Loot Deck — 74 Cards</div>
+    <div class="rb-subsection">Loot Deck</div>
     <div class="rb-body">
-      <p>The loot deck is split by location: <strong>50 Road cards</strong>, <strong>12 Sprawl cards</strong>, and <strong>12 Hive cards</strong>. Cards contain four types: Gather (resources), Items (passive or active gear), Weapons (combat tools), and Vehicles (movement). Only Road cards are used in the first leg; Sprawl and Hive cards enter play through a draft at each location transition.</p>
+      <p>The loot deck is split by location: <strong>Road</strong>, <strong>Sprawl</strong>, and <strong>Hive</strong> cards. Only Road cards are used in the first leg; Sprawl and Hive cards enter through a draft at each transition. Card types vary by variant:</p>
     </div>
+    <table class="rb-table">
+      <tr><th>Type</th><th>Normal</th><th>Armor</th></tr>
+      <tr><td>Gather</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Item</td><td>✓ (incl. Anti-Viral, Fuel Can)</td><td>✓ (excl. Anti-Viral, Fuel Can, Camouflage, Gas Mask, Body Armour)</td></tr>
+      <tr><td>Weapon</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Vehicle</td><td>✓</td><td>✗ (removed)</td></tr>
+      <tr><td>Armor</td><td>✗ (removed)</td><td>✓</td></tr>
+    </table>
     <div class="rb-subsection">Threat Deck — 36 Cards</div>
     <div class="rb-body">
-      <p>The threat deck contains 12 cards per location (The Road, The Sprawl, The Hive). When a threat cost is paid, the matching location's cards are drawn from a shuffled pile. The pile reshuffles automatically when exhausted. Types: <strong>Break</strong> (safe), <strong>Setback</strong> (stat loss), <strong>Monster</strong> (combat).</p>
+      <p>12 cards per location (The Road, The Sprawl, The Hive). When a threat cost is paid, the matching location's cards are drawn. The pile reshuffles when exhausted. Types: <strong>Break</strong> (safe), <strong>Setback</strong> (stat loss), <strong>Monster</strong> (combat).</p>
     </div>
     <div class="rb-subsection">Mutant Deck — 9 Cards</div>
     <div class="rb-body">
-      <p>When your Mutation marker crosses positions 4, 6, or 9 on the track, you draw a Mutant card. These grant permanent passive bonuses that stack across the run.</p>
+      <p>When your Mutation marker crosses positions 4, 6, or 9, draw <strong>two</strong> Mutant cards and choose one to keep. The other is shuffled back into the deck. Mutant bonuses are permanent for the run.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3001,17 +3217,16 @@
     <!-- SETUP -->
     <div class="rb-section-title" id="rb-setup">Setup &amp; Difficulty</div>
     <div class="rb-body">
-      <p>On the title screen, choose your difficulty. This determines how many Road cards are dealt into your starting draw pile:</p>
+      <p>Choose your variant first, then your difficulty. Difficulty determines how many Road cards are dealt and your starting stats:</p>
     </div>
     <table class="rb-table">
-      <tr><th>Mode</th><th>Road Cards</th><th>Meaning</th></tr>
-      <tr><td>Cautious</td><td>30</td><td>Shorter journey — fewer threats, fewer turns to find resources.</td></tr>
-      <tr><td>Resolute</td><td>35</td><td>Balanced. More road, more chances, more danger.</td></tr>
-      <tr><td>Desperate</td><td>40</td><td>The full wasteland. Maximum threats and turns.</td></tr>
+      <tr><th>Mode</th><th>Road Cards</th><th>Food</th><th>Health</th><th>Sanity</th><th>Mutation</th></tr>
+      <tr><td>Cautious</td><td>30</td><td>8</td><td>8</td><td>8</td><td>0</td></tr>
+      <tr><td>Resolute</td><td>35</td><td>7</td><td>7</td><td>7</td><td>1</td></tr>
+      <tr><td>Desperate</td><td>40</td><td>6</td><td>6</td><td>6</td><td>2</td></tr>
     </table>
     <div class="rb-body">
-      <p>Starting stats are always: <strong>Food 5 · Health 7 · Sanity 6 · Mutation 0</strong>. Five cards are automatically dealt to the Gather Track when the journey begins.</p>
-      <p>Cards beyond the deal count are permanently set aside — they never enter play. This creates variation between runs even at the same difficulty.</p>
+      <p>Cards beyond the deal count are permanently set aside — they never enter play. This creates variation between runs even at the same difficulty. Five cards are automatically dealt to the Gather Track when the journey begins.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3021,18 +3236,18 @@
     <div class="rb-subsection">Stats</div>
     <table class="rb-table">
       <tr><th>Stat</th><th>Range</th><th>Effect at limit</th></tr>
-      <tr><td>🌾 Food</td><td>0–8 (10 with Backpack)</td><td>Starvation: −1 Health and −1 Sanity each time you pay a food cost while at 0. The Food track's skull space pulses red when you are starving.</td></tr>
+      <tr><td>🌾 Food</td><td>0–8 (10 with Backpack)</td><td>Starvation: −1 Health and −1 Sanity each time you pay a food cost while at 0.</td></tr>
       <tr><td>🩸 Health</td><td>0–10</td><td>Reaching 0 ends the game — <em>You Have Fallen.</em></td></tr>
       <tr><td>🕯️ Sanity</td><td>0–10</td><td>Reaching 0 ends the game — <em>Lost to Madness.</em></td></tr>
-      <tr><td>🧬 Mutation</td><td>0–10</td><td>Reaching 10 ends the game — <em>The Change is Complete.</em> Crossing positions 4, 6, and 9 each trigger a Mutant card draw.</td></tr>
+      <tr><td>🧬 Mutation</td><td>0–10</td><td>Reaching 10 ends the game — <em>The Change is Complete.</em> Crossing 4, 6, and 9 each trigger a Mutant card draw.</td></tr>
     </table>
     <div class="rb-subsection">Derived Stats</div>
     <table class="rb-table">
-      <tr><th>Stat</th><th>Calculation</th><th>Values</th></tr>
-      <tr><td>⚔ STR (Strength)</td><td>Based on Health</td><td>Health 7–10 → STR 2 &nbsp;·&nbsp; Health 3–6 → STR 1 &nbsp;·&nbsp; Health 0–2 → STR 0</td></tr>
-      <tr><td>🚶 SPD (Speed)</td><td>Based on Sanity</td><td>Sanity 10 → SPD 2 &nbsp;·&nbsp; Sanity 6–9 → SPD 1 &nbsp;·&nbsp; Sanity 2–5 → SPD 0 &nbsp;·&nbsp; Sanity 1 → SPD 2 (frenzy)</td></tr>
+      <tr><th>Stat</th><th>Based on</th><th>Normal Variant</th><th>Armor Variant</th></tr>
+      <tr><td>⚔ STR</td><td>Health</td><td colspan="2">Health 10 → STR 3 · Health 7–9 → STR 2 · Health 3–6 → STR 1 · Health 1–2 → STR 0</td></tr>
+      <tr><td>🚶 SPD</td><td>Sanity</td><td>Sanity 10 → 2 · Sanity 6–9 → 1 · Sanity 2–5 → 0 · Sanity 1 → 2 (frenzy)</td><td>Not used</td></tr>
+      <tr><td>⚔ STR mod</td><td>Sanity</td><td>Not used</td><td>Sanity 8–10 → +1 · Sanity 3–7 → 0 · Sanity 2 → −1 · Sanity 1 → +2 (frenzy)</td></tr>
     </table>
-    <div class="rb-callout"><div class="rb-body">⚠ A Sanity of 1 triggers frenzy — SPD jumps to 2. Higher movement burns through the deck faster, which can be dangerous or useful depending on the situation.</div></div>
 
     <div class="rb-divider"></div>
 
@@ -3044,8 +3259,8 @@
       <tr><td>2</td><td>Pay the cost</td><td>Each slot has a food and/or threat cost (and sometimes a mutation cost in The Hive). Some slots offer a payment choice.</td></tr>
       <tr><td>3</td><td>Resolve threats</td><td>Draw and resolve threat cards one at a time. A monster loss skips any remaining threats that turn.</td></tr>
       <tr><td>4</td><td>Resolve the card</td><td>Apply the card's effect — gain stats, take gear, or use an instant item.</td></tr>
-      <tr><td>5</td><td>Discard board</td><td>All unselected cards are discarded.</td></tr>
-      <tr><td>6</td><td>Move</td><td>Discard cards from the draw pile equal to your SPD.</td></tr>
+      <tr><td>5</td><td>Discard board</td><td>All unselected cards are discarded. If you lost a battle, the loot card stays in its slot instead.</td></tr>
+      <tr><td>6</td><td>Move <em>(Normal only)</em></td><td>Discard cards from the draw pile equal to your SPD. Skipped entirely in Armor variant.</td></tr>
       <tr><td>7</td><td>Redraw</td><td>Draw up to 5 new cards to refill the Gather Track. If the draw pile empties, the location transition triggers.</td></tr>
     </table>
 
@@ -3084,7 +3299,7 @@
       <tr><td>5</td><td>2 Food + 3 Threats + 1 Mutation</td><td>—</td></tr>
     </table>
     <div class="rb-body">
-      <p>Items that reduce costs (Binoculars, Area Map, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
+      <p>Items that reduce costs (Binoculars, Area Map, Compass in Armor variant, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3095,26 +3310,26 @@
     <table class="rb-table">
       <tr><th>Type</th><th>Effect</th></tr>
       <tr><td>☀ Break</td><td>Safe card — no effect.</td></tr>
-      <tr><td>⚡ Setback</td><td>Immediate stat effect: Injury (−1 Health), Disturbance (−1 Sanity), Infection (+1 or +2 Mutation). Hive Infections are especially severe.</td></tr>
+      <tr><td>⚡ Setback</td><td>Immediate stat loss: Injury (Health), Disturbance or Night Terror (Sanity), Infection or Contamination (Mutation). Hive setbacks are especially severe. In the Armor variant, armor absorbs setback damage first.</td></tr>
       <tr><td>💀 Monster</td><td>Triggers combat. Compare your effective STR to the monster's STR.</td></tr>
     </table>
     <div class="rb-subsection">Combat Resolution</div>
     <div class="rb-body">
-      <p>When a monster is drawn, a battle screen appears. If you have a weapon with uses remaining, you may use it (adds its STR bonus) or fight bare-handed. Mutant bonuses (Forehead Tusk, Extra Arm, Hive Mind) apply automatically.</p>
+      <p>When a monster is drawn, a battle screen appears. If you have a weapon with uses remaining, you may use it (adds its STR bonus) or fight bare-handed. Mutant bonuses apply automatically. In the Armor variant, your Sanity STR modifier also applies.</p>
     </div>
     <table class="rb-table">
       <tr><th>Outcome</th><th>Result</th></tr>
       <tr><td>Your STR &gt; Monster STR</td><td>Victory — loot secured, no damage.</td></tr>
       <tr><td>Your STR = Monster STR</td><td>Tie — loot secured, monster damage applied.</td></tr>
-      <tr><td>Your STR &lt; Monster STR</td><td>Defeat — loot lost, damage applied. The monster is <strong>injured</strong> (see below).</td></tr>
+      <tr><td>Your STR &lt; Monster STR</td><td>Defeat — loot card stays in its slot next turn, damage applied. Monster is <strong>injured</strong>.</td></tr>
     </table>
     <div class="rb-subsection">Injured Monsters</div>
     <div class="rb-body">
-      <p>When you lose a battle, the monster is not fully defeated — it lingers at that slot with its remaining strength (monster STR − your STR). A 💀 badge shows on the slot cost. The next time you select that slot, you pay 1 extra food and must fight the injured monster first. Win or tie to clear it and proceed; lose again and it remains, weakened further.</p>
+      <p>When you lose a battle, the monster lingers at that slot with its remaining strength (monster STR − your STR). A 💀 badge appears. Next time you pick that slot, pay 1 extra food and fight the injured monster first. Win or tie to clear it; lose again and it weakens further.</p>
     </div>
     <div class="rb-subsection">STR Bonuses</div>
     <div class="rb-body">
-      <p><strong>Camouflage</strong> +1 STR in all battles. <strong>Holster</strong> +2 STR when using a ranged or explosive weapon. <strong>Forehead Tusk</strong> mutant +2 STR (stacks). <strong>Extra Arm</strong> mutant +3 STR with melee weapons only. <strong>Hive Mind</strong> mutant +3 STR in The Hive.</p>
+      <p><strong>Holster</strong> +2 STR with ranged or explosive weapons. <strong>Forehead Tusk</strong> mutant +2 STR (stacks). <strong>Extra Arm</strong> mutant +3 STR with melee only. <strong>Hive Mind</strong> mutant +3 STR in The Hive. <strong>Adrenaline Shot</strong> +3 STR for one battle (active item). <em>Armor variant only:</em> Sanity modifier (see Variants section).</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3133,9 +3348,13 @@
     <div class="rb-body">
       <p>Occupy a single weapon slot. Replacing a weapon permanently discards the old one. Weapons have limited uses; once depleted they are removed automatically. Three classes: <span class="rb-tag rb-tag-melee">Melee</span> (high uses, moderate STR), <span class="rb-tag rb-tag-ranged">Ranged</span> (lower uses, high STR — reload with Ammo), <span class="rb-tag rb-tag-explosive">Explosive</span> (single use, very high STR).</p>
     </div>
-    <div class="rb-subsection"><span class="rb-tag rb-tag-vehicle">Vehicle</span> Movement Cards</div>
+    <div class="rb-subsection"><span class="rb-tag rb-tag-vehicle">Vehicle</span> Movement Cards <em>(Normal only)</em></div>
     <div class="rb-body">
-      <p>Occupy a single vehicle slot and add their Move value to your SPD each turn. One use is consumed per turn the vehicle contributes to movement. Fuel Cans restore all uses. When uses run out, the vehicle is removed.</p>
+      <p>Occupy the vehicle slot and add their Move value to your SPD each turn. One use is consumed per turn the vehicle contributes to movement. Fuel Cans restore all uses. When uses run out, the vehicle is removed.</p>
+    </div>
+    <div class="rb-subsection"><span class="rb-tag rb-tag-item" style="color:#7ab8e8;border-color:rgba(80,140,200,0.5);">Armor</span> Protection Cards <em>(Armor variant only)</em></div>
+    <div class="rb-body">
+      <p>Equip to a Head, Body, or Accessory slot. Each armor piece absorbs a fixed amount of damage per type before you take it to your stat tracks. Pips drain as damage is absorbed. When all pips are spent the armor is destroyed out of play. Replacing armor destroys the old piece.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3143,24 +3362,21 @@
     <!-- MUTATIONS -->
     <div class="rb-section-title" id="rb-mutations">Mutations</div>
     <div class="rb-body">
-      <p>Mutation increases from certain gather cards, monster defeats (ties and losses), threat setbacks, and Hive slot costs. All mutation is bad — the track moves in one direction only, toward game over at 10.</p>
-      <p>When your mutation marker crosses positions <strong>4</strong>, <strong>6</strong>, or <strong>9</strong> on the track, a Mutant card is drawn from the shuffled mutant deck. Each Mutant card grants a permanent passive bonus for the rest of the run.</p>
+      <p>Mutation increases from gather cards, monster ties and losses, threat setbacks, and Hive slot costs. The track moves in one direction only — toward game over at 10.</p>
+      <p>When your mutation marker crosses positions <strong>4</strong>, <strong>6</strong>, or <strong>9</strong>, draw <strong>two</strong> Mutant cards. Choose one to keep permanently; the other is shuffled back into the deck.</p>
     </div>
     <table class="rb-table">
       <tr><th>Mutant Card</th><th>Bonus</th></tr>
-      <tr><td>Forehead Tusk</td><td>+2 STR in all battles (stacks if drawn multiple times)</td></tr>
-      <tr><td>Elastic Tendons</td><td>+2 SPD per turn (stacks)</td></tr>
-      <tr><td>Regenerative Tissue</td><td>+1 extra Health whenever you gain Health (stacks with Tent passive)</td></tr>
+      <tr><td>Forehead Tusk</td><td>+2 STR in all battles (stacks)</td></tr>
+      <tr><td>Hardened Skin</td><td><em>Armor variant:</em> after a battle win or tie, restore 1 pip to any armor piece. <em>Normal:</em> no effect.</td></tr>
+      <tr><td>Regenerative Tissue</td><td>+1 extra Health whenever you gain Health (stacks with Tent)</td></tr>
       <tr><td>Loss of Fear</td><td>+1 extra Sanity whenever you gain Sanity</td></tr>
       <tr><td>Hive Mind</td><td>+3 STR in The Hive only</td></tr>
       <tr><td>Feral Instinct</td><td>+2 Food on monster win or tie</td></tr>
       <tr><td>Extra Arm</td><td>+3 STR when using a melee weapon</td></tr>
-      <tr><td>Glowing Fingers</td><td>−1 Threat cost when picking up an item card (min 0)</td></tr>
-      <tr><td>Future Flicker</td><td>−1 Threat cost on slots 4 &amp; 5 (stacks with Binoculars, min 1)</td></tr>
+      <tr><td>Glowing Fingers</td><td>−1 Threat when picking up an item card (min 0)</td></tr>
+      <tr><td>Future Flicker</td><td>−1 Threat on slots 4 &amp; 5 (stacks with Binoculars, min 1)</td></tr>
     </table>
-    <div class="rb-body">
-      <p>Anti-viral items can block incoming Mutation — you are prompted automatically when mutation would increase while one is in your inventory.</p>
-    </div>
 
     <div class="rb-divider"></div>
 
@@ -3168,31 +3384,32 @@
     <div class="rb-section-title" id="rb-items">Item Quick Reference</div>
     <table class="rb-table">
       <tr><th>Item</th><th>Type</th><th>Effect</th></tr>
-      <tr><td>Anti-Viral / Anti-Virals</td><td>1–2 uses</td><td>Blocks an incoming Mutation gain. Prompts automatically when triggered.</td></tr>
-      <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon currently in your inventory.</td></tr>
+      <tr><td>Adrenaline Shot</td><td>2 uses, active</td><td>Activate before a pick: +3 STR for your next battle only.</td></tr>
+      <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon in your inventory.</td></tr>
+      <tr><td>Anti-Viral / Anti-Virals</td><td>1–2 uses <em>(Normal only)</em></td><td>Blocks an incoming Mutation gain. Prompts automatically when triggered.</td></tr>
       <tr><td>Area Map</td><td>1 use</td><td>Before paying a slot cost, activate to reduce it to 1 Food and 0 Threats.</td></tr>
-      <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Also raises maximum Food from 8 to 10.</td></tr>
-      <tr><td>Binoculars</td><td>Passive</td><td>Reduces the threat cost on slots 4 and 5 by 1 (minimum 1 threat).</td></tr>
-      <tr><td>Camouflage</td><td>Passive</td><td>+1 STR in all battles while carried.</td></tr>
-      <tr><td>Compass</td><td>Passive</td><td>+1 SPD per turn (permanent movement bonus).</td></tr>
+      <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Raises maximum Food from 8 to 10.</td></tr>
+      <tr><td>Binoculars</td><td>Passive</td><td>−1 Threat on slots 4 and 5 (minimum 1 threat).</td></tr>
+      <tr><td>Compass</td><td>Passive</td><td><em>Normal:</em> +1 SPD per turn. <em>Armor:</em> −1 Food cost on slots 1 &amp; 2 (min 0).</td></tr>
       <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain Food from a gather card, gain +1 extra Food.</td></tr>
-      <tr><td>Fuel Can</td><td>Instant</td><td>Fully restores all uses of your vehicle.</td></tr>
+      <tr><td>Fuel Can</td><td>Instant <em>(Normal only)</em></td><td>Fully restores all uses of your vehicle.</td></tr>
       <tr><td>Holster</td><td>Passive</td><td>+2 STR when using a ranged or explosive weapon in battle.</td></tr>
-      <tr><td>Matches</td><td>3 uses, passive</td><td>On a monster win or tie, gain +1 Food. Triggers automatically.</td></tr>
-      <tr><td>Stash of Ration Packs</td><td>5 uses, passive</td><td>Absorbs starvation — when you would starve, a use is consumed and your Food is set to 1 instead. No health or sanity loss.</td></tr>
+      <tr><td>Matches</td><td>Passive</td><td>On a monster win or tie, gain +1 Food. Triggers automatically, unlimited uses.</td></tr>
+      <tr><td>Stash of Ration Packs</td><td>5 uses, passive</td><td>Absorbs starvation — food set to 1 instead of triggering health/sanity loss.</td></tr>
       <tr><td>Tent</td><td>Passive</td><td>Whenever you gain Health, gain +1 extra Health (stacks with Regenerative Tissue).</td></tr>
       <tr><td>Torch</td><td>3 uses, active</td><td>Once per turn: use the Torch button to gain +1 Sanity. No food cost.</td></tr>
+      <tr><td>Walkie-Talkie</td><td>3 uses, active</td><td>Activate before a pick: skip all threat draws that turn.</td></tr>
     </table>
 
     <div class="rb-divider"></div>
 
     <!-- MOVEMENT -->
-    <div class="rb-section-title" id="rb-movement">Movement</div>
+    <div class="rb-section-title" id="rb-movement">Movement <em>(Normal variant only)</em></div>
     <div class="rb-body">
       <p>After resolving a card and discarding the board, you move. Movement discards cards from the top of the draw pile — one per point of SPD. Those cards go to the discard pile and return in a future location's deck.</p>
-      <p>Base SPD is derived from Sanity. A Compass adds +1 permanently. A vehicle adds its Move value per turn (consuming one use each turn). Elastic Tendons mutant adds +2 SPD per copy.</p>
+      <p>Base SPD is derived from Sanity. A Compass adds +1 permanently. A vehicle adds its Move value per turn, consuming one use each turn.</p>
     </div>
-    <div class="rb-callout"><div class="rb-body">If movement empties the draw pile mid-turn, the location transition triggers immediately.</div></div>
+    <div class="rb-callout"><div class="rb-body">If movement empties the draw pile mid-turn, the location transition triggers immediately. In the Armor variant, there is no movement step — location transitions happen only when the draw pile runs out naturally.</div></div>
 
     <div class="rb-divider"></div>
 
@@ -3233,7 +3450,7 @@
       <tr><td>Mutation reaches 10</td><td>The Change is Complete 🧬</td></tr>
     </table>
     <div class="rb-body">
-      <p>Starvation (food at 0 when a food cost is owed) applies −1 Health and −1 Sanity simultaneously. Either can trigger a game-over condition. A Stash of Ration Packs will absorb starvation if available.</p>
+      <p>Starvation (food at 0 when a food cost is owed) applies −1 Health and −1 Sanity simultaneously. A Stash of Ration Packs absorbs starvation if available.</p>
       <p>Use the <strong>Restart</strong> button (top-left of the game screen) at any time to return to the title screen and start a new run.</p>
     </div>
   </div>
@@ -3303,9 +3520,8 @@
   <div id="mutant-dialog">
     <div class="mutant-box">
       <div class="mutant-title">🧬 Mutation Gained</div>
-      <div class="mutant-subtitle" id="mutant-subtitle">Your body is changing…</div>
-      <div class="mutant-card-display" id="mutant-card-display"></div>
-      <button class="mutant-btn" id="mutant-btn-ok">Accept</button>
+      <div class="mutant-subtitle" id="mutant-subtitle">Your body is changing — choose what takes hold.</div>
+      <div class="mutant-choice-row" id="mutant-choice-row"></div>
     </div>
   </div>
 
@@ -3382,6 +3598,16 @@
       <span class="compass-used-label" id="torch-uses-label"></span>
     </div>
 
+    <div class="compass-bar" id="walkie-bar" style="display:none;">
+      <button class="compass-peek-btn" id="walkie-use-btn" style="border-color:rgba(100,180,120,0.5);background:rgba(100,180,120,0.08);color:#64b478;">📻 Walkie-Talkie — skip all threats this pick</button>
+      <span class="compass-used-label" id="walkie-uses-label"></span>
+    </div>
+
+    <div class="compass-bar" id="adrenaline-bar" style="display:none;">
+      <button class="compass-peek-btn" id="adrenaline-use-btn" style="border-color:rgba(200,80,80,0.5);background:rgba(200,80,80,0.08);color:#e05050;">💉 Adrenaline Shot — +3 STR next battle</button>
+      <span class="compass-used-label" id="adrenaline-uses-label"></span>
+    </div>
+
     <div class="slots-row" id="slots-row"></div>
 
     <div class="board-footer">
@@ -3418,7 +3644,8 @@
         <button class="dv-filter-btn" data-filter="gather">Gather</button>
         <button class="dv-filter-btn" data-filter="item">Items</button>
         <button class="dv-filter-btn" data-filter="weapon">Weapons</button>
-        <button class="dv-filter-btn" data-filter="vehicle">Vehicles</button>
+        <button class="dv-filter-btn" id="dv-filter-vehicle" data-filter="vehicle">Vehicles</button>
+        <button class="dv-filter-btn" id="dv-filter-armor"   data-filter="armor" style="display:none;">Armor</button>
       </div>
       <div class="dv-grid" id="dv-grid"></div>
     </div>
@@ -3430,6 +3657,18 @@
   <!-- ══════════════════════════════════════
        DRAFT DIALOG
   ══════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════
+       STARTING GEAR PICK
+  ══════════════════════════════════════ -->
+  <div id="starting-gear-dialog">
+    <div class="draft-box">
+      <div class="draft-title" id="sg-title">⚙ Starting Gear</div>
+      <div class="draft-subtitle" id="sg-subtitle">Choose one item to begin your journey with.</div>
+      <div class="draft-cards" id="sg-cards"></div>
+      <button class="draft-confirm-btn" id="sg-confirm-btn" disabled>Take It</button>
+    </div>
+  </div>
+
   <div id="draft-dialog">
     <div class="draft-box">
       <div class="draft-title" id="draft-title">📦 Choose Your Supplies</div>
@@ -3516,10 +3755,30 @@
 
     <!-- Inventory slots -->
     <div class="inventory-panel" id="inventory-panel">
-      <div class="inventory-slot">
+      <!-- Normal variant: vehicle slot -->
+      <div class="inventory-slot" id="inv-slot-vehicle">
         <div class="inventory-slot-label">🚗 Vehicle</div>
         <div class="inventory-card-zone inv-vehicle" id="inv-vehicle">
           <span class="inventory-empty-icon">🚗</span>
+        </div>
+      </div>
+      <!-- Armor variant: three armor slots (hidden in normal mode) -->
+      <div class="inventory-slot" id="inv-slot-armor-head" style="display:none;">
+        <div class="inventory-slot-label">🪖 Head</div>
+        <div class="inventory-card-zone inv-armor-head" id="inv-armor-head">
+          <span class="inventory-empty-icon">🪖</span>
+        </div>
+      </div>
+      <div class="inventory-slot" id="inv-slot-armor-body" style="display:none;">
+        <div class="inventory-slot-label">🧥 Body</div>
+        <div class="inventory-card-zone inv-armor-body" id="inv-armor-body">
+          <span class="inventory-empty-icon">🧥</span>
+        </div>
+      </div>
+      <div class="inventory-slot" id="inv-slot-armor-acc" style="display:none;">
+        <div class="inventory-slot-label">📿 Accessory</div>
+        <div class="inventory-card-zone inv-armor-acc" id="inv-armor-acc">
+          <span class="inventory-empty-icon">📿</span>
         </div>
       </div>
       <div class="inventory-slot">
@@ -3530,6 +3789,19 @@
       </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════
+       GAME LOG
+  ══════════════════════════════════════ -->
+  <div id="game-log">
+    <div class="log-header">
+      <span class="log-title">📋 Log</span>
+      <button class="log-clear-btn" id="log-clear-btn">Clear</button>
+    </div>
+    <div class="log-entries" id="log-entries"></div>
+  </div>
+
+<button id="log-toggle-btn">📋 Log</button>
 
 <script>
   /* ═══════════════════════════════════════════
@@ -3554,7 +3826,66 @@
     el.className = 'show' + (isWarn ? ' toast-warn' : '');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.className = ''; }, duration);
+    // Mirror to game log
+    if (msg && typeof msg === 'string') {
+      msg.split('\n').forEach(line => {
+        const t = line.trim();
+        if (t) gameLog.add(t, isWarn ? 'warn' : '');
+      });
+    }
   }
+
+  /* ═══════════════════════════════════════════
+     GAME LOG
+  ═══════════════════════════════════════════ */
+  const gameLog = (() => {
+    let turnNum = 0;
+    let entryCount = 0;
+
+    function entries() { return document.getElementById('log-entries'); }
+
+    function scrollToBottom() {
+      const el = entries();
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+
+    function newTurn(label) {
+      turnNum++;
+      const el = entries();
+      if (!el) return;
+      const div = document.createElement('div');
+      div.className = 'log-turn-divider';
+      div.textContent = label || `Turn ${turnNum}`;
+      el.appendChild(div);
+      scrollToBottom();
+    }
+
+    function add(text, cls = '') {
+      const el = entries();
+      if (!el) return;
+      entryCount++;
+      const div = document.createElement('div');
+      div.className = 'log-entry' + (cls ? ' log-' + cls : '');
+      div.textContent = text;
+      el.appendChild(div);
+      scrollToBottom();
+    }
+
+    function clear() {
+      const el = entries();
+      if (el) el.innerHTML = '';
+      turnNum = 0;
+      entryCount = 0;
+    }
+
+    return { newTurn, add, clear };
+  })();
+
+  document.getElementById('log-clear-btn').addEventListener('click', () => gameLog.clear());
+  document.getElementById('log-toggle-btn').addEventListener('click', () => {
+    const log = document.getElementById('game-log');
+    log.classList.toggle('log-visible');
+  });
 
   /* ═══════════════════════════════════════════
      GAME OVER
@@ -3582,6 +3913,8 @@
   function triggerGameOver(reason) {
     if (gameOver) return;
     gameOver = true;
+    const goLabels = { health: '💀 You Have Fallen', sanity: '🌑 Lost to Madness', mutation: '🧬 The Change is Complete' };
+    gameLog.add(goLabels[reason] ?? '💀 Game Over', 'warn');
 
     const def = GAME_OVER_DEFS[reason];
     const el  = document.getElementById('game-over');
@@ -3654,7 +3987,11 @@
 
     // Update board visuals for new location
     updateBoardLocation();
-    injuredMonsters = [null, null, null, null, null]; // monsters don't follow to new locations
+    gameLog.newTurn(`📍 ${['The Sprawl', 'The Hive', 'The Sanctuary'][deckPass - 1] ?? 'New Location'}`);
+    injuredMonsters = [null, null, null, null, null];
+    suppressThreatNextPick = false;
+    tempStrBonus = 0;
+    retainedSlot = null; // monsters don't follow to new locations
     updateSlotCosts();
     clearLootZones();
 
@@ -3715,6 +4052,7 @@
   function triggerYouWin() {
     if (gameOver) return;
     gameOver = true;
+    gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
     const el = document.getElementById('you-win');
     el.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
@@ -3747,6 +4085,7 @@
       }
       return; // no health/sanity loss
     }
+    gameLog.add('🌾 Starving — −1 health, −1 sanity', 'warn');
     const newHealth = Math.max(0, playerState.health.value - 1);
     if (playerState.health.set) playerState.health.set(newHealth);
     if (checkGameOver('health', newHealth)) return;
@@ -3797,6 +4136,10 @@
     let threat   = slotDef.threat   ?? 0;
     let mutation = slotDef.mutation ?? 0;
 
+    // Compass (armor variant): −1 food on slots 1 & 2 (index 0 & 1)
+    if (gameVariant === 'armor' && (slotIndex === 0 || slotIndex === 1) && itemSlots.some(c => c?.name === 'Compass')) {
+      food = Math.max(0, food - 1);
+    }
     // Area Map: −1 food on slots 2 & 3 (index 1 & 2)
     if ((slotIndex === 1 || slotIndex === 2) && itemSlots.some(c => c?.name === 'Area map')) {
       food = Math.max(0, food - 1);
@@ -3808,6 +4151,10 @@
     // Future flicker mutant: additional −1 threat on slots 4 & 5, min 1
     if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
       threat = Math.max(1, threat - 1);
+    }
+    // Gas mask: −1 mutation cost on all Hive slots (min 0)
+    if (deckPass >= 2 && itemSlots.some(c => c?.name === 'Gas mask')) {
+      mutation = Math.max(0, mutation - 1);
     }
     return { food, threat, mutation };
   }
@@ -3825,6 +4172,9 @@
   let cardSelected  = false; // has a card been selected this round?
   // Injured monsters: one entry per slot. null = none; otherwise { card, originalStrength, remainingStrength }
   let injuredMonsters = [null, null, null, null, null];
+  let retainedSlot = null; // { card, slotIndex } — card kept on board after battle loss
+  let suppressThreatNextPick = false; // Walkie-talkie: skip all threats on next pick
+  let tempStrBonus = 0;               // Adrenaline shot: +3 STR for one battle, then reset
 
   function shuffle(arr) {
     const a = [...arr];
@@ -3993,6 +4343,17 @@
       stat.innerHTML = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
       wrap.appendChild(stat);
     }
+    if (card.absorb != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
+      stat.innerHTML = `🛡️ Absorbs: ${parts}`;
+      wrap.appendChild(stat);
+      const slotTag = document.createElement('div');
+      slotTag.className = 'card-stat';
+      slotTag.textContent = `📍 ${card.armor_slot}`;
+      wrap.appendChild(slotTag);
+    }
     if (card.text) {
       const txt = document.createElement('div');
       txt.className = 'card-text';
@@ -4042,10 +4403,69 @@
     });
   }
 
-  function clearLootZones() {
-    // Any cards still on the board (not selected) go to the discard pile
-    slotCards.forEach(c => { if (c) discardPile.push(c); });
+  // Like placeCards but leaves the retained slot untouched and fills the rest
+  function placeCardsWithRetained(newCards, retained) {
+    // Sort new cards by value
+    const sorted = [...newCards].sort((a, b) => (a.value ?? 0) - (b.value ?? 0));
+
+    // Build a full 5-slot layout: place retained card at its original index,
+    // fill remaining slots with sorted new cards (left-to-right among empty slots)
+    const layout = Array(DRAW_SLOTS).fill(null);
+    layout[retained.slotIndex] = retained.card;
+
+    let ni = 0;
+    for (let i = 0; i < DRAW_SLOTS; i++) {
+      if (layout[i] === null && ni < sorted.length) {
+        layout[i] = sorted[ni++];
+      }
+    }
+
+    slotCards = [...layout];
+
     lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
+      const card = layout[i];
+      const isRetained = i === retained.slotIndex;
+
+      if (isRetained) {
+        // Already rendered — just ensure state is consistent
+        zone.classList.remove('locked', 'slot-disabled');
+        zone.classList.add('has-card');
+        return;
+      }
+
+      zone.innerHTML = '';
+      zone.classList.remove('has-card', 'locked', 'slot-disabled');
+
+      if (!card) {
+        // Empty slot (draw pile had fewer than needed)
+        zone.classList.add('slot-disabled');
+        const icon = document.createElement('span');
+        icon.className = 'loot-icon';
+        icon.textContent = '📦';
+        zone.appendChild(icon);
+      } else {
+        zone.classList.add('has-card');
+        zone.appendChild(renderCard(card));
+        zone.addEventListener('mouseenter', () => {
+          if (!zone.classList.contains('locked')) showMagnifier(card, zone);
+        });
+        zone.addEventListener('mouseleave', hideMagnifier);
+      }
+    });
+  }
+
+  function clearLootZones() {
+    // Any cards still on the board (not selected) go to the discard pile,
+    // except the retained slot (battle loss) which stays on the board.
+    slotCards.forEach((c, i) => {
+      if (c && !(retainedSlot && i === retainedSlot.slotIndex)) discardPile.push(c);
+    });
+    lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
+      if (retainedSlot && i === retainedSlot.slotIndex) {
+        // Leave the retained slot visually intact, just unlock it
+        zone.classList.remove('locked');
+        return;
+      }
       zone.innerHTML = '';
       zone.classList.remove('has-card', 'locked', 'slot-disabled');
       slotCards[i] = null;
@@ -4071,11 +4491,20 @@
   /* ═══════════════════════════════════════════
      INVENTORY
   ═══════════════════════════════════════════ */
+  // ── Game variant ────────────────────────────────────────────────
+  let gameVariant = 'normal'; // 'normal' | 'armor'
+
   const inventory = { vehicle: null, weapon: null };
   // Item slots: always 3
   let itemSlots      = [null, null, null]; // array of card|null
   let itemUsesArr    = [0, 0, 0];          // parallel array of remaining uses
   const itemSlotsCount = 3;
+
+  // ── Armor slots (armor variant only) ─────────────────────────────
+  // Each slot: null | { card, pips: { health: N, sanity: N, mutation: N } }
+  const armorSlots = { head: null, body: null, accessory: null };
+  const ARMOR_SLOT_IDS = { head: 'inv-armor-head', body: 'inv-armor-body', accessory: 'inv-armor-acc' };
+  const ARMOR_SLOT_LABELS = { head: '🪖 Head', body: '🧥 Body', accessory: '📿 Accessory' };
 
   // Max food (8 normally, 10 with Backpack)
   let maxFood = 8;
@@ -4109,6 +4538,10 @@
       return `STR ${card.strength}${classTag}${uses != null ? ' · ' + uses + ' uses' : ''}`;
     }
     if (card.move != null) return `MOVE ${card.move}${uses != null ? ' · ' + uses + ' uses' : ''}`;
+    if (card.absorb != null) {
+      const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`);
+      return `Absorbs: ${parts.join(', ')} · ${card.armor_slot}`;
+    }
     if (card.text)          return card.text.slice(0, 40) + (card.text.length > 40 ? '…' : '');
     return '';
   }
@@ -4148,6 +4581,17 @@
       s.className = 'card-stat';
       s.innerHTML = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
       wrap.appendChild(s);
+    }
+    if (card.absorb != null) {
+      const s = document.createElement('div');
+      s.className = 'card-stat';
+      const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
+      s.innerHTML = `🛡️ Absorbs: ${parts}`;
+      wrap.appendChild(s);
+      const slotTag = document.createElement('div');
+      slotTag.className = 'card-stat';
+      slotTag.textContent = `📍 ${card.armor_slot}`;
+      wrap.appendChild(slotTag);
     }
 
     // Uses pip row — for weapons, vehicles, and items with uses
@@ -4264,6 +4708,107 @@
     zone.onmouseleave = hideMagnifier;
   }
 
+  /* ── Armor: render pips for one armor slot ── */
+  function renderArmorPips(pips, originalAbsorb) {
+    const row = document.createElement('div');
+    row.className = 'armor-absorb-pips';
+    for (const [stat, total] of Object.entries(originalAbsorb)) {
+      const remaining = pips[stat] ?? 0;
+      for (let i = 0; i < total; i++) {
+        const pip = document.createElement('span');
+        pip.className = `armor-pip pip-${stat}${i >= remaining ? ' pip-spent' : ''}`;
+        pip.title = `${stat} absorption${i >= remaining ? ' (spent)' : ''}`;
+        row.appendChild(pip);
+      }
+    }
+    return row;
+  }
+
+  /* ── Armor: re-render one armor slot zone ── */
+  function refreshArmorSlot(slotKey) {
+    const slot = armorSlots[slotKey];
+    const zone = document.getElementById(ARMOR_SLOT_IDS[slotKey]);
+    if (!zone) return;
+    zone.innerHTML = '';
+    zone.classList.remove('inv-filled', 'item-has-uses', 'item-depleted');
+    if (!slot) {
+      const icon = document.createElement('span');
+      icon.className = 'inventory-empty-icon';
+      icon.textContent = slotKey === 'head' ? '🪖' : slotKey === 'body' ? '🧥' : '📿';
+      zone.appendChild(icon);
+      return;
+    }
+    zone.classList.add('inv-filled');
+    const totalPips = Object.values(slot.pips).reduce((a,b) => a+b, 0);
+    const maxPips   = Object.values(slot.card.absorb).reduce((a,b) => a+b, 0);
+    zone.classList.toggle('item-has-uses', totalPips > 0);
+    zone.classList.toggle('item-depleted', totalPips <= 0);
+    const cardEl = renderInventoryCard(slot.card, null);
+    // Append pip display inside the card element
+    cardEl.appendChild(renderArmorPips(slot.pips, slot.card.absorb));
+    zone.appendChild(cardEl);
+    zone.onmouseenter = () => showMagnifier(slot.card, zone);
+    zone.onmouseleave = hideMagnifier;
+  }
+
+  /* ── Armor: equip a new armor card (with replace prompt if slot occupied) ── */
+  async function equipArmor(card) {
+    const slotKey = card.armor_slot; // head | body | accessory
+    const existing = armorSlots[slotKey];
+
+    if (existing) {
+      // Prompt replace (same dialog as weapons)
+      document.getElementById('replace-name').textContent    = existing.card.name;
+      document.getElementById('replace-incoming').textContent = card.name;
+      const replace = await new Promise(resolve => {
+        replaceResolve = resolve;
+        document.getElementById('replace-dialog').classList.add('open');
+      });
+      if (!replace) {
+        // Kept existing — incoming card goes to permanent discard (not loot pile)
+        return { taken: false };
+      }
+      // Trash the old armor permanently (no discard pile cycle)
+      // (don't push to discardPile — armor is trashed out of play)
+    }
+    armorSlots[slotKey] = { card, pips: { ...card.absorb } };
+    refreshArmorSlot(slotKey);
+    return { taken: true };
+  }
+
+  /* ── Armor: absorb damage through armor slots, return { absorbed, lines } ── */
+  function armorAbsorb(damageObj) {
+    if (gameVariant !== 'armor') return { absorbed: {}, lines: [] };
+    const absorbed = {};
+    const lines = [];
+    for (const [stat, rawAmt] of Object.entries(damageObj)) {
+      const amt = rawAmt; // negative = damage (health/sanity), positive = mutation gain
+      const isDamage = (stat === 'health' || stat === 'sanity') ? amt < 0 : amt > 0;
+      if (!isDamage) continue;
+      const dmgAmt = Math.abs(amt);
+      let remaining = dmgAmt;
+      // Try each slot in priority order: head, body, accessory
+      for (const slotKey of ['head', 'body', 'accessory']) {
+        const slot = armorSlots[slotKey];
+        if (!slot || (slot.pips[stat] ?? 0) <= 0) continue;
+        const canAbsorb = Math.min(remaining, slot.pips[stat]);
+        slot.pips[stat] -= canAbsorb;
+        remaining -= canAbsorb;
+        absorbed[stat] = (absorbed[stat] ?? 0) + canAbsorb;
+        lines.push(`🛡️ ${slot.card.name} absorbed ${canAbsorb} ${stat} damage (${slot.pips[stat]} left)`);
+        // Trash armor if all pips depleted
+        const totalLeft = Object.values(slot.pips).reduce((a,b)=>a+b,0);
+        if (totalLeft <= 0) {
+          lines.push(`🗑️ ${slot.card.name} destroyed`);
+          armorSlots[slotKey] = null;
+        }
+        refreshArmorSlot(slotKey);
+        if (remaining <= 0) break;
+      }
+    }
+    return { absorbed, lines };
+  }
+
   // setInventorySlot only handles vehicle/weapon now; items use setItemSlot / equipBackpack
   function setInventorySlot(type, card) {
     if (type === 'item') { throw new Error('Use setItemSlot for items'); }
@@ -4335,6 +4880,8 @@
     updateCompassBar();
     updateTentSkipBtn();
     updateTorchBar();
+    updateWalkieBar();
+    updateAdrenalineBar();
   }
 
   function updateTentSkipBtn() { /* Tent is now passive — no skip bar needed */ }
@@ -4370,7 +4917,60 @@
   /* ── Compass: peek top loot card once per turn (costs 1 food) ─── */
   function updateCompassBar() { /* Compass is now passive — no bar needed */ }
 
-  function updateTentSkipBtn() { /* Tent is now passive — no skip bar needed */ }
+  /* ── Walkie-talkie: arm/disarm threat suppression for next pick ── */
+  function updateWalkieBar() {
+    const idx = itemSlots.findIndex(c => c?.name === 'Walkie-talkie');
+    const bar = document.getElementById('walkie-bar');
+    if (idx < 0) { bar.style.display = 'none'; suppressThreatNextPick = false; return; }
+    const uses = itemUsesArr[idx];
+    bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
+    document.getElementById('walkie-uses-label').textContent =
+      uses > 0 ? `${uses} use${uses !== 1 ? 's' : ''} remaining` : '';
+    const btn = document.getElementById('walkie-use-btn');
+    btn.style.background = suppressThreatNextPick ? 'rgba(100,180,120,0.25)' : 'rgba(100,180,120,0.08)';
+    btn.textContent = suppressThreatNextPick
+      ? '📻 Walkie-Talkie — ARMED (threats suppressed)'
+      : '📻 Walkie-Talkie — skip all threats this pick';
+  }
+
+  document.getElementById('walkie-use-btn').addEventListener('click', () => {
+    const idx = itemSlots.findIndex(c => c?.name === 'Walkie-talkie');
+    if (idx < 0 || cardSelected || itemUsesArr[idx] <= 0) return;
+    suppressThreatNextPick = !suppressThreatNextPick; // toggle — click again to cancel
+    updateWalkieBar();
+  });
+
+  /* ── Adrenaline shot: +3 STR for one battle ── */
+  function updateAdrenalineBar() {
+    const idx = itemSlots.findIndex(c => c?.name === 'Adrenaline shot');
+    const bar = document.getElementById('adrenaline-bar');
+    if (idx < 0) { bar.style.display = 'none'; return; }
+    const uses = itemUsesArr[idx];
+    bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
+    document.getElementById('adrenaline-uses-label').textContent =
+      uses > 0 ? `${uses} use${uses !== 1 ? 's' : ''} remaining` : '';
+    const btn = document.getElementById('adrenaline-use-btn');
+    btn.style.background = tempStrBonus > 0 ? 'rgba(200,80,80,0.25)' : 'rgba(200,80,80,0.08)';
+    btn.textContent = tempStrBonus > 0
+      ? '💉 Adrenaline Shot — ACTIVE (+3 STR this battle)'
+      : '💉 Adrenaline Shot — +3 STR next battle';
+  }
+
+  document.getElementById('adrenaline-use-btn').addEventListener('click', () => {
+    const idx = itemSlots.findIndex(c => c?.name === 'Adrenaline shot');
+    if (idx < 0 || cardSelected || itemUsesArr[idx] <= 0) return;
+    if (tempStrBonus > 0) { tempStrBonus = 0; updateAdrenalineBar(); return; } // cancel
+    itemUsesArr[idx]--;
+    tempStrBonus = 3;
+    if (itemUsesArr[idx] === 0) {
+      showToast('💉 Adrenaline loaded — +3 STR this battle\n🎒 Adrenaline shot depleted — discarded', false, 2800);
+      setItemSlot(idx, null);
+    } else {
+      showToast(`💉 Adrenaline loaded — +3 STR this battle (${itemUsesArr[idx]} use${itemUsesArr[idx] !== 1 ? 's' : ''} left)`, false, 2400);
+      renderItemSlots();
+    }
+    updateAdrenalineBar();
+  });
 
   /* ── Attach per-turn action button to item slot ─────────────────── */
   function attachItemActionButton(zone, card, slotIdx) {
@@ -4421,13 +5021,26 @@
       // passive — handled on health gain from gather
 
     } else if (card.name === 'Compass') {
-      // passive — handled in getPlayerSpeed
+      // passive — effect applied automatically; toast shown at acquisition time
 
     } else if (card.name === 'Binoculars') {
       // passive — handled in getEffectiveCosts / onCardSelected
 
     } else if (card.name === 'Area map') {
       // passive — handled in getEffectiveCosts / onCardSelected
+
+    } else if (card.name === 'Walkie-talkie') {
+      // active button — handled by walkie-bar / updateWalkieBar
+
+    } else if (card.name === 'Body armour') {
+      // passive — handled in resolveThreatCard damage application
+
+    } else if (card.name === 'Gas mask') {
+      // passive — handled in getEffectiveCosts / onCardSelected
+      updateSlotCosts();
+
+    } else if (card.name === 'Adrenaline shot') {
+      // active button — handled by adrenaline-bar / updateAdrenalineBar
     }
   }
   let replaceResolve = null; // resolve fn for the pending promise
@@ -4572,43 +5185,85 @@
     });
   }
 
-  /* ── Show mutant card draw dialog ── */
+  /* ── Show mutant card choice dialog (draw 2, pick 1) ── */
   let mutantResolve = null;
-  function promptMutantCard(card) {
+
+  function buildMutantCardEl(card) {
+    const wrap = document.createElement('div');
+    wrap.className = 'mutant-choice-card';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'mutant-card-name';
+    nameEl.textContent = card.name;
+    wrap.appendChild(nameEl);
+
+    if (card.icon) {
+      const iconEl = document.createElement('span');
+      iconEl.className = 'mutant-card-icon';
+      iconEl.textContent = card.icon;
+      wrap.appendChild(iconEl);
+    }
+
+    const effEl = document.createElement('div');
+    effEl.className = 'mutant-card-effect';
+    effEl.textContent = card.text;
+    wrap.appendChild(effEl);
+
+    const btn = document.createElement('button');
+    btn.className = 'mutant-choose-btn';
+    btn.textContent = 'Choose';
+    wrap.appendChild(btn);
+
+    return { wrap, btn };
+  }
+
+  function promptMutantChoice(cardA, cardB) {
     return new Promise(resolve => {
       mutantResolve = resolve;
-      const disp = document.getElementById('mutant-card-display');
-      disp.innerHTML = '';
-      const nameEl = document.createElement('div');
-      nameEl.className = 'mutant-card-name';
-      nameEl.textContent = card.name;
-      disp.appendChild(nameEl);
-      if (card.icon) {
-        const iconEl = document.createElement('span');
-        iconEl.className = 'mutant-card-icon';
-        iconEl.textContent = card.icon;
-        disp.appendChild(iconEl);
-      }
-      const effEl = document.createElement('div');
-      effEl.className = 'mutant-card-effect';
-      effEl.textContent = card.text;
-      disp.appendChild(effEl);
+      const row = document.getElementById('mutant-choice-row');
+      row.innerHTML = '';
+
+      const { wrap: wrapA, btn: btnA } = buildMutantCardEl(cardA);
+      const { wrap: wrapB, btn: btnB } = buildMutantCardEl(cardB);
+
+      btnA.addEventListener('click', () => {
+        document.getElementById('mutant-dialog').classList.remove('open');
+        if (mutantResolve) { mutantResolve(cardA); mutantResolve = null; }
+      });
+      btnB.addEventListener('click', () => {
+        document.getElementById('mutant-dialog').classList.remove('open');
+        if (mutantResolve) { mutantResolve(cardB); mutantResolve = null; }
+      });
+
+      // Clicking the card itself also chooses it
+      wrapA.addEventListener('click', e => { if (e.target !== btnA) btnA.click(); });
+      wrapB.addEventListener('click', e => { if (e.target !== btnB) btnB.click(); });
+
+      row.appendChild(wrapA);
+      row.appendChild(wrapB);
       document.getElementById('mutant-dialog').classList.add('open');
     });
   }
 
-  document.getElementById('mutant-btn-ok').addEventListener('click', () => {
-    document.getElementById('mutant-dialog').classList.remove('open');
-    if (mutantResolve) { mutantResolve(); mutantResolve = null; }
-  });
-
   /* ── Called when mutation track marker lands on a card-spot ── */
   async function onMutantCardSpot() {
-    const card = drawMutantCard();
-    if (!card) return;
-    mutantCards.push(card);
+    const cardA = drawMutantCard();
+    if (!cardA) return;
+    const cardB = drawMutantCard();
+    if (!cardB) {
+      // Fallback: only one card available — auto-accept it
+      mutantCards.push(cardA);
+      renderMutantPanel();
+      updateSlotCosts();
+      return;
+    }
+    const chosen = await promptMutantChoice(cardA, cardB);
+    const rejected = chosen === cardA ? cardB : cardA;
+    mutantCards.push(chosen);
+    // Return the rejected card to the pile (shuffled back in)
+    mutantPile.push(rejected);
+    mutantPile = shuffle(mutantPile);
     renderMutantPanel();
-    await promptMutantCard(card);
     // Refresh board costs — some mutations affect slot costs (e.g. future_flicker)
     updateSlotCosts();
   }
@@ -4641,12 +5296,23 @@
     return 0;
   }
 
+  /* ── Sanity STR modifier (armor variant only) ── */
+  function getSanityStrModifier() {
+    if (gameVariant !== 'armor') return 0;
+    const s = playerState.sanity.value;
+    if (s === 1)  return 2;  // Frenzy
+    if (s === 2)  return -1; // Cracking
+    if (s >= 8)   return 1;  // Clear-headed
+    return 0;                // 3-7 neutral
+  }
+
   /* ── Full strength with weapon (if usable) ── */
   function getPlayerStrength() {
     const base = getBaseStrength();
     const weapon = inventory.weapon;
     const weaponBonus = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
     const camoBonus = itemSlots.some(c => c?.name === 'Camouflage') ? 1 : 0;
+    const sanityMod = getSanityStrModifier();
     const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
     const isMelee = weapon && weapon.weapon_class === 'melee';
     const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile && weaponBonus > 0) ? 2 : 0;
@@ -4654,21 +5320,39 @@
     const tuskBonus    = countMutants('forehead_tusk') * 2;
     const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
     const extraArmBonus = (hasMutant('extra_arm') && isMelee && weaponBonus > 0) ? 3 : 0;
-    return base + weaponBonus + camoBonus + holsterBonus + tuskBonus + hiveMindBonus + extraArmBonus;
+    return base + weaponBonus + camoBonus + holsterBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
   }
 
   /* ── Movement speed: SPD from sanity + vehicle move (if uses remain) + compass ── */
   function getPlayerSpeed() {
+    if (gameVariant === 'armor') return 0; // No movement in armor variant
     const spd         = getSpeed(playerState.sanity.value);
     const vehMove     = (inventory.vehicle && vehicleUsesRemaining > 0) ? (inventory.vehicle.move ?? 0) : 0;
     const compassMov  = itemSlots.some(c => c?.name === 'Compass') ? 1 : 0;
-    const tendonsMov  = countMutants('elastic_tendons') * 2;
-    return spd + vehMove + compassMov + tendonsMov;
+    return spd + vehMove + compassMov;
   }
 
   /* ── Apply an effects object to player state ── */
-  async function applyEffects(effects) {
+  async function applyEffects(effects, skipArmorAbsorb = false) {
     const lines = [];
+    // Armor absorption for setbacks (battle damage is absorbed upstream)
+    if (!skipArmorAbsorb && gameVariant === 'armor') {
+      const { absorbed, lines: absLines } = armorAbsorb(effects);
+      absLines.forEach(l => {
+        lines.push(l);
+        gameLog.add(l, l.includes('destroyed') ? 'warn' : 'dim');
+      });
+      // Reduce effects by absorbed amounts before processing tracks
+      effects = { ...effects };
+      for (const [stat, absAmt] of Object.entries(absorbed)) {
+        if (effects[stat] != null) {
+          const sign = effects[stat] < 0 ? -1 : 1;
+          const reduced = sign * Math.max(0, Math.abs(effects[stat]) - absAmt);
+          if (reduced === 0) delete effects[stat];
+          else effects[stat] = reduced;
+        }
+      }
+    }
     for (const [track, amount] of Object.entries(effects)) {
       if (!playerState[track]) continue;
       const current = playerState[track].value;
@@ -4695,7 +5379,12 @@
 
       const next = Math.max(0, Math.min(10, current + amount));
       if (playerState[track].set) playerState[track].set(next);
-      lines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`);
+      const effectLine = `${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`;
+      lines.push(effectLine);
+      // Log with smart colouring: bad = health/sanity loss, mutation gain; good = health/sanity gain, food gain
+      const isBad = (track === 'health' && amount < 0) || (track === 'sanity' && amount < 0) || (track === 'mutation' && amount > 0);
+      const isGood = (track === 'health' && amount > 0) || (track === 'sanity' && amount > 0) || (track === 'food' && amount > 0) || (track === 'mutation' && amount < 0);
+      gameLog.add(effectLine, isBad ? 'warn' : isGood ? 'good' : 'dim');
       // Starvation: food just hit 0 via effect
       if (track === 'food' && next === 0 && amount < 0) {
         applyStarvation();
@@ -4709,22 +5398,6 @@
   }
 
   /* ── Discard N items from item slots (leftmost filled first) ── */
-  async function applyDiscardItem(count) {
-    let discarded = 0;
-    for (let i = 0; i < itemSlots.length && discarded < count; i++) {
-      if (itemSlots[i]) {
-        const name = itemSlots[i].name;
-        setItemSlot(i, null);
-        showToast(`🎒 ${name} taken — item discarded`, true, 2200);
-        await new Promise(r => setTimeout(r, 600));
-        discarded++;
-      }
-    }
-    if (discarded === 0) {
-      showToast('🎒 No items to discard', false, 1800);
-    }
-  }
-
   /* ── Show one threat card in the dialog, resolve it, wait for dismiss ── */
   async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex) {
     return new Promise(async (resolve) => {
@@ -4737,6 +5410,9 @@
       display.innerHTML = '';
       effectsEl.innerHTML = '';
       btn.className = 'threat-continue-btn';
+
+      // Log this threat
+      gameLog.add(`☣ Threat: ${card.name} (${card.type})`, card.type === 'monster' ? 'warn' : card.type === 'break' ? 'dim' : '');
 
       // Type badge
       const badge = document.createElement('div');
@@ -4776,11 +5452,7 @@
           effectLines = await applyEffects(card.effects);
           if (gameOver) { resolve({ lootLost: false }); return; }
         }
-        if (card.discard_item) {
-          const n = card.discard_item;
-          parts.push(`🎒 discard ${n} item${n > 1 ? 's' : ''}`);
-          effectLines.push(`🎒 You must discard ${n} item${n > 1 ? 's' : ''}`);
-        }
+
         bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
 
       } else if (card.type === 'monster') {
@@ -4798,6 +5470,9 @@
         const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
         // extra_arm: +3 STR only when using a melee weapon
         const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
+        // Adrenaline shot: +3 STR for this battle only
+        const adrenalineBonus = tempStrBonus;
+        tempStrBonus = 0; // consumed regardless of outcome
 
         // Weapon use state — default to using weapon if available
         let usingWeapon = hasWeapon;
@@ -4841,17 +5516,20 @@
           const updatePlayerSide = () => {
             const usingMelee = usingWeapon && isMelee;
             const extraArmBonus = getExtraArmBonus(usingMelee);
+            const sanityMod = getSanityStrModifier();
             const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                          + camoBonus + (usingWeapon ? holsterBonus : 0)
-                         + tuskBonus + hiveMindBonus + extraArmBonus;
+                         + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
             const weaponLabel    = usingWeapon     ? ` +${weaponStr} weapon`   : '';
             const camoLabel      = camoBonus        ? ` +1 camo`               : '';
             const holsterLabel   = (usingWeapon && holsterBonus)   ? ` +2 holster`   : '';
             const tuskLabel      = tuskBonus        ? ` +${tuskBonus} tusk`    : '';
             const hiveMindLabel  = hiveMindBonus    ? ` +3 hive mind`          : '';
             const extraArmLabel  = extraArmBonus    ? ` +3 extra arm`          : '';
+            const adrenalineLabel= adrenalineBonus  ? ` +3 adrenaline`          : '';
+            const sanityLabel    = sanityMod > 0    ? ` +${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? ` ${sanityMod} sanity` : '';
             playerSide.innerHTML = `
-              <span class="battle-stat-label">Your STR${weaponLabel}${camoLabel}${holsterLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}</span>
+              <span class="battle-stat-label">Your STR${weaponLabel}${camoLabel}${holsterLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}</span>
               <span class="battle-stat-value player-str">${effStr}</span>`;
           };
 
@@ -4871,11 +5549,15 @@
           });
           updatePlayerSide();
         } else {
-          const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus;
+          const sanityModBare = getSanityStrModifier();
+          const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
           const bareLabel = [
-            camoBonus    ? '+1 camo'           : '',
-            tuskBonus    ? `+${tuskBonus} tusk`: '',
-            hiveMindBonus? '+3 hive mind'      : '',
+            camoBonus        ? '+1 camo'              : '',
+            tuskBonus        ? `+${tuskBonus} tusk`   : '',
+            hiveMindBonus    ? '+3 hive mind'          : '',
+            adrenalineBonus  ? '+3 adrenaline'         : '',
+            sanityModBare > 0 ? `+${sanityModBare} sanity${sanityModBare===2?' (frenzy)':''}` : '',
+            sanityModBare < 0 ? `${sanityModBare} sanity` : '',
           ].filter(Boolean).join(' ');
           playerSide.innerHTML = `
             <span class="battle-stat-label">Your STR${bareLabel ? ' ' + bareLabel : ''}</span>
@@ -4890,9 +5572,10 @@
         function updateOutcome() {
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
+          const sanityMod = getSanityStrModifier();
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus;
+                       + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
           lootLostThisCard = effStr < monsterStr;
           outcomeEl.className = 'battle-outcome';
           effectLines = [];
@@ -4933,13 +5616,37 @@
           // Compute final effective STR (same as updateOutcome)
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
+          const sanityMod = getSanityStrModifier();
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus;
+                       + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
           // Apply damage on tie or loss
           if (effStr <= monsterStr && card.damage) {
-            await applyEffects(card.damage);
+            let damage = { ...card.damage };
+            // Armor absorption (armor variant)
+            const { absorbed, lines: absLines } = armorAbsorb(damage);
+            absLines.forEach(l => {
+              showToast(l, false, 2200);
+              gameLog.add(l, l.includes('destroyed') ? 'warn' : 'dim');
+            });
+            // Reduce damage by absorbed amounts
+            const reducedDamage = {};
+            for (const [stat, amt] of Object.entries(damage)) {
+              const absAmt = absorbed[stat] ?? 0;
+              const sign = amt < 0 ? -1 : 1;
+              const reduced = sign * Math.max(0, Math.abs(amt) - absAmt);
+              if (reduced !== 0) reducedDamage[stat] = reduced;
+            }
+            if (Object.keys(reducedDamage).length > 0) await applyEffects(reducedDamage, true);
             if (gameOver) { resolve({ lootLost: true }); return; }
+          }
+          // Log battle outcome
+          if (effStr > monsterStr) {
+            gameLog.add(`⚔ Victory vs ${card.name} (your ${effStr} > ${monsterStr})`, 'good');
+          } else if (effStr === monsterStr) {
+            gameLog.add(`⚔ Tie vs ${card.name} (${effStr} = ${monsterStr}) — damage taken`, 'warn');
+          } else {
+            gameLog.add(`⚔ Defeat vs ${card.name} (your ${effStr} < ${monsterStr}) — loot lost`, 'warn');
           }
           // On loss: injure the monster (remaining strength = monsterStr − playerStr)
           if (effStr < monsterStr && slotIndex != null) {
@@ -4954,17 +5661,10 @@
           // Matches passive: +1 food on win or tie (effStr >= monsterStr)
           if (effStr >= monsterStr) {
             const matchesIdx = itemSlots.findIndex(c => c?.name === 'Matches');
-            if (matchesIdx >= 0 && itemUsesArr[matchesIdx] > 0) {
-              itemUsesArr[matchesIdx]--;
+            if (matchesIdx >= 0) {
               const newFood = Math.min(maxFood, playerState.food.value + 1);
               if (playerState.food.set) playerState.food.set(newFood);
-              if (itemUsesArr[matchesIdx] === 0) {
-                showToast('🔥 Matches — cooked the meat, food +1\n🎒 Matches depleted — discarded', false, 2800);
-                setItemSlot(matchesIdx, null);
-              } else {
-                showToast(`🔥 Matches — cooked the meat, food +1 (${itemUsesArr[matchesIdx]} uses left)`, false, 2400);
-                renderItemSlots();
-              }
+              showToast('🔥 Matches — cooked the meat, food +1', false, 2000);
             }
             // Feral instinct mutant: +2 food on win or tie
             if (hasMutant('feral_instinct')) {
@@ -4972,8 +5672,23 @@
               if (playerState.food.set) playerState.food.set(feralFood);
               showToast('🧬 Feral instinct — you feed on the kill, food +2', false, 2400);
             }
+            // Hardened skin mutant (armor variant): restore 1 pip to any armor piece on win/tie
+            if (gameVariant === 'armor' && hasMutant('hardened_skin')) {
+              const restorable = Object.entries(armorSlots).find(([k, slot]) => {
+                if (!slot) return false;
+                const max = slot.card.absorb;
+                return Object.keys(max).some(stat => (slot.pips[stat] ?? 0) < max[stat]);
+              });
+              if (restorable) {
+                const [slotKey, slot] = restorable;
+                // Find first stat with room to restore
+                const stat = Object.keys(slot.card.absorb).find(s => (slot.pips[s] ?? 0) < slot.card.absorb[s]);
+                slot.pips[stat] = Math.min(slot.card.absorb[stat], (slot.pips[stat] ?? 0) + 1);
+                refreshArmorSlot(slotKey);
+                showToast(`🪨 Hardened skin — +1 ${stat} pip restored on ${slot.card.name}`, false, 2400);
+              }
+            }
           }
-          if (card.discard_item) await applyDiscardItem(card.discard_item);
           resolve({ lootLost: lootLostThisCard });
         };
         btn.addEventListener('click', origHandler);
@@ -4995,7 +5710,6 @@
       // Wire up continue button (only fires once)
       const handler = async () => {
         btn.removeEventListener('click', handler);
-        if (card.discard_item) await applyDiscardItem(card.discard_item);
         resolve({ lootLost: lootLostThisCard });
       };
       btn.addEventListener('click', handler);
@@ -5099,9 +5813,10 @@
         const updatePlayerSide = () => {
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
+          const sanityMod = getSanityStrModifier();
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus;
+                       + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
           const labels = [
             usingWeapon ? `+${weaponStr} weapon` : '',
             camoBonus ? '+1 camo' : '',
@@ -5109,6 +5824,8 @@
             tuskBonus ? `+${tuskBonus} tusk` : '',
             hiveMindBonus ? '+3 hive mind' : '',
             extraArmBonus ? '+3 extra arm' : '',
+            sanityMod > 0 ? `+${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : '',
+            sanityMod < 0 ? `${sanityMod} sanity` : '',
           ].filter(Boolean).join(' ');
           playerSide.innerHTML = `
             <span class="battle-stat-label">Your STR${labels ? ' ' + labels : ''}</span>
@@ -5128,8 +5845,15 @@
         });
         updatePlayerSide();
       } else {
-        const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus;
-        const bareLabels = [camoBonus?'+1 camo':'', tuskBonus?`+${tuskBonus} tusk`:'', hiveMindBonus?'+3 hive mind':''].filter(Boolean).join(' ');
+        const sanityModBare2 = getSanityStrModifier();
+        const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus + sanityModBare2;
+        const bareLabels = [
+          camoBonus?'+1 camo':'',
+          tuskBonus?`+${tuskBonus} tusk`:'',
+          hiveMindBonus?'+3 hive mind':'',
+          sanityModBare2>0?`+${sanityModBare2} sanity${sanityModBare2===2?' (frenzy)':''}` : '',
+          sanityModBare2<0?`${sanityModBare2} sanity`:'',
+        ].filter(Boolean).join(' ');
         playerSide.innerHTML = `
           <span class="battle-stat-label">Your STR${bareLabels ? ' ' + bareLabels : ''}</span>
           <span class="battle-stat-value player-str">${bareStr}</span>`;
@@ -5197,6 +5921,11 @@
           // Win or tie — monster defeated
           injuredMonsters[slotIndex] = null;
           updateSlotCosts();
+          if (effStr > monsterStr) {
+            gameLog.add(`⚔ Victory vs ${inj.card.name} (injured, STR ${monsterStr}) — cleared`, 'good');
+          } else {
+            gameLog.add(`⚔ Tie vs ${inj.card.name} (injured, STR ${monsterStr}) — cleared, damage taken`, 'warn');
+          }
           // Apply tie damage
           if (effStr === monsterStr && inj.card.damage) {
             await applyEffects(inj.card.damage);
@@ -5204,12 +5933,10 @@
           }
           // Matches
           const matchesIdx = itemSlots.findIndex(c => c?.name === 'Matches');
-          if (matchesIdx >= 0 && itemUsesArr[matchesIdx] > 0) {
-            itemUsesArr[matchesIdx]--;
+          if (matchesIdx >= 0) {
             const nf = Math.min(maxFood, playerState.food.value + 1);
             if (playerState.food.set) playerState.food.set(nf);
-            if (itemUsesArr[matchesIdx] === 0) { showToast('🔥 Matches — food +1\n🎒 Matches depleted', false, 2800); setItemSlot(matchesIdx, null); }
-            else { showToast(`🔥 Matches — food +1 (${itemUsesArr[matchesIdx]} left)`, false, 2400); renderItemSlots(); }
+            showToast('🔥 Matches — food +1', false, 2000);
           }
           if (hasMutant('feral_instinct')) {
             const ff = Math.min(maxFood, playerState.food.value + 2);
@@ -5223,6 +5950,7 @@
           const newRemaining = monsterStr - effStr;
           injuredMonsters[slotIndex] = { ...inj, remainingStrength: newRemaining };
           updateSlotCosts();
+          gameLog.add(`⚔ Defeat vs ${inj.card.name} (injured) — now STR ${newRemaining}`, 'warn');
           if (inj.card.damage) {
             await applyEffects(inj.card.damage);
             if (gameOver) { dialog.classList.remove('open'); resolve({ won: false }); return; }
@@ -5369,6 +6097,9 @@
   async function onCardSelected(slotIndex) {
     if (cardSelected) return;
     const card = slotCards[slotIndex];
+    const locNames = ['The Road', 'The Sprawl', 'The Hive'];
+    const locLabel = locNames[Math.min(deckPass, 2)];
+    gameLog.newTurn(`${locLabel} · ${drawPile.length + 1} cards · ${card?.name ?? '?'}`);
     if (!card) return;
     slotCards[slotIndex] = null; // remove from board so clearLootZones won't discard it
 
@@ -5420,6 +6151,10 @@
     if (card.type === 'item' && hasMutant('glowing_fingers')) {
       threatCount = Math.max(0, threatCount - 1);
     }
+    // Gas mask: −1 mutation cost in The Hive (min 0)
+    if (deckPass >= 2 && itemSlots.some(c => c?.name === 'Gas mask')) {
+      mutationCost = Math.max(0, mutationCost - 1);
+    }
 
     if (isSlot1) {
       const choice = await promptPaymentChoice(slotDef);
@@ -5452,6 +6187,7 @@
       const prevMut = playerState.mutation.value;
       const newMut  = Math.min(10, prevMut + mutationCost);
       if (playerState.mutation.set) playerState.mutation.set(newMut);
+      gameLog.add(`🧬 Slot cost: +${mutationCost} mutation`, 'warn');
       if (newMut >= 10) { triggerGameOver('mutation'); return; }
     }
 
@@ -5460,6 +6196,23 @@
     setAllSlotsLocked(true);
 
     // 3. Resolve threat cards (may block loot)
+    // Walkie-talkie: suppress all threats for this pick
+    if (suppressThreatNextPick) {
+      suppressThreatNextPick = false;
+      const walkieIdx = itemSlots.findIndex(c => c?.name === 'Walkie-talkie');
+      if (walkieIdx >= 0 && itemUsesArr[walkieIdx] > 0) {
+        itemUsesArr[walkieIdx]--;
+        if (itemUsesArr[walkieIdx] === 0) {
+          showToast('📻 Walkie-talkie — threats avoided\n🎒 Walkie-talkie depleted — discarded', false, 2800);
+          setItemSlot(walkieIdx, null);
+        } else {
+          showToast(`📻 Walkie-talkie — all threats skipped (${itemUsesArr[walkieIdx]} use${itemUsesArr[walkieIdx] !== 1 ? 's' : ''} left)`, false, 2400);
+          renderItemSlots();
+        }
+        updateWalkieBar();
+      }
+      threatCount = 0;
+    }
     let lootBlocked = false;
     if (threatCount > 0) {
       const result = await resolveThreatCards(threatCount, slotIndex);
@@ -5471,9 +6224,9 @@
     let effectLines = [];
 
     if (lootBlocked) {
-      effectLines.push('❌ Loot lost — defeated in battle');
-      // Card still goes to discard — it was selected and used
-      discardPile.push(card);
+      effectLines.push('❌ Loot lost — the card remains in the slot');
+      // Keep the card on the board — it stays in its slot next round
+      retainedSlot = { card, slotIndex };
     } else if (card.type === 'gather') {
       // Gather cards always go to discard after use
       discardPile.push(card);
@@ -5541,7 +6294,16 @@
     } else {
       const type = card.type;
       let gearAcquired = false;
-      if (type === 'item') {
+      if (type === 'armor') {
+        const result = await equipArmor(card);
+        if (result.taken) {
+          effectLines.push(`🛡️ ${card.name} equipped (${card.armor_slot})`);
+          gearAcquired = true;
+        } else {
+          // Not taken — trash it (don't cycle back via discardPile)
+          effectLines.push(`🛡️ Kept existing ${card.armor_slot} armor`);
+        }
+      } else if (type === 'item') {
         if (card.name === 'Backpack') {
           if (itemSlots.some(c => c?.name === 'Backpack')) {
             // Duplicate backpack — not taken → discard
@@ -5576,7 +6338,13 @@
           if (emptyIdx >= 0) {
             setItemSlot(emptyIdx, card);
             // Card goes to inventory — not discard
-            effectLines.push(`🎒 ${card.name} placed in item slot`);
+            if (card.name === 'Compass') {
+              effectLines.push(gameVariant === 'armor'
+                ? '🧭 Compass — reduces food cost on slots 1 & 2 by 1'
+                : '🧭 Compass — +1 SPD per turn');
+            } else {
+              effectLines.push(`🎒 ${card.name} placed in item slot`);
+            }
             gearAcquired = true;
           } else {
             const discardIdx = await promptItemDiscard(card);
@@ -5618,8 +6386,9 @@
       }
     }
 
-    // 5. Toast summary
+    // 5. Toast summary + log cost/effects
     const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid` : `☣ threat drawn instead of food`;
+    gameLog.add(costLine, 'dim');
     showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
 
     // 6. Discard remaining board cards, then movement
@@ -5659,21 +6428,31 @@
     // 7. Auto-redraw
     if (speed === 0) await new Promise(r => setTimeout(r, 400));
 
-    if (drawPile.length === 0) {
+    if (drawPile.length === 0 && !retainedSlot) {
       updateDeckCount();
       cardSelected = false;
       await onDeckExhausted();
     } else {
-      const count = Math.min(drawPile.length, DRAW_SLOTS);
+      // Fill all empty slots (up to DRAW_SLOTS, minus any retained slot)
+      const emptySlots = DRAW_SLOTS - (retainedSlot ? 1 : 0);
+      const count = Math.min(drawPile.length, emptySlots);
       const slotsRowEl = document.getElementById('slots-row');
       slotsRowEl.classList.add('redrawing');
       await new Promise(r => setTimeout(r, 250));
       const drawn = drawPile.splice(0, count);
-      placeCards(drawn);
+      if (retainedSlot) {
+        // Render new cards into the empty slots, leaving the retained slot in place
+        placeCardsWithRetained(drawn, retainedSlot);
+        retainedSlot = null;
+      } else {
+        placeCards(drawn);
+      }
       updateDeckCount();
       cardSelected = false;
       updateItemBars();
       slotsRowEl.classList.remove('redrawing');
+      // Draw pile is empty but cards are on the board — let the player pick first.
+      // onDeckExhausted fires at the start of the NEXT redraw after the player selects.
     }
   }
 
@@ -5854,7 +6633,7 @@
   let sprawlPool = [];  // 12 Sprawl cards, drawn from during draft
   let hivePool   = [];  // 12 Hive cards, drawn from during draft
 
-  async function loadDeck(dealCount = 40) {
+  async function loadDeck(dealCount = 40, excludeName = null) {
     const titleEl = document.getElementById('gather-board-title');
     const drawBtn = document.getElementById('draw-btn');
     try {
@@ -5864,22 +6643,92 @@
       if (!data.loot_deck || !Array.isArray(data.loot_deck)) throw new Error('Unexpected JSON structure');
       fullDeck = data.loot_deck;
 
-      // Separate by location
-      const roadCards   = shuffle(fullDeck.filter(c => c.location === 'road'));
-      sprawlPool        = shuffle(fullDeck.filter(c => c.location === 'sprawl'));
-      hivePool          = shuffle(fullDeck.filter(c => c.location === 'hive'));
+      // Separate by location; armor variant excludes vehicles, anti-virals, fuel cans
+      const ARMOR_EXCLUDE = new Set(['Anti-viral','Anti-virals','Fuel Can','Camouflage','Body armour','Gas mask']);
+      const variantFilter = c => gameVariant === 'armor'
+        ? (c.type !== 'vehicle' && !ARMOR_EXCLUDE.has(c.name))
+        : (c.type !== 'armor');
+      let roadCards = shuffle(fullDeck.filter(c => c.location === 'road' && variantFilter(c)));
+      sprawlPool    = shuffle(fullDeck.filter(c => c.location === 'sprawl' && variantFilter(c)));
+      hivePool      = shuffle(fullDeck.filter(c => c.location === 'hive'   && variantFilter(c)));
 
-      // Deal 40 Road cards to draw pile; the rest are permanently set aside
+      // Remove starting gear card from road pool before dealing so draw pile is always full
+      if (excludeName) {
+        const idx = roadCards.findIndex(c => c.name === excludeName);
+        if (idx >= 0) roadCards.splice(idx, 1);
+      }
+
+      // Deal N road cards to draw pile; the rest are permanently set aside
       drawPile = roadCards.slice(0, dealCount);
-      // (roadCards beyond index 39 are intentionally discarded — variation between plays)
 
-      console.log(`✓ Deck: ${drawPile.length} road cards dealt, ${roadCards.length - drawPile.length} road set aside`);
+      console.log(`✓ Deck: ${drawPile.length} road cards dealt, ${roadCards.length - drawPile.length} road set aside${excludeName ? ` (excluded: ${excludeName})` : ''}`);
       console.log(`✓ Sprawl pool: ${sprawlPool.length} | Hive pool: ${hivePool.length}`);
       updateDeckCount();
     } catch (e) {
       if (titleEl) { titleEl.textContent = `⚠ ${e.message}`; titleEl.style.color = '#c94040'; }
       drawBtn.disabled = true;
     }
+  }
+
+  /* ── Starting gear pick: show 3 random road items/weapons, player picks 1 ── */
+  function runStartingGearPick() {
+    return new Promise(resolve => {
+      // Pull 3 random item or weapon cards from the road portion of the full deck
+      // (drawPile already sliced; sample from fullDeck road items/weapons instead,
+      //  avoiding cards already in the draw pile by sampling from the full filtered pool)
+      const ARMOR_EXCLUDE = new Set(['Anti-viral','Anti-virals','Fuel Can','Camouflage','Body armour','Gas mask']);
+      const eligible = shuffle(
+        fullDeck.filter(c =>
+          c.location === 'road' &&
+          (c.type === 'item' || c.type === 'weapon') &&
+          (gameVariant === 'armor' ? !ARMOR_EXCLUDE.has(c.name) : true)
+        )
+      ).slice(0, 3);
+
+      if (eligible.length === 0) { resolve(null); return; }
+
+      const dialog    = document.getElementById('starting-gear-dialog');
+      const titleEl   = document.getElementById('sg-title');
+      const subtitleEl= document.getElementById('sg-subtitle');
+      const cardsEl   = document.getElementById('sg-cards');
+      const confirmBtn= document.getElementById('sg-confirm-btn');
+
+      titleEl.textContent    = '⚙ Starting Gear';
+      subtitleEl.textContent = 'You scavenged something before setting out. Choose one to keep.';
+      confirmBtn.disabled    = true;
+      cardsEl.innerHTML      = '';
+
+      let chosen = null;
+
+      const wraps = eligible.map((card) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'draft-card-wrap';
+
+        const check = document.createElement('div');
+        check.className = 'draft-check';
+        check.textContent = '✓';
+        wrap.appendChild(check);
+        wrap.appendChild(renderCard(card));
+
+        wrap.addEventListener('click', () => {
+          // Deselect all, select this one
+          wraps.forEach(w => w.classList.remove('draft-selected'));
+          wrap.classList.add('draft-selected');
+          chosen = card;
+          confirmBtn.disabled = false;
+        });
+
+        cardsEl.appendChild(wrap);
+        return wrap;
+      });
+
+      dialog.classList.add('open');
+
+      confirmBtn.onclick = () => {
+        dialog.classList.remove('open');
+        resolve(chosen);
+      };
+    });
   }
 
   /* ── Draft phase: draw 7 from pool, player picks 5, 2 return to pool ── */
@@ -5947,6 +6796,7 @@
         const returned = drawn.filter((_, i) => !selected.has(i));
         // Return unkept cards to the pool (back of pool, order doesn't matter)
         returned.forEach(c => pool.push(c));
+        gameLog.add(`📦 Draft: kept ${picked.map(c => c.name).join(', ')}`, 'gold');
         resolve(picked);
       };
     });
@@ -6016,6 +6866,28 @@
   updateBoardLocation();
 
   /* ── Start menu: fade out then deal initial cards ── */
+  // Variant toggle
+  document.querySelectorAll('.sm-var-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sm-var-btn').forEach(b => b.classList.remove('sm-var-active'));
+      btn.classList.add('sm-var-active');
+      gameVariant = btn.dataset.variant;
+      // Show/hide armor vs vehicle slots on the player board
+      const isArmor = gameVariant === 'armor';
+      document.getElementById('inv-slot-vehicle').style.display    = isArmor ? 'none' : '';
+      document.getElementById('inv-slot-armor-head').style.display = isArmor ? '' : 'none';
+      document.getElementById('inv-slot-armor-body').style.display = isArmor ? '' : 'none';
+      document.getElementById('inv-slot-armor-acc').style.display  = isArmor ? '' : 'none';
+      // Switch sanity sidebar between SPD (normal) and STR mod (armor)
+      if (window.switchSanitySidebar) window.switchSanitySidebar(isArmor);
+      // Show/hide the correct discard filter tab
+      const vTab = document.getElementById('dv-filter-vehicle');
+      const aTab = document.getElementById('dv-filter-armor');
+      if (vTab) vTab.style.display = isArmor ? 'none' : '';
+      if (aTab) aTab.style.display = isArmor ? '' : 'none';
+    });
+  });
+
   document.querySelectorAll('.sm-diff-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const dealCount  = parseInt(btn.dataset.deal,     10);
@@ -6039,11 +6911,32 @@
       document.getElementById('rules-btn-start').style.display = 'none';
       document.getElementById('rules-btn-game').style.display  = 'flex';
       document.getElementById('restart-btn').style.display = 'block';
+      // Load full deck data so the gear pick can sample from it, but don't deal yet
+      await loadDeck(0); // dealCount=0 — just populates fullDeck, sprawlPool, hivePool
+      // Starting gear pick — sampled from fullDeck road cards
+      const startingCard = await runStartingGearPick();
+      // Now deal the draw pile, excluding the chosen starting card
+      await loadDeck(dealCount, startingCard?.name ?? null);
+      if (startingCard) {
+        if (startingCard.type === 'weapon') {
+          setInventorySlot('weapon', startingCard);
+        } else {
+          // item — place in first slot (always empty at game start)
+          setItemSlot(0, startingCard);
+          // Special post-equip effects
+          if (startingCard.name === 'Backpack') equipBackpack();
+          updateItemBars();
+        }
+        gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
+      }
+      gameLog.newTurn('Game Start');
       // draw-btn is permanently disabled — all draws are automatic
       // Load deck with chosen deal count, then deal initial cards
       await loadDeck(dealCount);
       setTimeout(() => {
         menu.style.display = 'none';
+        document.getElementById('game-log').classList.add('log-visible');
+        document.getElementById('log-toggle-btn').style.display = 'block';
         const count = Math.min(drawPile.length, DRAW_SLOTS);
         const drawn = drawPile.splice(0, count);
         placeCards(drawn);
@@ -6320,15 +7213,91 @@
     }
 
     if (track.id === 'sanity') {
-      const { group, renderStat } = buildStatSidebar(wrapper, 'spd', 'SPD', (i) => ({
+      // Build BOTH sidebars at page load; show the correct one based on gameVariant.
+      // switchSanitySidebar() is called when the variant toggle changes.
+
+      function getSanityBand(s) {
+        if (s === 1) return 'frenzy';
+        if (s === 2) return 'low-1';
+        if (s >= 8)  return 'high+1';
+        return 'mid0';
+      }
+      function getSanityStrVal(s) {
+        if (s === 1) return '+2';
+        if (s === 2) return '−1';
+        if (s >= 8)  return '+1';
+        return '0';
+      }
+
+      // SPD sidebar (normal)
+      const { group: spdGroup, renderStat: renderSpd } = buildStatSidebar(wrapper, 'spd', 'SPD', (i) => ({
         val:      getSpeed(i),
         band:     getSpeedBand(i),
         isSkull:  i === 0,
         isFrenzy: getSpeedBand(i) === 'frenzy',
       }));
-      renderSpeed = renderStat;
+      const spdSidebar = spdGroup.querySelector('.stat-sidebar') || spdGroup.lastElementChild;
+
+      // STR modifier sidebar (armor) — shares same wrapper, different sidebar element
+      // Build a standalone sidebar element for the armor variant
+      const strModSidebar = document.createElement('div');
+      strModSidebar.className = 'stat-sidebar';
+      {
+        const spacer = document.createElement('div');
+        spacer.className = 'stat-spacer';
+        strModSidebar.appendChild(spacer);
+        const hdr = document.createElement('div');
+        hdr.className = 'stat-header';
+        hdr.textContent = 'STR';
+        strModSidebar.appendChild(hdr);
+        const cellsEl = document.createElement('div');
+        cellsEl.className = 'stat-cells';
+        const strModCells = [];
+        let prevBand = null;
+        for (let i = SPACES; i >= 0; i--) {
+          const band = getSanityBand(i);
+          const cell = document.createElement('div');
+          cell.className = 'stat-cell';
+          cell.setAttribute('data-stat-id', 'str-mod');
+          cell.setAttribute('data-val', getSanityStrVal(i));
+          if (band !== prevBand) { cell.classList.add('band-start'); prevBand = band; }
+          if (i === 0) {
+            cell.classList.add('skull-row');
+          } else {
+            if (i === 1) cell.classList.add('frenzy');
+            const span = document.createElement('span');
+            span.className = 'stat-value';
+            span.textContent = getSanityStrVal(i);
+            cell.appendChild(span);
+          }
+          strModCells.push({ el: cell, trackVal: i });
+          cellsEl.appendChild(cell);
+        }
+        strModSidebar.appendChild(cellsEl);
+        const renderStrMod = (v) => strModCells.forEach(({el, trackVal: tv}) => el.classList.toggle('active-stat', tv === v));
+        strModSidebar.dataset.renderFn = 'strmod'; // marker
+        // Expose render on element for switcher
+        strModSidebar._render = renderStrMod;
+        renderStrMod(state.value);
+      }
+
+      // Attach both to the group; hide whichever isn't active
+      spdGroup.appendChild(strModSidebar);
+      const isArmor = () => gameVariant === 'armor';
+      spdSidebar.style.display   = isArmor() ? 'none' : '';
+      strModSidebar.style.display = isArmor() ? '' : 'none';
+
+      // renderSpeed points to whichever is active
+      renderSpeed = (v) => { renderSpd(v); strModSidebar._render(v); };
+
+      // Expose a switcher so the variant toggle can flip sidebars
+      window.switchSanitySidebar = (toArmor) => {
+        spdSidebar.style.display    = toArmor ? 'none' : '';
+        strModSidebar.style.display = toArmor ? '' : 'none';
+      };
+
       renderSpeed(state.value);
-      return group;
+      return spdGroup;
     }
 
     return wrapper;

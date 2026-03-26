@@ -9,7 +9,7 @@
         "mutation": 2
       },
       "value": 1,
-      "icon": "\ud83d\udc3e"
+      "icon": "🐾"
     },
     {
       "name": "Psychadelic shrooms",
@@ -20,7 +20,7 @@
         "sanity": -1
       },
       "value": 1.9,
-      "icon": "\ud83c\udf44"
+      "icon": "🍄"
     },
     {
       "name": "Mushrooms",
@@ -30,7 +30,7 @@
         "food": 2
       },
       "value": 2,
-      "icon": "\ud83c\udf44"
+      "icon": "🍄"
     },
     {
       "name": "Mushrooms",
@@ -40,7 +40,7 @@
         "food": 2
       },
       "value": 2,
-      "icon": "\ud83c\udf44"
+      "icon": "🍄"
     },
     {
       "name": "Can of beans",
@@ -50,7 +50,7 @@
         "food": 2
       },
       "value": 2,
-      "icon": "\ud83e\udd6b"
+      "icon": "🥫"
     },
     {
       "name": "Bandaids",
@@ -60,7 +60,7 @@
         "health": 1
       },
       "value": 2,
-      "icon": "\ud83e\ude79"
+      "icon": "🩹"
     },
     {
       "name": "Bandaids",
@@ -70,7 +70,7 @@
         "health": 1
       },
       "value": 2,
-      "icon": "\ud83e\ude79"
+      "icon": "🩹"
     },
     {
       "name": "Opened ration packet",
@@ -81,16 +81,7 @@
         "health": -1
       },
       "value": 2,
-      "icon": "\ud83d\udce6"
-    },
-    {
-      "name": "Anti-viral",
-      "location": "road",
-      "type": "item",
-      "text": "Block mutation x1",
-      "uses": 1,
-      "value": 2,
-      "icon": "\ud83e\uddea"
+      "icon": "📦"
     },
     {
       "name": "Deck of cards",
@@ -100,7 +91,7 @@
         "sanity": 1
       },
       "value": 2.1,
-      "icon": "\ud83c\udccf"
+      "icon": "🃏"
     },
     {
       "name": "Animal carcass",
@@ -111,7 +102,7 @@
         "mutation": 1
       },
       "value": 2.5,
-      "icon": "\ud83e\uddb4"
+      "icon": "🦴"
     },
     {
       "name": "Unmarked bottle",
@@ -122,7 +113,7 @@
         "mutation": 1
       },
       "value": 2.98,
-      "icon": "\ud83c\udf76"
+      "icon": "🍶"
     },
     {
       "name": "Apples",
@@ -132,7 +123,7 @@
         "food": 3
       },
       "value": 3,
-      "icon": "\ud83c\udf4e"
+      "icon": "🍎"
     },
     {
       "name": "Bomb",
@@ -142,7 +133,7 @@
       "uses": 1,
       "weapon_class": "explosive",
       "value": 4,
-      "icon": "\ud83d\udca3"
+      "icon": "💣"
     },
     {
       "name": "Apples",
@@ -152,7 +143,7 @@
         "food": 3
       },
       "value": 3,
-      "icon": "\ud83c\udf4e"
+      "icon": "🍎"
     },
     {
       "name": "Gauze",
@@ -162,7 +153,7 @@
         "health": 2
       },
       "value": 4,
-      "icon": "\ud83e\ude79"
+      "icon": "🩹"
     },
     {
       "name": "Ammo",
@@ -170,24 +161,7 @@
       "type": "item",
       "text": "Use once: Reload range weapon",
       "value": 4,
-      "icon": "\ud83d\udd2b"
-    },
-    {
-      "name": "Fuel Can",
-      "location": "hive",
-      "type": "item",
-      "text": "Use once: Refill vehicle uses",
-      "value": 4,
-      "icon": "\u26fd"
-    },
-    {
-      "name": "Anti-virals",
-      "location": "sprawl",
-      "type": "item",
-      "text": "Block mutation x2",
-      "uses": 2,
-      "value": 4,
-      "icon": "\ud83e\uddea"
+      "icon": "🔫"
     },
     {
       "name": "Ammo",
@@ -195,24 +169,15 @@
       "type": "item",
       "text": "Use once: Reload range weapon",
       "value": 4,
-      "icon": "\ud83d\udd2b"
-    },
-    {
-      "name": "Fuel Can",
-      "location": "sprawl",
-      "type": "item",
-      "text": "Use once: Refill vehicle uses",
-      "value": 4,
-      "icon": "\u26fd"
+      "icon": "🔫"
     },
     {
       "name": "Matches",
       "location": "road",
       "type": "item",
-      "text": "+1 food after any battle win or tie",
-      "uses": 3,
+      "text": "+1 food after any battle win or tie (passive)",
       "value": 4,
-      "icon": "\ud83d\udd25"
+      "icon": "🔥"
     },
     {
       "name": "Pain meds",
@@ -223,7 +188,7 @@
         "sanity": 1
       },
       "value": 4.1,
-      "icon": "\ud83d\udc8a"
+      "icon": "💊"
     },
     {
       "name": "Pain meds",
@@ -234,7 +199,7 @@
         "sanity": 1
       },
       "value": 4.1,
-      "icon": "\ud83d\udc8a"
+      "icon": "💊"
     },
     {
       "name": "Blackberries",
@@ -245,7 +210,7 @@
         "health": 1
       },
       "value": 5,
-      "icon": "\ud83e\uded0"
+      "icon": "🫐"
     },
     {
       "name": "Area map",
@@ -254,7 +219,7 @@
       "text": "Passive: Slots 2 & 3 cost 1 less food",
       "uses": 1,
       "value": 5,
-      "icon": "\ud83d\uddfa\ufe0f"
+      "icon": "🗺️"
     },
     {
       "name": "Hammer",
@@ -264,7 +229,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 5,
-      "icon": "\ud83d\udd28"
+      "icon": "🔨"
     },
     {
       "name": "Hiking sticks",
@@ -273,7 +238,7 @@
       "uses": 5,
       "move": 1,
       "value": 4.5,
-      "icon": "\ud83e\ude84"
+      "icon": "🪄"
     },
     {
       "name": "Strawberries",
@@ -284,16 +249,16 @@
         "sanity": 1
       },
       "value": 5.1,
-      "icon": "\ud83c\udf53"
+      "icon": "🍓"
     },
     {
       "name": "Stash of ration packs",
       "location": "sprawl",
       "type": "item",
-      "text": "Passive: Absorbs starvation \u2014 sets food to 1 instead of starving (5 uses)",
+      "text": "Passive: Absorbs starvation — sets food to 1 instead of starving (5 uses)",
       "uses": 5,
       "value": 5.5,
-      "icon": "\ud83c\udf92"
+      "icon": "🎒"
     },
     {
       "name": "First aid kit (tainted)",
@@ -304,7 +269,7 @@
         "mutation": 1
       },
       "value": 5.5,
-      "icon": "\ud83e\uddec"
+      "icon": "🧬"
     },
     {
       "name": "Luminous vial",
@@ -315,15 +280,7 @@
         "mutation": 1
       },
       "value": 5.9,
-      "icon": "\u2728"
-    },
-    {
-      "name": "Camouflage",
-      "location": "road",
-      "type": "item",
-      "text": "Passive: +1 STR in all battles",
-      "value": 6,
-      "icon": "\ud83e\udee5"
+      "icon": "✨"
     },
     {
       "name": "Holster",
@@ -331,7 +288,7 @@
       "type": "item",
       "text": "+2 STR when using ranged or explosive weapon in battle",
       "value": 6,
-      "icon": "\ud83d\udd2b"
+      "icon": "🔫"
     },
     {
       "name": "Fish",
@@ -342,7 +299,7 @@
         "health": 1
       },
       "value": 6,
-      "icon": "\ud83d\udc1f"
+      "icon": "🐟"
     },
     {
       "name": "First aid kit",
@@ -352,7 +309,7 @@
         "health": 3
       },
       "value": 6,
-      "icon": "\ud83e\ude7a"
+      "icon": "🩺"
     },
     {
       "name": "First aid kit",
@@ -362,7 +319,7 @@
         "health": 3
       },
       "value": 6,
-      "icon": "\ud83e\ude7a"
+      "icon": "🩺"
     },
     {
       "name": "Torch",
@@ -371,7 +328,7 @@
       "text": "At the start of your turn, may use to increase sanity by 1",
       "uses": 3,
       "value": 6,
-      "icon": "\ud83d\udd26"
+      "icon": "🔦"
     },
     {
       "name": "Preserved meat",
@@ -382,7 +339,7 @@
         "sanity": 1
       },
       "value": 6.1,
-      "icon": "\ud83e\udd69"
+      "icon": "🥩"
     },
     {
       "name": "Splint",
@@ -393,7 +350,7 @@
         "sanity": 1
       },
       "value": 6.1,
-      "icon": "\ud83e\uddb4"
+      "icon": "🦴"
     },
     {
       "name": "Medicinal herbs",
@@ -404,7 +361,7 @@
         "sanity": 2
       },
       "value": 6.2,
-      "icon": "\ud83c\udf3f"
+      "icon": "🌿"
     },
     {
       "name": "Fresh clothes",
@@ -414,7 +371,7 @@
         "sanity": 3
       },
       "value": 6.3,
-      "icon": "\ud83d\udc55"
+      "icon": "👕"
     },
     {
       "name": "Backpack",
@@ -422,7 +379,7 @@
       "type": "item",
       "text": "Expand max food to 10",
       "value": 7,
-      "icon": "\ud83c\udf92"
+      "icon": "🎒"
     },
     {
       "name": "Grenade",
@@ -432,7 +389,7 @@
       "uses": 1,
       "weapon_class": "explosive",
       "value": 7,
-      "icon": "\ud83d\udca3"
+      "icon": "💣"
     },
     {
       "name": "Chocolate bar",
@@ -443,7 +400,7 @@
         "sanity": 3
       },
       "value": 7.3,
-      "icon": "\ud83c\udf6b"
+      "icon": "🍫"
     },
     {
       "name": "Small car",
@@ -452,7 +409,7 @@
       "uses": 3,
       "move": 3,
       "value": 8.1,
-      "icon": "\ud83d\ude97"
+      "icon": "🚗"
     },
     {
       "name": "Joke book",
@@ -463,7 +420,7 @@
         "sanity": 3
       },
       "value": 8.3,
-      "icon": "\ud83d\udcd6"
+      "icon": "📖"
     },
     {
       "name": "Bikes",
@@ -472,7 +429,7 @@
       "uses": 5,
       "move": 2,
       "value": 9.5,
-      "icon": "\ud83d\udeb2"
+      "icon": "🚲"
     },
     {
       "name": "Binoculars",
@@ -480,7 +437,7 @@
       "type": "item",
       "text": "Reduce threat cost on slots 4 and 5 by 1",
       "value": 10,
-      "icon": "\ud83d\udd2d"
+      "icon": "🔭"
     },
     {
       "name": "Handgun",
@@ -490,7 +447,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 10,
-      "icon": "\ud83d\udd2b"
+      "icon": "🔫"
     },
     {
       "name": "Compass",
@@ -498,7 +455,7 @@
       "type": "item",
       "text": "+1 move",
       "value": 10,
-      "icon": "\ud83e\udded"
+      "icon": "🧭"
     },
     {
       "name": "Tent",
@@ -507,7 +464,7 @@
       "text": "Passive: When you gain health from a gather card, +1 extra health",
       "uses": 2,
       "value": 10,
-      "icon": "\u26fa"
+      "icon": "⛺"
     },
     {
       "name": "Firestarter kit",
@@ -515,7 +472,7 @@
       "type": "item",
       "text": "When you gain food, +1 food",
       "value": 10,
-      "icon": "\ud83d\udd25"
+      "icon": "🔥"
     },
     {
       "name": "Shovel",
@@ -525,7 +482,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 10,
-      "icon": "\u26cf\ufe0f"
+      "icon": "⛏️"
     },
     {
       "name": "Minivan",
@@ -534,7 +491,7 @@
       "uses": 3,
       "move": 4,
       "value": 10.8,
-      "icon": "\ud83d\ude90"
+      "icon": "🚐"
     },
     {
       "name": "Bow and arrows",
@@ -544,7 +501,7 @@
       "uses": 3,
       "weapon_class": "ranged",
       "value": 12,
-      "icon": "\ud83c\udff9"
+      "icon": "🏹"
     },
     {
       "name": "Shotgun",
@@ -554,7 +511,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 12,
-      "icon": "\ud83d\udd2b"
+      "icon": "🔫"
     },
     {
       "name": "Service van",
@@ -563,7 +520,7 @@
       "uses": 3,
       "move": 5,
       "value": 13.5,
-      "icon": "\ud83d\ude9a"
+      "icon": "🚚"
     },
     {
       "name": "Rifle",
@@ -573,7 +530,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 14,
-      "icon": "\ud83d\udd2b"
+      "icon": "🔫"
     },
     {
       "name": "Mountain Bikes",
@@ -582,7 +539,7 @@
       "uses": 5,
       "move": 3,
       "value": 14.5,
-      "icon": "\ud83d\udeb5"
+      "icon": "🚵"
     },
     {
       "name": "Pickup Truck",
@@ -591,7 +548,7 @@
       "uses": 2,
       "move": 6,
       "value": 14.8,
-      "icon": "\ud83d\udefb"
+      "icon": "🛻"
     },
     {
       "name": "Hatchet",
@@ -601,7 +558,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 15,
-      "icon": "\ud83e\ude93"
+      "icon": "🪓"
     },
     {
       "name": "Scoped Rifle",
@@ -611,7 +568,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 16,
-      "icon": "\ud83c\udfaf"
+      "icon": "🎯"
     },
     {
       "name": "Mutant Claw",
@@ -624,7 +581,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 17.5,
-      "icon": "\ud83e\udd85"
+      "icon": "🦅"
     },
     {
       "name": "Monster Truck",
@@ -633,7 +590,7 @@
       "uses": 2,
       "move": 6,
       "value": 12,
-      "icon": "\ud83d\ude9b"
+      "icon": "🚛"
     },
     {
       "name": "Acorns",
@@ -643,7 +600,7 @@
         "food": 1
       },
       "value": 1,
-      "icon": "\ud83c\udf30"
+      "icon": "🌰"
     },
     {
       "name": "Stick",
@@ -653,7 +610,7 @@
       "uses": 2,
       "weapon_class": "melee",
       "value": 2,
-      "icon": "\ud83e\udeb5"
+      "icon": "🪵"
     },
     {
       "name": "Pitchfork",
@@ -663,7 +620,7 @@
       "uses": 4,
       "weapon_class": "melee",
       "value": 8,
-      "icon": "\ud83d\udd31"
+      "icon": "🔱"
     },
     {
       "name": "Wrench",
@@ -673,7 +630,7 @@
       "uses": 4,
       "weapon_class": "melee",
       "value": 4,
-      "icon": "\ud83d\udd27"
+      "icon": "🔧"
     },
     {
       "name": "Scooter",
@@ -682,16 +639,7 @@
       "uses": 2,
       "move": 2,
       "value": 3.5,
-      "icon": "\ud83d\udef5"
-    },
-    {
-      "name": "Anti-virals",
-      "location": "hive",
-      "type": "item",
-      "text": "Block mutation x2",
-      "uses": 2,
-      "value": 4,
-      "icon": "\ud83e\uddea"
+      "icon": "🛵"
     },
     {
       "name": "Ammo",
@@ -699,7 +647,7 @@
       "type": "item",
       "text": "Use once: Reload range weapon",
       "value": 4,
-      "icon": "\ud83d\udd2b"
+      "icon": "🔫"
     },
     {
       "name": "Brass knuckes",
@@ -709,7 +657,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 15,
-      "icon": "\u270a"
+      "icon": "✊"
     },
     {
       "name": "Edible Bugs",
@@ -719,7 +667,384 @@
         "food": 1
       },
       "value": 1,
-      "icon": "\ud83d\udc1b"
+      "icon": "🐛"
+    },
+    {
+      "name": "Canned goods haul",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "A looted convenience store — shelves mostly bare, but you fill your pack.",
+      "effects": {
+        "food": 5
+      },
+      "value": 5,
+      "icon": "🥫"
+    },
+    {
+      "name": "Survivor's journal",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "Someone else's record of making it this far. Reading it steadies you.",
+      "effects": {
+        "sanity": 3,
+        "health": 1
+      },
+      "value": 8,
+      "icon": "📓"
+    },
+    {
+      "name": "Walkie-talkie",
+      "location": "sprawl",
+      "type": "item",
+      "text": "3 uses. Once per turn: skip all threat draws on your next card pick.",
+      "uses": 3,
+      "value": 10,
+      "icon": "📻"
+    },
+    {
+      "name": "Machete",
+      "location": "sprawl",
+      "type": "weapon",
+      "text": "Melee. The suburban workhorse — nothing fancy, just reliable.",
+      "weapon_class": "melee",
+      "strength": 4,
+      "uses": 6,
+      "value": 22,
+      "icon": "🔪"
+    },
+    {
+      "name": "Flare gun",
+      "location": "sprawl",
+      "type": "weapon",
+      "text": "Ranged. Reload with Ammo. Blinding flash — not meant to kill, but it does the job.",
+      "weapon_class": "ranged",
+      "strength": 5,
+      "uses": 2,
+      "value": 10,
+      "icon": "🔦"
+    },
+    {
+      "name": "Quad bike",
+      "location": "sprawl",
+      "type": "vehicle",
+      "text": "Nimble through debris. Gets you places the big vehicles can't.",
+      "move": 3,
+      "uses": 4,
+      "value": 10.8,
+      "icon": "🏍️"
+    },
+    {
+      "name": "Stolen sedan",
+      "location": "sprawl",
+      "type": "vehicle",
+      "text": "Runs on fumes. Less powerful than the minivan but easier to find.",
+      "move": 4,
+      "uses": 2,
+      "value": 7.2,
+      "icon": "🚗"
+    },
+    {
+      "name": "Fungal growth",
+      "location": "hive",
+      "type": "gather",
+      "text": "The Hive has changed what grows here. It feeds you — but it costs something.",
+      "effects": {
+        "food": 3,
+        "mutation": 2
+      },
+      "value": 1,
+      "icon": "🍄"
+    },
+    {
+      "name": "Medical cache",
+      "location": "hive",
+      "type": "gather",
+      "text": "A hospital supply closet, still intact. The drugs are degraded but effective.",
+      "effects": {
+        "health": 4,
+        "mutation": 1
+      },
+      "value": 6,
+      "icon": "💊"
+    },
+    {
+      "name": "Scavenged wire",
+      "location": "hive",
+      "type": "gather",
+      "text": "You fix something small. The act of making something work again steadies your mind.",
+      "effects": {
+        "sanity": 2
+      },
+      "value": 4,
+      "icon": "⚡"
+    },
+    {
+      "name": "Adrenaline shot",
+      "location": "hive",
+      "type": "item",
+      "text": "2 uses. Active: gain +3 STR for your next battle only.",
+      "uses": 2,
+      "value": 10,
+      "icon": "💉"
+    },
+    {
+      "name": "Chainsaw",
+      "location": "hive",
+      "type": "weapon",
+      "text": "Melee. Loud and brutal. Extra Arm mutant makes this devastating.",
+      "weapon_class": "melee",
+      "strength": 6,
+      "uses": 3,
+      "value": 18,
+      "icon": "⚙️"
+    },
+    {
+      "name": "Crossbow",
+      "location": "hive",
+      "type": "weapon",
+      "text": "Ranged. Reload with Ammo. Quiet, accurate, and built to last.",
+      "weapon_class": "ranged",
+      "strength": 5,
+      "uses": 4,
+      "value": 20,
+      "icon": "🏹"
+    },
+    {
+      "name": "Armoured APC",
+      "location": "hive",
+      "type": "vehicle",
+      "text": "Military surplus left behind. The best way out of the city.",
+      "move": 5,
+      "uses": 4,
+      "value": 18,
+      "icon": "🚌"
+    },
+    {
+      "name": "face wrap",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "mutation": 1
+      },
+      "value": 2,
+      "icon": "🩹"
+    },
+    {
+      "name": "duster",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 2,
+        "sanity": 1
+      },
+      "value": 6,
+      "icon": "🧥"
+    },
+    {
+      "name": "hunting jacket",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 3
+      },
+      "value": 6,
+      "icon": "🫱"
+    },
+    {
+      "name": "hiking boots",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "sanity": 2
+      },
+      "value": 4,
+      "icon": "👢"
+    },
+    {
+      "name": "leather gloves",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "health": 1,
+        "sanity": 1
+      },
+      "value": 4,
+      "icon": "🧤"
+    },
+    {
+      "name": "fur hat",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "sanity": 2
+      },
+      "value": 4,
+      "icon": "🎩"
+    },
+    {
+      "name": "steel toe boots",
+      "location": "road",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "health": 1,
+        "sanity": 2
+      },
+      "value": 6,
+      "icon": "🥾"
+    },
+    {
+      "name": "raincoat",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 1,
+        "sanity": 2
+      },
+      "value": 6,
+      "icon": "🌧️"
+    },
+    {
+      "name": "hockey pads",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 3
+      },
+      "value": 6,
+      "icon": "🏒"
+    },
+    {
+      "name": "motorcycle helmet",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "health": 1,
+        "mutation": 1
+      },
+      "value": 4,
+      "icon": "🪖"
+    },
+    {
+      "name": "construction mask",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "mutation": 2
+      },
+      "value": 4,
+      "icon": "😷"
+    },
+    {
+      "name": "belt",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "sanity": 2
+      },
+      "value": 4,
+      "icon": "🪢"
+    },
+    {
+      "name": "parka",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "sanity": 3
+      },
+      "value": 6,
+      "icon": "❄️"
+    },
+    {
+      "name": "ballistic vest",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 3,
+        "sanity": 1
+      },
+      "value": 8,
+      "icon": "🦺"
+    },
+    {
+      "name": "combat helmet",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "health": 2
+      },
+      "value": 4,
+      "icon": "⛑️"
+    },
+    {
+      "name": "hazmat suit",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "mutation": 5
+      },
+      "value": 10,
+      "icon": "☣️"
+    },
+    {
+      "name": "military gas mask",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "head",
+      "absorb": {
+        "mutation": 4
+      },
+      "value": 8,
+      "icon": "😷"
+    },
+    {
+      "name": "police body armor",
+      "location": "sprawl",
+      "type": "armor",
+      "armor_slot": "body",
+      "absorb": {
+        "health": 5,
+        "sanity": 1
+      },
+      "value": 12,
+      "icon": "🛡️"
+    },
+    {
+      "name": "biohazard gloves",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "mutation": 3
+      },
+      "value": 6,
+      "icon": "🧤"
+    },
+    {
+      "name": "gold necklace",
+      "location": "hive",
+      "type": "armor",
+      "armor_slot": "accessory",
+      "absorb": {
+        "sanity": 3
+      },
+      "value": 6,
+      "icon": "📿"
     }
   ]
 }
