@@ -36,8 +36,8 @@
       --food-pip:    #c87820;
       --food-pip-dim:#6b3e10;
 
-      --card-w:      86px;
-      --card-h:      120px;
+      --card-w:      96px;
+      --card-h:      130px;
       --threat-h:    90px;
     }
 
@@ -558,6 +558,53 @@
       margin-bottom: 1.2rem;
     }
 
+    .rules-ref {
+      width: var(--card-w);
+      height: 100px;
+      background: #100e0b;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 7px 7px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .rules-ref-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rules-ref-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      counter-reset: step;
+    }
+    .rules-ref-list li {
+      font-family: 'Spectral', serif;
+      font-size: 0.42rem;
+      color: #c8bca8;
+      line-height: 1.3;
+      display: flex;
+      gap: 3px;
+      counter-increment: step;
+    }
+    .rules-ref-list li::before {
+      content: counter(step) '.';
+      color: var(--gold-dim);
+      font-family: 'Spectral', serif;
+      font-size: 0.42rem;
+      flex-shrink: 0;
+    }
+
     .draw-btn {
       font-family: 'Cinzel', serif;
       font-size: 0.55rem;
@@ -998,7 +1045,7 @@
     ═══════════════════════════════════════════════ */
 
     #player-board {
-      padding: 1.8rem 1.5rem 1.5rem;
+      padding: .8rem .5rem .5rem;
     }
 
     .tracks-container {
@@ -1269,20 +1316,24 @@
     /* Weapon toggle button in battle */
     .weapon-toggle-row {
       display: flex;
-      gap: 0.5rem;
-      justify-content: center;
+      flex-direction: column;
+      gap: 0.3rem;
       margin-top: 0.3rem;
+      align-items: stretch;
     }
 
     .weapon-toggle-btn {
       font-family: 'Cinzel', serif;
-      font-size: 0.52rem;
-      letter-spacing: 0.1em;
+      font-size: 0.46rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.3rem 0.7rem;
+      padding: 0.25rem 0.3rem;
       border-radius: 3px;
       border: 1px solid;
       cursor: pointer;
+      text-align: center;
+      white-space: normal;
+      line-height: 1.3;
       transition: opacity 0.15s, transform 0.1s;
     }
     .weapon-toggle-btn:hover  { opacity: 0.85; transform: translateY(-1px); }
@@ -1492,14 +1543,17 @@
     .threat-pip-indicator.done { background: var(--threat-col); }
 
     .threat-card-display {
-      border: 1px solid var(--threat-dim);
+      border: 1px solid var(--border);
       border-radius: 4px;
-      background: rgba(80,10,10,0.25);
-      padding: 1rem;
+      background: #100e0b;
+      padding: 6px 6px 5px;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      min-height: 80px;
+      gap: 3px;
+      width: var(--card-w);
+      min-height: var(--card-h);
+      overflow: hidden;
+      align-self: center;
     }
 
     .threat-card-type {
@@ -1532,10 +1586,10 @@
 
     .threat-battle-row {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 1.2rem;
-      padding: 0.4rem 0;
+      gap: 0.25rem;
+      padding: 0.2rem 0;
     }
 
     .battle-stat {
@@ -1578,6 +1632,37 @@
     .outcome-win  { color: #6aaa54; background: rgba(74,122,58,0.15); border: 1px solid rgba(74,122,58,0.4); }
     .outcome-tie  { color: #c8962a; background: rgba(200,150,42,0.12); border: 1px solid rgba(200,150,42,0.35); }
     .outcome-loss { color: #e07070; background: rgba(176,48,48,0.15); border: 1px solid rgba(176,48,48,0.4); }
+
+    .second-chance-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+    .second-chance-btn {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.46rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.3rem;
+      border-radius: 3px;
+      border: 1px solid;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.3;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .second-chance-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .second-chance-btn.btn-flee {
+      background: rgba(80,60,60,0.25);
+      border-color: rgba(120,80,80,0.5);
+      color: #c08080;
+    }
+    .second-chance-btn.btn-fight {
+      background: rgba(200,150,42,0.18);
+      border-color: rgba(200,150,42,0.5);
+      color: var(--gold);
+    }
 
     .threat-effects-list {
       font-family: 'Spectral', serif;
@@ -2301,9 +2386,13 @@
     .draft-card-wrap {
       cursor: pointer;
       border-radius: 5px;
-      border: 2px solid transparent;
+      border: 2px solid var(--border);
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
       position: relative;
+      width: var(--card-w);
+      height: var(--card-h);
+      background: #100e0b;
+      overflow: hidden;
     }
     .draft-card-wrap:hover {
       transform: translateY(-3px);
@@ -3089,13 +3178,7 @@
       <span class="sm-goal-title">Your Objective</span>
       Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
     </div>
-    <div class="sm-variant">
-      <div class="sm-variant-label">Choose your variant</div>
-      <div class="sm-variant-btns">
-        <button class="sm-var-btn sm-var-active" id="sm-var-normal" data-variant="normal">🚗 Normal<span class="sm-var-sub">Vehicles &amp; movement</span></button>
-        <button class="sm-var-btn" id="sm-var-armor" data-variant="armor">🛡️ Armor<span class="sm-var-sub">Wearable protection, no movement</span></button>
-      </div>
-    </div>
+    <!-- variant selection hidden; armor mode is active by default -->
     <div class="sm-difficulty">
       <div class="sm-difficulty-label">How much do you have left to lose?</div>
       <div class="sm-difficulty-btns">
@@ -3578,6 +3661,16 @@
     <div class="divider"></div>
 
     <div class="draw-area">
+      <div class="rules-ref">
+        <div class="rules-ref-title">Your Turn</div>
+        <ol class="rules-ref-list">
+          <li>Select a card</li>
+          <li>Pay cost / draw threats</li>
+          <li>Resolve battles</li>
+          <li>Gain loot</li>
+          <li>Reload board</li>
+        </ol>
+      </div>
       <button class="draw-btn" id="draw-btn" disabled>
         <span class="draw-btn-icons">📦</span>
         <span class="draw-btn-label">Draw</span>
@@ -3644,8 +3737,8 @@
         <button class="dv-filter-btn" data-filter="gather">Gather</button>
         <button class="dv-filter-btn" data-filter="item">Items</button>
         <button class="dv-filter-btn" data-filter="weapon">Weapons</button>
-        <button class="dv-filter-btn" id="dv-filter-vehicle" data-filter="vehicle">Vehicles</button>
-        <button class="dv-filter-btn" id="dv-filter-armor"   data-filter="armor" style="display:none;">Armor</button>
+        <button class="dv-filter-btn" id="dv-filter-vehicle" data-filter="vehicle" style="display:none;">Vehicles</button>
+        <button class="dv-filter-btn" id="dv-filter-armor"   data-filter="armor">Armor</button>
       </div>
       <div class="dv-grid" id="dv-grid"></div>
     </div>
@@ -3750,32 +3843,32 @@
 
       <div class="tracks-container" id="tracks-container"></div>
 
-      <div class="footer-note">Click a space to move your marker</div>
+      <div class="footer-note">Don't reach the bottom of any of the tracks</div>
     </div>
 
     <!-- Inventory slots -->
     <div class="inventory-panel" id="inventory-panel">
-      <!-- Normal variant: vehicle slot -->
-      <div class="inventory-slot" id="inv-slot-vehicle">
+      <!-- Normal variant: vehicle slot (hidden by default; armor mode is default) -->
+      <div class="inventory-slot" id="inv-slot-vehicle" style="display:none;">
         <div class="inventory-slot-label">🚗 Vehicle</div>
         <div class="inventory-card-zone inv-vehicle" id="inv-vehicle">
           <span class="inventory-empty-icon">🚗</span>
         </div>
       </div>
-      <!-- Armor variant: three armor slots (hidden in normal mode) -->
-      <div class="inventory-slot" id="inv-slot-armor-head" style="display:none;">
+      <!-- Armor variant: three armor slots -->
+      <div class="inventory-slot" id="inv-slot-armor-head">
         <div class="inventory-slot-label">🪖 Head</div>
         <div class="inventory-card-zone inv-armor-head" id="inv-armor-head">
           <span class="inventory-empty-icon">🪖</span>
         </div>
       </div>
-      <div class="inventory-slot" id="inv-slot-armor-body" style="display:none;">
+      <div class="inventory-slot" id="inv-slot-armor-body">
         <div class="inventory-slot-label">🧥 Body</div>
         <div class="inventory-card-zone inv-armor-body" id="inv-armor-body">
           <span class="inventory-empty-icon">🧥</span>
         </div>
       </div>
-      <div class="inventory-slot" id="inv-slot-armor-acc" style="display:none;">
+      <div class="inventory-slot" id="inv-slot-armor-acc">
         <div class="inventory-slot-label">📿 Accessory</div>
         <div class="inventory-card-zone inv-armor-acc" id="inv-armor-acc">
           <span class="inventory-empty-icon">📿</span>
@@ -4032,7 +4125,7 @@
 
       const noteEl = document.getElementById('lt-deck-note');
       const pool = deckPass === 1 ? sprawlPool : hivePool;
-      noteEl.textContent = `A draft awaits — choose ${DRAFT_PICK} cards from ${Math.min(DRAFT_DRAW, pool.length)} available`;
+      noteEl.textContent = `A draft awaits — choose ${getDraftPick()} cards from ${Math.min(getDraftDraw(), pool.length)} available`;
 
       const btn = document.getElementById('lt-continue-btn');
       btn.className = `lt-continue-btn ${loc.btnClass}`;
@@ -4166,6 +4259,7 @@
   let drawPile      = [];
   let discardPile   = [];   // cards that have been played/passed through
   let deckPass      = 0;    // 0=Road, 1=Sprawl, 2=Hive, 3+=Sanctuary
+  let gameDealCount = 30;   // set at difficulty selection; drives draft size
   let deckLaps      = 0;    // how many times the full deck has been cycled
   let lootZones     = [];
   let slotCards     = [];   // card data currently in each slot (null if empty)
@@ -4492,7 +4586,7 @@
      INVENTORY
   ═══════════════════════════════════════════ */
   // ── Game variant ────────────────────────────────────────────────
-  let gameVariant = 'normal'; // 'normal' | 'armor'
+  let gameVariant = 'armor'; // 'normal' | 'armor'
 
   const inventory = { vehicle: null, weapon: null };
   // Item slots: always 3
@@ -4547,52 +4641,8 @@
   }
 
   function renderInventoryCard(card, usesRemaining) {
-    const wrap = document.createElement('div');
-    wrap.className = 'inv-card';
-
-    const badge = document.createElement('div');
-    badge.className = `card-type-badge badge-${card.type}`;
-    badge.textContent = card.type;
-    wrap.appendChild(badge);
-
-    const name = document.createElement('div');
-    name.className = 'card-name';
-    name.textContent = card.name;
-    wrap.appendChild(name);
-
-    if (card.icon) {
-      const iconEl = document.createElement('span');
-      iconEl.className = 'card-icon-img';
-      iconEl.textContent = card.icon;
-      wrap.appendChild(iconEl);
-    }
-
-    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
-
-    if (card.strength != null) {
-      const s = document.createElement('div');
-      s.className = 'card-stat';
-      const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
-      s.innerHTML = `🔧 STR ${card.strength}${classTag}`;
-      wrap.appendChild(s);
-    }
-    if (card.move != null) {
-      const s = document.createElement('div');
-      s.className = 'card-stat';
-      s.innerHTML = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
-      wrap.appendChild(s);
-    }
-    if (card.absorb != null) {
-      const s = document.createElement('div');
-      s.className = 'card-stat';
-      const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
-      s.innerHTML = `🛡️ Absorbs: ${parts}`;
-      wrap.appendChild(s);
-      const slotTag = document.createElement('div');
-      slotTag.className = 'card-stat';
-      slotTag.textContent = `📍 ${card.armor_slot}`;
-      wrap.appendChild(slotTag);
-    }
+    const wrap = renderCard(card);
+    wrap.style.cursor = 'pointer';
 
     // Uses pip row — for weapons, vehicles, and items with uses
     if ((card.type === 'weapon' || card.type === 'vehicle' || card.type === 'item') && card.uses != null) {
@@ -5416,22 +5466,24 @@
 
       // Type badge
       const badge = document.createElement('div');
-      badge.className = `threat-card-type ttype-${card.type}`;
+      badge.className = `card-type-badge ttype-${card.type}`;
       badge.textContent = card.type;
       display.appendChild(badge);
 
       // Name
       const nameEl = document.createElement('div');
-      nameEl.className = 'threat-card-name';
+      nameEl.className = 'card-name';
       nameEl.textContent = card.name;
       display.appendChild(nameEl);
 
       if (card.icon) {
         const iconEl = document.createElement('span');
-        iconEl.className = 'threat-card-icon';
+        iconEl.className = 'card-icon-img';
         iconEl.textContent = card.icon;
         display.appendChild(iconEl);
       }
+
+      display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
       const bodyEl = document.createElement('div');
       bodyEl.className = 'threat-card-body';
@@ -5620,75 +5672,202 @@
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + camoBonus + (usingWeapon ? holsterBonus : 0)
                        + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
-          // Apply damage on tie or loss
-          if (effStr <= monsterStr && card.damage) {
-            let damage = { ...card.damage };
-            // Armor absorption (armor variant)
-            const { absorbed, lines: absLines } = armorAbsorb(damage);
-            absLines.forEach(l => {
-              showToast(l, false, 2200);
-              gameLog.add(l, l.includes('destroyed') ? 'warn' : 'dim');
-            });
-            // Reduce damage by absorbed amounts
-            const reducedDamage = {};
-            for (const [stat, amt] of Object.entries(damage)) {
-              const absAmt = absorbed[stat] ?? 0;
-              const sign = amt < 0 ? -1 : 1;
-              const reduced = sign * Math.max(0, Math.abs(amt) - absAmt);
-              if (reduced !== 0) reducedDamage[stat] = reduced;
+
+          // Helper: apply damage with armor absorption
+          const applyBattleDamage = async () => {
+            if (!card.damage) return false;
+            let dmg = { ...card.damage };
+            const { absorbed, lines: absLines } = armorAbsorb(dmg);
+            absLines.forEach(l => { showToast(l, false, 2200); gameLog.add(l, l.includes('destroyed') ? 'warn' : 'dim'); });
+            const reduced = {};
+            for (const [stat, amt] of Object.entries(dmg)) {
+              const a = absorbed[stat] ?? 0; const s = amt < 0 ? -1 : 1;
+              const r = s * Math.max(0, Math.abs(amt) - a);
+              if (r !== 0) reduced[stat] = r;
             }
-            if (Object.keys(reducedDamage).length > 0) await applyEffects(reducedDamage, true);
-            if (gameOver) { resolve({ lootLost: true }); return; }
-          }
-          // Log battle outcome
-          if (effStr > monsterStr) {
-            gameLog.add(`⚔ Victory vs ${card.name} (your ${effStr} > ${monsterStr})`, 'good');
-          } else if (effStr === monsterStr) {
-            gameLog.add(`⚔ Tie vs ${card.name} (${effStr} = ${monsterStr}) — damage taken`, 'warn');
-          } else {
-            gameLog.add(`⚔ Defeat vs ${card.name} (your ${effStr} < ${monsterStr}) — loot lost`, 'warn');
-          }
-          // On loss: injure the monster (remaining strength = monsterStr − playerStr)
-          if (effStr < monsterStr && slotIndex != null) {
-            const remaining = monsterStr - effStr;
-            injuredMonsters[slotIndex] = {
-              card,
-              originalStrength: card.strength ?? monsterStr,
-              remainingStrength: remaining,
-            };
-            updateSlotCosts(); // show the 💀 pip on the cost track
-          }
-          // Matches passive: +1 food on win or tie (effStr >= monsterStr)
-          if (effStr >= monsterStr) {
+            if (Object.keys(reduced).length > 0) await applyEffects(reduced, true);
+            return gameOver;
+          };
+
+          // Helper: apply win/tie passive bonuses (Matches, feral instinct, hardened skin)
+          const applyWinBonuses = () => {
             const matchesIdx = itemSlots.findIndex(c => c?.name === 'Matches');
             if (matchesIdx >= 0) {
-              const newFood = Math.min(maxFood, playerState.food.value + 1);
-              if (playerState.food.set) playerState.food.set(newFood);
+              if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 1));
               showToast('🔥 Matches — cooked the meat, food +1', false, 2000);
             }
-            // Feral instinct mutant: +2 food on win or tie
             if (hasMutant('feral_instinct')) {
-              const feralFood = Math.min(maxFood, playerState.food.value + 2);
-              if (playerState.food.set) playerState.food.set(feralFood);
-              showToast('🧬 Feral instinct — you feed on the kill, food +2', false, 2400);
+              if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
+              showToast('🧬 Feral instinct — food +2', false, 2400);
             }
-            // Hardened skin mutant (armor variant): restore 1 pip to any armor piece on win/tie
             if (gameVariant === 'armor' && hasMutant('hardened_skin')) {
               const restorable = Object.entries(armorSlots).find(([k, slot]) => {
                 if (!slot) return false;
-                const max = slot.card.absorb;
-                return Object.keys(max).some(stat => (slot.pips[stat] ?? 0) < max[stat]);
+                return Object.keys(slot.card.absorb).some(stat => (slot.pips[stat] ?? 0) < slot.card.absorb[stat]);
               });
               if (restorable) {
                 const [slotKey, slot] = restorable;
-                // Find first stat with room to restore
                 const stat = Object.keys(slot.card.absorb).find(s => (slot.pips[s] ?? 0) < slot.card.absorb[s]);
                 slot.pips[stat] = Math.min(slot.card.absorb[stat], (slot.pips[stat] ?? 0) + 1);
                 refreshArmorSlot(slotKey);
                 showToast(`🪨 Hardened skin — +1 ${stat} pip restored on ${slot.card.name}`, false, 2400);
               }
             }
+          };
+
+          // Apply damage on tie or loss
+          if (effStr <= monsterStr) { if (await applyBattleDamage()) { resolve({ lootLost: true }); return; } }
+
+          if (effStr > monsterStr) {
+            gameLog.add(`⚔ Victory vs ${card.name} (your ${effStr} > ${monsterStr})`, 'good');
+          } else if (effStr === monsterStr) {
+            gameLog.add(`⚔ Tie vs ${card.name} (${effStr} = ${monsterStr}) — damage taken`, 'warn');
+          } else {
+            gameLog.add(`⚔ Defeat vs ${card.name} (your ${effStr} < ${monsterStr}) — damage taken`, 'warn');
           }
+
+          // ── First battle loss: offer flee or fight again ──────────────────────
+          if (effStr < monsterStr) {
+            const reducedMonsterStr = Math.max(0, monsterStr - effStr);
+
+            // Update display to show flee/fight-again choice
+            outcomeEl.className = 'battle-outcome outcome-loss';
+            outcomeEl.textContent = '⚔ Defeat — the creature is wounded';
+            bodyEl.textContent = `Its strength is now ${reducedMonsterStr}. Your move.`;
+            effectsEl.innerHTML = '';
+            btn.style.display = 'none';
+
+            const choiceRow = document.createElement('div');
+            choiceRow.className = 'second-chance-row';
+            const fleeBtn = document.createElement('button');
+            fleeBtn.className = 'second-chance-btn btn-flee';
+            fleeBtn.textContent = '↩ Flee';
+            const fightBtn = document.createElement('button');
+            fightBtn.className = 'second-chance-btn btn-fight';
+            fightBtn.textContent = '🎲 Fight Again';
+            choiceRow.appendChild(fleeBtn);
+            choiceRow.appendChild(fightBtn);
+            effectsEl.appendChild(choiceRow);
+
+            const secondChoice = await new Promise(res => {
+              fleeBtn.onclick = () => res('flee');
+              fightBtn.onclick = () => res('fight');
+            });
+
+            effectsEl.innerHTML = '';
+            btn.style.display = '';
+
+            if (secondChoice === 'flee') {
+              gameLog.add(`↩ Fled from ${card.name} — loot abandoned`, 'dim');
+              outcomeEl.textContent = '↩ You flee — loot abandoned';
+              bodyEl.textContent = 'You escape with your life.';
+              btn.className = 'threat-continue-btn';
+              btn.textContent = 'End Turn';
+              await new Promise(res => { btn.addEventListener('click', function h() { btn.removeEventListener('click', h); btn.textContent = 'Continue'; res(); }); });
+              resolve({ lootLost: true });
+              return;
+            }
+
+            // ── Fight again: roll d6 ──────────────────────────────────────────
+            const roll = Math.floor(Math.random() * 6) + 1;
+            const isAutoWin = roll === 6;
+            const secondStr = roll; // dice roll replaces player strength
+
+            // Rebuild card display for round 2
+            display.innerHTML = '';
+            const b2 = document.createElement('div');
+            b2.className = 'card-type-badge ttype-monster';
+            b2.textContent = 'monster — round 2';
+            display.appendChild(b2);
+            const n2 = document.createElement('div');
+            n2.className = 'card-name';
+            n2.textContent = card.name;
+            display.appendChild(n2);
+            if (card.icon) {
+              const i2 = document.createElement('span');
+              i2.className = 'card-icon-img';
+              i2.textContent = card.icon;
+              display.appendChild(i2);
+            }
+            display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+            const rollRow = document.createElement('div');
+            rollRow.className = 'threat-battle-row';
+            const rollSide = document.createElement('div');
+            rollSide.className = 'battle-stat';
+            rollSide.innerHTML = `<span class="battle-stat-label">🎲 Roll${isAutoWin ? ' — AUTO WIN' : ''}</span><span class="battle-stat-value player-str">${roll}</span>`;
+            const vs2 = document.createElement('div');
+            vs2.className = 'battle-vs';
+            vs2.textContent = 'vs';
+            const m2 = document.createElement('div');
+            m2.className = 'battle-stat';
+            m2.innerHTML = `<span class="battle-stat-label">${card.name} (weakened)</span><span class="battle-stat-value monster-str">${reducedMonsterStr}</span>`;
+            rollRow.appendChild(rollSide); rollRow.appendChild(vs2); rollRow.appendChild(m2);
+            display.appendChild(rollRow);
+
+            const body2 = document.createElement('div');
+            body2.className = 'threat-card-body';
+            display.appendChild(body2);
+            const outcome2 = document.createElement('div');
+            outcome2.className = 'battle-outcome';
+            display.appendChild(outcome2);
+            effectsEl.innerHTML = '';
+
+            let secondLootLost;
+            if (isAutoWin || secondStr > reducedMonsterStr) {
+              outcome2.classList.add('outcome-win');
+              outcome2.textContent = isAutoWin ? '🎲 Six! Auto Victory — loot secured!' : '⚔ Victory — loot secured!';
+              body2.textContent = 'You slay the wounded creature.';
+              btn.className = 'threat-continue-btn btn-gold';
+              secondLootLost = false;
+            } else if (secondStr === reducedMonsterStr) {
+              outcome2.classList.add('outcome-tie');
+              outcome2.textContent = '⚔ Tie — loot secured, but at a cost';
+              body2.textContent = 'You finish it, but take a hit.';
+              btn.className = 'threat-continue-btn btn-gold';
+              secondLootLost = false;
+              if (card.damage) Object.entries(card.damage).forEach(([k,v]) => {
+                const p = document.createElement('div');
+                p.textContent = `${EFFECT_META[k]?.icon ?? ''} ${k} ${v>0?'+':''}${v}`;
+                effectsEl.appendChild(p);
+              });
+            } else {
+              outcome2.classList.add('outcome-loss');
+              outcome2.textContent = '⚔ Defeat — turn ends';
+              body2.textContent = 'The creature endures. You retreat.';
+              btn.className = 'threat-continue-btn';
+              secondLootLost = true;
+              if (card.damage) Object.entries(card.damage).forEach(([k,v]) => {
+                const p = document.createElement('div');
+                p.textContent = `${EFFECT_META[k]?.icon ?? ''} ${k} ${v>0?'+':''}${v}`;
+                effectsEl.appendChild(p);
+              });
+            }
+
+            // Wait for player to confirm
+            await new Promise(res => { btn.addEventListener('click', function h() { btn.removeEventListener('click', h); res(); }); });
+
+            // Apply second battle damage (tie or loss)
+            if (secondStr === reducedMonsterStr || secondLootLost) {
+              if (await applyBattleDamage()) { resolve({ lootLost: true }); return; }
+            }
+
+            // Log second battle
+            if (isAutoWin) {
+              gameLog.add(`🎲 Round 2 vs ${card.name} — rolled 6, Auto Victory!`, 'good');
+            } else if (!secondLootLost) {
+              gameLog.add(`🎲 Round 2 vs ${card.name} — roll ${roll} vs STR ${reducedMonsterStr}, ${secondStr === reducedMonsterStr ? 'Tie — damage taken' : 'Victory!'}`, secondStr === reducedMonsterStr ? 'warn' : 'good');
+            } else {
+              gameLog.add(`🎲 Round 2 vs ${card.name} — roll ${roll} vs STR ${reducedMonsterStr}, Defeat — turn ends`, 'warn');
+            }
+
+            if (!secondLootLost) applyWinBonuses();
+            resolve({ lootLost: secondLootLost });
+            return;
+          }
+
+          // ── Win or tie first battle ───────────────────────────────────────────
+          if (effStr >= monsterStr) applyWinBonuses();
           resolve({ lootLost: lootLostThisCard });
         };
         btn.addEventListener('click', origHandler);
@@ -5742,21 +5921,23 @@
 
       // Header
       const badge = document.createElement('div');
-      badge.className = 'threat-card-type ttype-monster';
+      badge.className = 'card-type-badge ttype-monster';
       badge.textContent = 'injured monster';
       display.appendChild(badge);
 
       const nameEl = document.createElement('div');
-      nameEl.className = 'threat-card-name';
+      nameEl.className = 'card-name';
       nameEl.textContent = inj.card.name;
       display.appendChild(nameEl);
 
       if (inj.card.icon) {
         const iconEl = document.createElement('span');
-        iconEl.className = 'threat-card-icon';
+        iconEl.className = 'card-icon-img';
         iconEl.textContent = inj.card.icon;
         display.appendChild(iconEl);
       }
+
+      display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
       const injNote = document.createElement('div');
       injNote.style.cssText = 'font-family:Spectral,serif;font-size:0.62rem;color:#e07070;opacity:0.8;margin:2px 0 6px;';
@@ -6103,32 +6284,6 @@
     if (!card) return;
     slotCards[slotIndex] = null; // remove from board so clearLootZones won't discard it
 
-    // 0. If an injured monster guards this slot, fight it first (costs 1 food)
-    if (injuredMonsters[slotIndex]) {
-      cardSelected = true;
-      setAllSlotsLocked(true);
-      // Pay 1 food pre-battle cost
-      const preFoodVal = playerState.food.value;
-      const preFoodNew = Math.max(0, preFoodVal - 1);
-      if (playerState.food.set) playerState.food.set(preFoodNew);
-      if (preFoodNew === 0 || preFoodVal === 0) {
-        applyStarvation();
-        if (gameOver) { slotCards[slotIndex] = card; cardSelected = false; setAllSlotsLocked(false); return; }
-      }
-      const { won } = await battleInjuredMonster(slotIndex);
-      if (!won) {
-        // Lost again — loot stays, slot re-enabled next round
-        cardSelected = false;
-        setAllSlotsLocked(false);
-        slotCards[slotIndex] = card; // put the card back
-        updateDeckCount();
-        return;
-      }
-      // Won — clear lock and continue to normal slot flow below
-      cardSelected = false;
-      setAllSlotsLocked(false);
-    }
-
     const slotDef   = getSlots()[slotIndex];
     const isSlot1   = slotIndex === 0;
 
@@ -6228,8 +6383,7 @@
       // Keep the card on the board — it stays in its slot next round
       retainedSlot = { card, slotIndex };
     } else if (card.type === 'gather') {
-      // Gather cards always go to discard after use
-      discardPile.push(card);
+      // Gather cards are trashed (removed from play) — deck size shrinks predictably
       if (card.effects) {
         for (const [track, amount] of Object.entries(card.effects)) {
           let rounded = Math.round(amount);
@@ -6533,21 +6687,6 @@
         costEl.appendChild(mapTag);
       }
     }
-    // Injured monster badge
-    const inj = injuredMonsters[index];
-    if (inj) {
-      const pip = document.createElement('span');
-      pip.className = 'injured-monster-pip';
-      pip.innerHTML = `💀 ${inj.remainingStrength}`;
-      const tip = document.createElement('div');
-      tip.className = 'monster-pip-tooltip';
-      tip.innerHTML = `<strong>💀 ${inj.card.name}</strong>
-        Original STR: ${inj.originalStrength}<br>
-        Remaining STR: ${inj.remainingStrength}<br>
-        <br>Select this slot to fight it first (costs 1 food).`;
-      pip.appendChild(tip);
-      costEl.appendChild(pip);
-    }
     return costEl;
   }
 
@@ -6731,15 +6870,18 @@
     });
   }
 
-  /* ── Draft phase: draw 7 from pool, player picks 5, 2 return to pool ── */
-  const DRAFT_DRAW  = 7;
-  const DRAFT_PICK  = 5;
+  /* ── Draft phase: pick (dealCount/5) from pool, pool size = pick+3 ── */
+  function getDraftPick() { return Math.floor(gameDealCount / 5); }
+  function getDraftDraw() { return getDraftPick() + 3; }
 
   function runDraftPhase(pool, locationName) {
     return new Promise(resolve => {
       if (pool.length === 0) { resolve([]); return; }
 
-      // Draw up to 7 from pool
+      const DRAFT_PICK = getDraftPick();
+      const DRAFT_DRAW = getDraftDraw();
+
+      // Draw up to DRAFT_DRAW from pool
       const drawn = pool.splice(0, Math.min(DRAFT_DRAW, pool.length));
       const selected = new Set();
 
@@ -6891,6 +7033,7 @@
   document.querySelectorAll('.sm-diff-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const dealCount  = parseInt(btn.dataset.deal,     10);
+      gameDealCount    = dealCount;
       const startFood  = parseInt(btn.dataset.food,     10);
       const startHealth= parseInt(btn.dataset.health,   10);
       const startSanity= parseInt(btn.dataset.sanity,   10);

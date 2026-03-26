@@ -309,7 +309,7 @@
         "health": 3
       },
       "value": 6,
-      "icon": "🩺"
+      "icon": "🩹"
     },
     {
       "name": "First aid kit",
@@ -319,10 +319,10 @@
         "health": 3
       },
       "value": 6,
-      "icon": "🩺"
+      "icon": "🩹"
     },
     {
-      "name": "Torch",
+      "name": "Flashlight",
       "location": "road",
       "type": "item",
       "text": "At the start of your turn, may use to increase sanity by 1",
@@ -350,7 +350,7 @@
         "sanity": 1
       },
       "value": 6.1,
-      "icon": "🦴"
+      "icon": "🩹"
     },
     {
       "name": "Medicinal herbs",
@@ -1045,6 +1045,124 @@
       },
       "value": 6,
       "icon": "📿"
+    },
+    {
+      "name": "Bottled water",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "Clean water is rarer than you remember.",
+      "effects": {
+        "health": 2,
+        "sanity": 1
+      },
+      "value": 5,
+      "icon": "💧"
+    },
+    {
+      "name": "Dried rations",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "Vacuum-sealed. Still good.",
+      "effects": {
+        "food": 4
+      },
+      "value": 4,
+      "icon": "🍱"
+    },
+    {
+      "name": "Looted pharmacy",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "Pills without labels — probably fine.",
+      "effects": {
+        "health": 3,
+        "sanity": -1
+      },
+      "value": 4,
+      "icon": "💊"
+    },
+    {
+      "name": "Photo album",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "Someone else's memories. They help.",
+      "effects": {
+        "sanity": 3
+      },
+      "value": 5,
+      "icon": "📷"
+    },
+    {
+      "name": "Blood transfusion kit",
+      "location": "sprawl",
+      "type": "gather",
+      "text": "The blood isn't quite right, but it works.",
+      "effects": {
+        "health": 5,
+        "mutation": 2
+      },
+      "value": 5,
+      "icon": "🩸"
+    },
+    {
+      "name": "Protein vat",
+      "location": "hive",
+      "type": "gather",
+      "text": "You don't want to know what's in it.",
+      "effects": {
+        "food": 6,
+        "mutation": 1
+      },
+      "value": 5,
+      "icon": "🧫"
+    },
+    {
+      "name": "Neural patch",
+      "location": "hive",
+      "type": "gather",
+      "text": "Calms the noise. Changes something else.",
+      "effects": {
+        "sanity": 5,
+        "mutation": 2
+      },
+      "value": 5,
+      "icon": "🧠"
+    },
+    {
+      "name": "Bone broth",
+      "location": "hive",
+      "type": "gather",
+      "text": "Rendered from whatever they left behind.",
+      "effects": {
+        "food": 3,
+        "health": 2
+      },
+      "value": 7,
+      "icon": "🍲"
+    },
+    {
+      "name": "Distilled spirits",
+      "location": "hive",
+      "type": "gather",
+      "text": "Gets you through the night.",
+      "effects": {
+        "sanity": 4,
+        "health": -1
+      },
+      "value": 5,
+      "icon": "🥃"
+    },
+    {
+      "name": "Irradiated supplement",
+      "location": "hive",
+      "type": "gather",
+      "text": "High cost, but the Hive takes everything.",
+      "effects": {
+        "health": 5,
+        "mutation": 3
+      },
+      "value": 4,
+      "icon": "☢️"
     }
   ]
 }
