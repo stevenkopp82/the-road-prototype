@@ -6896,11 +6896,15 @@
       const startSanity= parseInt(btn.dataset.sanity,   10);
       const startMut   = parseInt(btn.dataset.mutation, 10);
       // Apply starting stats before tracks render
-      // Use the wired setters so the marker renders at the correct starting position
-      playerState.food.set(startFood);
-      playerState.health.set(startHealth);
-      playerState.sanity.set(startSanity);
-      playerState.mutation.set(startMut);
+      playerState.food.value     = startFood;
+      playerState.health.value   = startHealth;
+      playerState.sanity.value   = startSanity;
+      playerState.mutation.value = startMut;
+      // Also update TRACKS defaultValues so buildTrack initialises correctly
+      TRACKS.find(t => t.id === 'food').defaultValue     = startFood;
+      TRACKS.find(t => t.id === 'health').defaultValue   = startHealth;
+      TRACKS.find(t => t.id === 'sanity').defaultValue   = startSanity;
+      TRACKS.find(t => t.id === 'mutation').defaultValue = startMut;
       const menu = document.getElementById('start-menu');
       menu.classList.add('fade-out');
       // Swap ? button visibility
@@ -6926,6 +6930,9 @@
         gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
       }
       gameLog.newTurn('Game Start');
+      // draw-btn is permanently disabled — all draws are automatic
+      // Load deck with chosen deal count, then deal initial cards
+      await loadDeck(dealCount);
       setTimeout(() => {
         menu.style.display = 'none';
         document.getElementById('game-log').classList.add('log-visible');
