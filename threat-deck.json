@@ -4,13 +4,13 @@
       "name": "Meadow",
       "location": "The Road",
       "type": "break",
-      "icon": "\ud83c\udf3e"
+      "icon": "🌾"
     },
     {
       "name": "Brook",
       "location": "The Road",
       "type": "break",
-      "icon": "\ud83c\udf0a"
+      "icon": "🌊"
     },
     {
       "name": "Injury",
@@ -19,7 +19,7 @@
       "effects": {
         "health": -1
       },
-      "icon": "\ud83e\udd15"
+      "icon": "🤕"
     },
     {
       "name": "Injury",
@@ -28,7 +28,7 @@
       "effects": {
         "health": -1
       },
-      "icon": "\ud83e\udd15"
+      "icon": "🤕"
     },
     {
       "name": "Disturbance",
@@ -37,7 +37,7 @@
       "effects": {
         "sanity": -1
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
       "name": "Disturbance",
@@ -46,7 +46,7 @@
       "effects": {
         "sanity": -1
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
       "name": "Infection",
@@ -55,7 +55,7 @@
       "effects": {
         "mutation": 1
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
       "name": "Infection",
@@ -64,7 +64,7 @@
       "effects": {
         "mutation": 1
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
       "name": "Rabid fox",
@@ -74,7 +74,7 @@
       "damage": {
         "health": -1
       },
-      "icon": "\ud83e\udd8a"
+      "icon": "🦊"
     },
     {
       "name": "Feral dog",
@@ -84,7 +84,7 @@
       "damage": {
         "sanity": -1
       },
-      "icon": "\ud83d\udc15"
+      "icon": "🐕"
     },
     {
       "name": "Snake pit",
@@ -94,7 +94,7 @@
       "damage": {
         "mutation": 1
       },
-      "icon": "\ud83d\udc0d"
+      "icon": "🐍"
     },
     {
       "name": "Wolf",
@@ -104,20 +104,13 @@
       "damage": {
         "health": -2
       },
-      "icon": "\ud83d\udc3a"
+      "icon": "🐺"
     },
     {
       "name": "Abandoned House",
       "location": "The Sprawl",
       "type": "break",
-      "icon": "\ud83c\udfda\ufe0f"
-    },
-    {
-      "name": "Midnight Bandit",
-      "location": "The Sprawl",
-      "type": "setback",
-      "discard_item": 1,
-      "icon": "\ud83c\udf11"
+      "icon": "🏚️"
     },
     {
       "name": "Injury",
@@ -126,16 +119,25 @@
       "effects": {
         "health": -1
       },
-      "icon": "\ud83e\udd15"
+      "icon": "🤒"
     },
     {
       "name": "Injury",
       "location": "The Sprawl",
       "type": "setback",
       "effects": {
-        "health": -2
+        "health": -1
       },
-      "icon": "\ud83e\udd15"
+      "icon": "🤕"
+    },
+    {
+      "name": "Injury",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "health": -1
+      },
+      "icon": "🤕"
     },
     {
       "name": "Disturbance",
@@ -144,16 +146,16 @@
       "effects": {
         "sanity": -1
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
       "name": "Disturbance",
       "location": "The Sprawl",
       "type": "setback",
       "effects": {
-        "sanity": -2
+        "sanity": -1
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
       "name": "Infection",
@@ -162,16 +164,16 @@
       "effects": {
         "mutation": 1
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
       "name": "Infection",
       "location": "The Sprawl",
       "type": "setback",
       "effects": {
-        "mutation": 2
+        "mutation": 1
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
       "name": "Raving survivor",
@@ -181,50 +183,61 @@
       "damage": {
         "sanity": -1
       },
-      "icon": "\ud83e\udddf"
+      "icon": "🧟"
     },
     {
       "name": "Lone bandit",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 5,
+      "strength": 4,
       "damage": {
         "mutation": 1
       },
-      "icon": "\ud83d\udde1\ufe0f"
+      "icon": "🗡️"
     },
     {
       "name": "Backstabber",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 7,
+      "strength": 6,
       "damage": {
         "health": -1
       },
-      "icon": "\ud83d\udd2a"
+      "icon": "🔪"
     },
     {
       "name": "Cannibal hunter",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 8,
+      "strength": 7,
       "damage": {
         "sanity": -2
       },
-      "icon": "\ud83d\udc80"
+      "icon": "💀"
     },
     {
       "name": "Safehouse",
       "location": "The Hive",
       "type": "break",
-      "icon": "\ud83c\udfe0"
+      "icon": "🏠"
     },
     {
-      "name": "The Rats",
+      "name": "Injury",
       "location": "The Hive",
       "type": "setback",
-      "discard_item": 2,
-      "icon": "\ud83d\udc00"
+      "effects": {
+        "health": -1
+      },
+      "icon": "🤒"
+    },
+    {
+      "name": "Injury",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "health": -1
+      },
+      "icon": "🤕"
     },
     {
       "name": "Injury",
@@ -233,93 +246,84 @@
       "effects": {
         "health": -2
       },
-      "icon": "\ud83e\udd15"
-    },
-    {
-      "name": "Injury",
-      "location": "The Hive",
-      "type": "setback",
-      "effects": {
-        "health": -2
-      },
-      "icon": "\ud83e\udd15"
+      "icon": "🤕"
     },
     {
       "name": "Disturbance",
       "location": "The Hive",
       "type": "setback",
       "effects": {
-        "sanity": -2
+        "sanity": -1
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
-      "name": "Disturbance",
+      "name": "Night Terror",
       "location": "The Hive",
       "type": "setback",
       "effects": {
         "sanity": -2
       },
-      "icon": "\ud83d\ude28"
+      "icon": "😨"
     },
     {
       "name": "Infection",
       "location": "The Hive",
       "type": "setback",
       "effects": {
-        "mutation": 2
+        "mutation": 1
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
-      "name": "Infection",
+      "name": "Contamination",
       "location": "The Hive",
       "type": "setback",
       "effects": {
         "mutation": 2
       },
-      "icon": "\ud83e\udda0"
+      "icon": "🦠"
     },
     {
       "name": "Third-eye squirrel",
       "location": "The Hive",
       "type": "monster",
-      "strength": 5,
+      "strength": 4,
       "damage": {
         "mutation": 2
       },
-      "icon": "\ud83d\udc3f\ufe0f"
+      "icon": "🐿️"
     },
     {
       "name": "Mutated bats",
       "location": "The Hive",
       "type": "monster",
-      "strength": 7,
+      "strength": 5,
       "damage": {
         "health": -2
       },
-      "icon": "\ud83e\udd87"
+      "icon": "🦇"
     },
     {
       "name": "Giant spider",
       "location": "The Hive",
       "type": "monster",
-      "strength": 9,
+      "strength": 7,
       "damage": {
         "sanity": -2
       },
-      "icon": "\ud83d\udd77\ufe0f"
+      "icon": "🕷️"
     },
     {
       "name": "Fungal Bear",
       "location": "The Hive",
       "type": "monster",
-      "strength": 10,
+      "strength": 8,
       "damage": {
         "health": -1,
-        "mutation": 2
+        "mutation": 1
       },
-      "icon": "\ud83d\udc3b"
+      "icon": "🐻"
     }
   ]
 }
