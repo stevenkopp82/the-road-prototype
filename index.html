@@ -5193,7 +5193,7 @@
 
   async function loadThreatDeck() {
     try {
-      const res  = await fetch('threat-deck.json');
+      const res  = await fetch('threat-deck.json?v=' + Date.now());
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       threatFull = data.threat_deck;
@@ -5213,7 +5213,7 @@
 
   async function loadMutantDeck() {
     try {
-      const res  = await fetch('mutant-deck.json');
+      const res  = await fetch('mutant-deck.json?v=' + Date.now());
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       mutantFull = data.mutant_deck;
@@ -6772,7 +6772,7 @@
     const titleEl = document.getElementById('gather-board-title');
     const drawBtn = document.getElementById('draw-btn');
     try {
-      const res = await fetch('loot-deck.json');
+      const res = await fetch('loot-deck.json?v=' + Date.now());
       if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the same folder?`);
       const data = await res.json();
       if (!data.loot_deck || !Array.isArray(data.loot_deck)) throw new Error('Unexpected JSON structure');
