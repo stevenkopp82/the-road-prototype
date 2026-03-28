@@ -845,6 +845,12 @@
       margin: 3px 0 2px;
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
     }
+    img.card-icon-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      font-size: unset;
+    }
 
     .threat-card-icon {
       font-size: 2.4rem;
@@ -860,6 +866,12 @@
       display: block;
       margin: 4px 0 6px;
       filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7));
+    }
+    img.mutant-card-icon {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      font-size: unset;
     }
 
     .card-divider {
@@ -4381,6 +4393,15 @@
     mutation: { icon: '🧬', cls: 'ef-mutation' },
   };
 
+  function createIconEl(icon, name, className) {
+    const isSvg = typeof icon === 'string' && icon.endsWith('.svg');
+    const el = document.createElement(isSvg ? 'img' : 'span');
+    el.className = className;
+    if (isSvg) { el.src = icon; el.alt = name; }
+    else { el.textContent = icon; }
+    return el;
+  }
+
   function renderCard(card) {
     const wrap = document.createElement('div');
     wrap.className = 'loot-card';
@@ -4395,12 +4416,7 @@
     name.textContent = card.name;
     wrap.appendChild(name);
 
-    if (card.icon) {
-      const iconEl = document.createElement('span');
-      iconEl.className = 'card-icon-img';
-      iconEl.textContent = card.icon;
-      wrap.appendChild(iconEl);
-    }
+    if (card.icon) wrap.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
 
     wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
@@ -5247,12 +5263,7 @@
     nameEl.textContent = card.name;
     wrap.appendChild(nameEl);
 
-    if (card.icon) {
-      const iconEl = document.createElement('span');
-      iconEl.className = 'mutant-card-icon';
-      iconEl.textContent = card.icon;
-      wrap.appendChild(iconEl);
-    }
+    if (card.icon) wrap.appendChild(createIconEl(card.icon, card.name, 'mutant-card-icon'));
 
     const effEl = document.createElement('div');
     effEl.className = 'mutant-card-effect';
@@ -5476,12 +5487,7 @@
       nameEl.textContent = card.name;
       display.appendChild(nameEl);
 
-      if (card.icon) {
-        const iconEl = document.createElement('span');
-        iconEl.className = 'card-icon-img';
-        iconEl.textContent = card.icon;
-        display.appendChild(iconEl);
-      }
+      if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
 
       display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
@@ -5783,12 +5789,7 @@
             n2.className = 'card-name';
             n2.textContent = card.name;
             display.appendChild(n2);
-            if (card.icon) {
-              const i2 = document.createElement('span');
-              i2.className = 'card-icon-img';
-              i2.textContent = card.icon;
-              display.appendChild(i2);
-            }
+            if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
             display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
             const rollRow = document.createElement('div');
@@ -5930,12 +5931,7 @@
       nameEl.textContent = inj.card.name;
       display.appendChild(nameEl);
 
-      if (inj.card.icon) {
-        const iconEl = document.createElement('span');
-        iconEl.className = 'card-icon-img';
-        iconEl.textContent = inj.card.icon;
-        display.appendChild(iconEl);
-      }
+      if (inj.card.icon) display.appendChild(createIconEl(inj.card.icon, inj.card.name, 'card-icon-img'));
 
       display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 

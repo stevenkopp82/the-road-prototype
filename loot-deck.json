@@ -9,7 +9,7 @@
         "mutation": 2
       },
       "value": 1,
-      "icon": "🐾"
+      "icon": "SVGs/MonsterCarcass.svg"
     },
     {
       "name": "Psychadelic shrooms",
@@ -20,7 +20,7 @@
         "sanity": -1
       },
       "value": 1.9,
-      "icon": "🍄"
+      "icon": "SVGs/mushrooms.svg"
     },
     {
       "name": "Mushrooms",
@@ -30,7 +30,7 @@
         "food": 2
       },
       "value": 2,
-      "icon": "🍄"
+      "icon": "SVGs/mushrooms.svg"
     },
     {
       "name": "Mushrooms",
@@ -40,37 +40,37 @@
         "food": 2
       },
       "value": 2,
-      "icon": "🍄"
+      "icon": "SVGs/mushrooms.svg"
     },
     {
-      "name": "Can of beans",
+      "name": "Canned meat",
       "location": "road",
       "type": "gather",
       "effects": {
         "food": 2
       },
       "value": 2,
-      "icon": "🥫"
+      "icon": "SVGs/canned-fish.svg"
     },
     {
-      "name": "Bandaids",
+      "name": "Bandage",
       "location": "road",
       "type": "gather",
       "effects": {
         "health": 1
       },
       "value": 2,
-      "icon": "🩹"
+      "icon": "SVGs/arm-bandage.svg"
     },
     {
-      "name": "Bandaids",
+      "name": "Bandage",
       "location": "road",
       "type": "gather",
       "effects": {
         "health": 1
       },
       "value": 2,
-      "icon": "🩹"
+      "icon": "SVGs/arm-bandage.svg"
     },
     {
       "name": "Opened ration packet",
@@ -81,7 +81,7 @@
         "health": -1
       },
       "value": 2,
-      "icon": "📦"
+      "icon": "SVGs/cardboard-box-closed.svg"
     },
     {
       "name": "Deck of cards",
@@ -91,7 +91,7 @@
         "sanity": 1
       },
       "value": 2.1,
-      "icon": "🃏"
+      "icon": "SVGs/poker-hand.svg"
     },
     {
       "name": "Animal carcass",
@@ -102,7 +102,7 @@
         "mutation": 1
       },
       "value": 2.5,
-      "icon": "🦴"
+      "icon": "SVGs/fish-corpse.svg"
     },
     {
       "name": "Unmarked bottle",
@@ -113,7 +113,7 @@
         "mutation": 1
       },
       "value": 2.98,
-      "icon": "🍶"
+      "icon": "SVGs/square-bottle.svg"
     },
     {
       "name": "Apples",
@@ -123,7 +123,7 @@
         "food": 3
       },
       "value": 3,
-      "icon": "🍎"
+      "icon": "SVGs/Apple.svg"
     },
     {
       "name": "Bomb",
@@ -133,7 +133,7 @@
       "uses": 1,
       "weapon_class": "explosive",
       "value": 4,
-      "icon": "💣"
+      "icon": "SVGs/rolling-bomb.svg"
     },
     {
       "name": "Apples",
@@ -143,7 +143,7 @@
         "food": 3
       },
       "value": 3,
-      "icon": "🍎"
+      "icon": "SVGs/Apple.svg"
     },
     {
       "name": "Gauze",
@@ -153,7 +153,7 @@
         "health": 2
       },
       "value": 4,
-      "icon": "🩹"
+      "icon": "SVGs/bandage-roll.svg"
     },
     {
       "name": "Ammo",
@@ -161,7 +161,7 @@
       "type": "item",
       "text": "Use once: Reload range weapon",
       "value": 4,
-      "icon": "🔫"
+      "icon": "SVGs/heavy-bullets.svg"
     },
     {
       "name": "Ammo",
@@ -169,7 +169,7 @@
       "type": "item",
       "text": "Use once: Reload range weapon",
       "value": 4,
-      "icon": "🔫"
+      "icon": "SVGs/heavy-bullets.svg"
     },
     {
       "name": "Matches",
@@ -177,7 +177,7 @@
       "type": "item",
       "text": "+1 food after any battle win or tie (passive)",
       "value": 4,
-      "icon": "🔥"
+      "icon": "SVGs/matchbox.svg"
     },
     {
       "name": "Pain meds",
@@ -188,7 +188,7 @@
         "sanity": 1
       },
       "value": 4.1,
-      "icon": "💊"
+      "icon": "SVGs/medicine-pills.svg"
     },
     {
       "name": "Pain meds",
@@ -199,10 +199,10 @@
         "sanity": 1
       },
       "value": 4.1,
-      "icon": "💊"
+      "icon": "SVGs/medicine-pills.svg"
     },
     {
-      "name": "Blackberries",
+      "name": "Cherries",
       "location": "road",
       "type": "gather",
       "effects": {
@@ -210,16 +210,16 @@
         "health": 1
       },
       "value": 5,
-      "icon": "🫐"
+      "icon": "SVGs/cherry.svg"
     },
     {
-      "name": "Area map",
+      "name": "Area Map",
       "location": "road",
       "type": "item",
       "text": "Passive: Slots 2 & 3 cost 1 less food",
       "uses": 1,
       "value": 5,
-      "icon": "🗺️"
+      "icon": "SVGs/treasure-map.svg"
     },
     {
       "name": "Hammer",
@@ -229,7 +229,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 5,
-      "icon": "🔨"
+      "icon": "SVGs/claw-hammer.svg"
     },
     {
       "name": "Hiking sticks",
@@ -238,7 +238,7 @@
       "uses": 5,
       "move": 1,
       "value": 4.5,
-      "icon": "🪄"
+      "icon": "SVGs/hiking.svg"
     },
     {
       "name": "Strawberries",
@@ -249,7 +249,7 @@
         "sanity": 1
       },
       "value": 5.1,
-      "icon": "🍓"
+      "icon": "SVGs/strawberry.svg"
     },
     {
       "name": "Stash of ration packs",
@@ -258,7 +258,7 @@
       "text": "Passive: Absorbs starvation — sets food to 1 instead of starving (5 uses)",
       "uses": 5,
       "value": 5.5,
-      "icon": "🎒"
+      "icon": "SVGs/cardboard-box-closed.svg"
     },
     {
       "name": "First aid kit (tainted)",
@@ -269,7 +269,7 @@
         "mutation": 1
       },
       "value": 5.5,
-      "icon": "🧬"
+      "icon": "SVGs/first-aid-kit_tainted.svg"
     },
     {
       "name": "Luminous vial",
@@ -280,7 +280,7 @@
         "mutation": 1
       },
       "value": 5.9,
-      "icon": "✨"
+      "icon": "SVGs/vial.svg"
     },
     {
       "name": "Holster",
@@ -288,7 +288,7 @@
       "type": "item",
       "text": "+2 STR when using ranged or explosive weapon in battle",
       "value": 6,
-      "icon": "🔫"
+      "icon": "SVGs/cowboy-holster.svg"
     },
     {
       "name": "Fish",
@@ -299,7 +299,7 @@
         "health": 1
       },
       "value": 6,
-      "icon": "🐟"
+      "icon": "SVGs/fish-cooked.svg"
     },
     {
       "name": "First aid kit",
@@ -309,7 +309,7 @@
         "health": 3
       },
       "value": 6,
-      "icon": "🩹"
+      "icon": "SVGs/first-aid-kit.svg"
     },
     {
       "name": "First aid kit",
@@ -319,16 +319,16 @@
         "health": 3
       },
       "value": 6,
-      "icon": "🩹"
+      "icon": "SVGs/first-aid-kit.svg"
     },
     {
-      "name": "Flashlight",
+      "name": "Torch",
       "location": "road",
       "type": "item",
       "text": "At the start of your turn, may use to increase sanity by 1",
       "uses": 3,
       "value": 6,
-      "icon": "🔦"
+      "icon": "SVGs/primitive-torch.svg"
     },
     {
       "name": "Preserved meat",
@@ -339,7 +339,7 @@
         "sanity": 1
       },
       "value": 6.1,
-      "icon": "🥩"
+      "icon": "SVGs/meat.svg"
     },
     {
       "name": "Splint",
@@ -350,7 +350,7 @@
         "sanity": 1
       },
       "value": 6.1,
-      "icon": "🩹"
+      "icon": "SVGs/arm-bandage.svg"
     },
     {
       "name": "Medicinal herbs",
@@ -361,7 +361,7 @@
         "sanity": 2
       },
       "value": 6.2,
-      "icon": "🌿"
+      "icon": "SVGs/herbs-bundle.svg"
     },
     {
       "name": "Fresh clothes",
@@ -371,7 +371,7 @@
         "sanity": 3
       },
       "value": 6.3,
-      "icon": "👕"
+      "icon": "SVGs/t-shirt.svg"
     },
     {
       "name": "Backpack",
@@ -379,7 +379,7 @@
       "type": "item",
       "text": "Expand max food to 10",
       "value": 7,
-      "icon": "🎒"
+      "icon": "SVGs/knapsack.svg"
     },
     {
       "name": "Grenade",
@@ -389,7 +389,7 @@
       "uses": 1,
       "weapon_class": "explosive",
       "value": 7,
-      "icon": "💣"
+      "icon": "SVGs/rolling-bomb.svg"
     },
     {
       "name": "Chocolate bar",
@@ -400,7 +400,7 @@
         "sanity": 3
       },
       "value": 7.3,
-      "icon": "🍫"
+      "icon": "SVGs/chocolate-bar.svg"
     },
     {
       "name": "Small car",
@@ -412,7 +412,7 @@
       "icon": "🚗"
     },
     {
-      "name": "Joke book",
+      "name": "Can of soda",
       "location": "road",
       "type": "gather",
       "effects": {
@@ -420,7 +420,7 @@
         "sanity": 3
       },
       "value": 8.3,
-      "icon": "📖"
+      "icon": "SVGs/soda-can.svg"
     },
     {
       "name": "Bikes",
@@ -437,7 +437,7 @@
       "type": "item",
       "text": "Reduce threat cost on slots 4 and 5 by 1",
       "value": 10,
-      "icon": "🔭"
+      "icon": "SVGs/binoculars.svg"
     },
     {
       "name": "Handgun",
@@ -447,15 +447,15 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 10,
-      "icon": "🔫"
+      "icon": "SVGs/pistol-gun.svg"
     },
     {
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "+1 move",
+      "text": "???",
       "value": 10,
-      "icon": "🧭"
+      "icon": "SVGs/compass.svg"
     },
     {
       "name": "Tent",
@@ -464,7 +464,7 @@
       "text": "Passive: When you gain health from a gather card, +1 extra health",
       "uses": 2,
       "value": 10,
-      "icon": "⛺"
+      "icon": "SVGs/camping-tent.svg"
     },
     {
       "name": "Firestarter kit",
@@ -472,7 +472,7 @@
       "type": "item",
       "text": "When you gain food, +1 food",
       "value": 10,
-      "icon": "🔥"
+      "icon": "SVGs/flint-spark.svg"
     },
     {
       "name": "Shovel",
@@ -482,7 +482,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 10,
-      "icon": "⛏️"
+      "icon": "SVGs/spade.svg"
     },
     {
       "name": "Minivan",
@@ -501,7 +501,7 @@
       "uses": 3,
       "weapon_class": "ranged",
       "value": 12,
-      "icon": "🏹"
+      "icon": "SVGs/bow-arrow.svg"
     },
     {
       "name": "Shotgun",
@@ -511,7 +511,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 12,
-      "icon": "🔫"
+      "icon": "SVGs/sawed-off-shotgun.svg"
     },
     {
       "name": "Service van",
@@ -558,7 +558,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 15,
-      "icon": "🪓"
+      "icon": "SVGs/hatchet.svg"
     },
     {
       "name": "Scoped Rifle",
@@ -600,7 +600,7 @@
         "food": 1
       },
       "value": 1,
-      "icon": "🌰"
+      "icon": "SVGs/acorn.svg"
     },
     {
       "name": "Stick",
@@ -610,7 +610,7 @@
       "uses": 2,
       "weapon_class": "melee",
       "value": 2,
-      "icon": "🪵"
+      "icon": "SVGs/wood-stick.svg"
     },
     {
       "name": "Pitchfork",
@@ -620,7 +620,7 @@
       "uses": 4,
       "weapon_class": "melee",
       "value": 8,
-      "icon": "🔱"
+      "icon": "SVGs/pitchfork.svg"
     },
     {
       "name": "Wrench",
@@ -630,7 +630,7 @@
       "uses": 4,
       "weapon_class": "melee",
       "value": 4,
-      "icon": "🔧"
+      "icon": "SVGs/monkey-wrench.svg"
     },
     {
       "name": "Scooter",
@@ -667,7 +667,7 @@
         "food": 1
       },
       "value": 1,
-      "icon": "🐛"
+      "icon": "SVGs/cricket.svg"
     },
     {
       "name": "Canned goods haul",
@@ -807,7 +807,7 @@
       "strength": 5,
       "uses": 4,
       "value": 20,
-      "icon": "🏹"
+      "icon": "SVGs/bow-arrow.svg"
     },
     {
       "name": "Armoured APC",
@@ -828,7 +828,7 @@
         "mutation": 1
       },
       "value": 2,
-      "icon": "🩹"
+      "icon": "SVGs/invisible-face.svg"
     },
     {
       "name": "duster",
@@ -840,7 +840,7 @@
         "sanity": 1
       },
       "value": 6,
-      "icon": "🧥"
+      "icon": "SVGs/pirate-coat.svg"
     },
     {
       "name": "hunting jacket",
@@ -851,7 +851,7 @@
         "health": 3
       },
       "value": 6,
-      "icon": "🫱"
+      "icon": "SVGs/sleeveless-jacket.svg"
     },
     {
       "name": "hiking boots",
@@ -862,7 +862,7 @@
         "sanity": 2
       },
       "value": 4,
-      "icon": "👢"
+      "icon": "SVGs/steeltoe-boots.svg"
     },
     {
       "name": "leather gloves",
@@ -874,7 +874,7 @@
         "sanity": 1
       },
       "value": 4,
-      "icon": "🧤"
+      "icon": "SVGs/gloves.svg"
     },
     {
       "name": "fur hat",
@@ -885,7 +885,7 @@
         "sanity": 2
       },
       "value": 4,
-      "icon": "🎩"
+      "icon": "SVGs/ushanka.svg"
     },
     {
       "name": "steel toe boots",
@@ -897,7 +897,7 @@
         "sanity": 2
       },
       "value": 6,
-      "icon": "🥾"
+      "icon": "SVGs/steeltoe-boots.svg"
     },
     {
       "name": "raincoat",
