@@ -22,8 +22,9 @@ No build step required.
 ## Project Structure
 
 ```
-index.html          # Game HTML and JS (~4,000 lines)
-style.css           # All game CSS (~3,100 lines)
+index.html          # Welcome screen: lore, difficulty selection, links to game/rules
+game.html           # Full game: all dialogs, boards, game JS (~4,000 lines)
+style.css           # All CSS shared by index.html and game.html (~3,100 lines)
 catalog.html        # Card catalog viewer (reads from JSON, no game logic)
 loot-deck.json      # Loot cards (weapons, armor, items, gather)
 threat-deck.json    # 36 threat cards (break/setback/monster) across 3 locations
@@ -35,7 +36,7 @@ README.md
 
 ## Key Architecture Notes
 
-Game logic and UI live in `index.html`; all styling lives in `style.css`. There is no build output or compiled artifact.
+`index.html` is the welcome screen. On difficulty selection it saves settings to `sessionStorage` and navigates to `game.html`. `game.html` reads those settings on load, immediately shows the starting gear dialog, then starts the game. All styling lives in `style.css`. There is no build output or compiled artifact.
 
 **Game state** is managed in JavaScript variables (no localStorage, no backend).
 
@@ -60,12 +61,12 @@ All three JSON decks follow a similar schema:
 }
 ```
 
-Item cards also carry a `mechanism` field that drives all item special behavior — see the MECHANISM ENGINE block in `index.html`.
+Item cards also carry a `mechanism` field that drives all item special behavior — see the MECHANISM ENGINE block in `game.html`.
 
 ## Editing Guidelines
 
 - **CSS changes go in `style.css`** — the file mirrors the structure of the HTML so sections are easy to find.
-- **Game logic changes go in `index.html`** — use Grep on function names to locate them quickly.
+- **Game logic changes go in `game.html`** — use Grep on function names to locate them quickly.
 - **Card balance changes go in the JSON files** — each card has a `value` field for tracking relative power.
 - When adding new cards, follow the existing schema exactly; the game engine reads specific property names.
 - The three locations have intentionally escalating difficulty — keep that in mind when adding/adjusting cards.
@@ -74,9 +75,9 @@ Item cards also carry a `mechanism` field that drives all item special behavior 
 
 **Add a new loot card**: Edit `loot-deck.json`, follow the existing schema for the appropriate type.
 
-**Change game stats or balancing**: Search `index.html` for the relevant mechanic (e.g., `starvation`, `battleResult`, `threatCost`).
+**Change game stats or balancing**: Search `game.html` for the relevant mechanic (e.g., `starvation`, `battleResult`, `threatCost`).
 
-**Find a specific game mechanic**: Use Grep on `index.html` — the JS starts around line 110.
+**Find a specific game mechanic**: Use Grep on `game.html` — the JS starts around line 640.
 
 **Browse all cards visually**: Open `catalog.html` via the local server.
 
