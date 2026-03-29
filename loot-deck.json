@@ -529,7 +529,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 17.5,
-      "icon": "🦅"
+      "icon": "SVGs/claw.svg"
     },
     {
       "name": "Acorns",
@@ -609,7 +609,7 @@
         "food": 5
       },
       "value": 5,
-      "icon": "🥫"
+      "icon": "SVGs/canned-fish.svg"
     },
     {
       "name": "Survivor's journal",
@@ -621,7 +621,7 @@
         "health": 1
       },
       "value": 8,
-      "icon": "📓"
+      "icon": "SVGs/bookmark.svg"
     },
     {
       "name": "Walkie-talkie",
@@ -642,7 +642,7 @@
       "strength": 4,
       "uses": 6,
       "value": 22,
-      "icon": "🔪"
+      "icon": "SVGs/machete.svg"
     },
     {
       "name": "Flare gun",
@@ -653,7 +653,7 @@
       "strength": 5,
       "uses": 2,
       "value": 10,
-      "icon": "🔦"
+      "icon": "SVGs/flare-gun.svg"
     },
     {
       "name": "Fungal growth",
@@ -812,7 +812,7 @@
         "sanity": 2
       },
       "value": 6,
-      "icon": "🌧️"
+      "icon": "SVGs/hooded-figure.svg"
     },
     {
       "name": "hockey pads",
@@ -835,7 +835,7 @@
         "mutation": 1
       },
       "value": 4,
-      "icon": "🪖"
+      "icon": "SVGs/full-motorcycle-helmet.svg"
     },
     {
       "name": "construction mask",
@@ -953,65 +953,59 @@
       "name": "Bottled water",
       "location": "sprawl",
       "type": "gather",
-      "text": "Clean water is rarer than you remember.",
       "effects": {
         "health": 2,
         "sanity": 1
       },
       "value": 5,
-      "icon": "💧"
+      "icon": "SVGs/water-bottle.svg"
     },
     {
       "name": "Dried rations",
       "location": "sprawl",
       "type": "gather",
-      "text": "Vacuum-sealed. Still good.",
       "effects": {
         "food": 4
       },
       "value": 4,
-      "icon": "🍱"
+      "icon": "SVGs/cardboard-box-closed.svg"
     },
     {
       "name": "Looted pharmacy",
       "location": "sprawl",
       "type": "gather",
-      "text": "Pills without labels — probably fine.",
       "effects": {
         "health": 3,
         "sanity": -1
       },
       "value": 4,
-      "icon": "💊"
+      "icon": "SVGs/medicine-pills.svg"
     },
     {
       "name": "Photo album",
       "location": "sprawl",
       "type": "gather",
-      "text": "Someone else's memories. They help.",
       "effects": {
         "sanity": 3
       },
       "value": 5,
-      "icon": "📷"
+      "icon": "SVGs/photo-album.svg"
     },
     {
       "name": "Blood transfusion kit",
       "location": "sprawl",
       "type": "gather",
-      "text": "The blood isn't quite right, but it works.",
       "effects": {
         "health": 5,
         "mutation": 2
       },
       "value": 5,
-      "icon": "🩸"
+      "icon": "SVGs/medical-drip.svg"
     },
     {
       "name": "Protein vat",
       "location": "hive",
       "type": "gather",
-      "text": "You don't want to know what's in it.",
       "effects": {
         "food": 6,
         "mutation": 1
@@ -1023,7 +1017,6 @@
       "name": "Neural patch",
       "location": "hive",
       "type": "gather",
-      "text": "Calms the noise. Changes something else.",
       "effects": {
         "sanity": 5,
         "mutation": 2
@@ -1035,7 +1028,6 @@
       "name": "Bone broth",
       "location": "hive",
       "type": "gather",
-      "text": "Rendered from whatever they left behind.",
       "effects": {
         "food": 3,
         "health": 2
@@ -1047,7 +1039,6 @@
       "name": "Distilled spirits",
       "location": "hive",
       "type": "gather",
-      "text": "Gets you through the night.",
       "effects": {
         "sanity": 4,
         "health": -1
@@ -1059,7 +1050,6 @@
       "name": "Irradiated supplement",
       "location": "hive",
       "type": "gather",
-      "text": "High cost, but the Hive takes everything.",
       "effects": {
         "health": 5,
         "mutation": 3
