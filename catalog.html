@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Road — Card Catalog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0b08;
+      --surface:  #141210;
+      --border:   #3a2e1e;
+      --gold:     #c8962a;
+      --gold-dim: #6b4f18;
+      --card-w:   120px;
+      --card-h:   168px;
+    }
+
+    body {
+      background: var(--bg);
+      color: #d8cbb8;
+      font-family: 'Spectral', serif;
+      padding: 32px 24px 64px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.6rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 0.1em;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b5f48;
+      margin-bottom: 40px;
+      font-family: 'Spectral', serif;
+    }
+
+    /* ── Section headings ── */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 24px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '▾';
+      font-size: 0.8rem;
+      transition: transform 0.2s;
+    }
+    .section-title.collapsed::before {
+      transform: rotate(-90deg);
+    }
+    .section-title .card-count {
+      font-family: 'Spectral', serif;
+      font-size: 0.75rem;
+      color: #6b5f48;
+      margin-left: auto;
+    }
+
+    .section-body {
+      overflow: hidden;
+    }
+    .section-body.collapsed {
+      display: none;
+    }
+
+    .group {
+      margin-bottom: 32px;
+    }
+
+    .group-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      color: #8a7a58;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 14px;
+      padding-left: 4px;
+      border-left: 2px solid var(--gold-dim);
+      padding-left: 10px;
+    }
+
+    .card-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding-left: 4px;
+    }
+
+    /* ── Loot card ── */
+    .loot-card {
+      width: var(--card-w);
+      height: var(--card-h);
+      background: #1a1610;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 8px 8px 6px;
+      gap: 4px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .loot-card:hover {
+      border-color: var(--gold-dim);
+      box-shadow: 0 4px 20px rgba(200,150,42,0.12);
+    }
+
+    /* ── Threat card ── */
+    .threat-card {
+      width: var(--card-w);
+      height: var(--card-h);
+      background: #160f0f;
+      border: 1px solid #3a1e1e;
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 8px 8px 6px;
+      gap: 4px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .threat-card:hover {
+      border-color: #6b3030;
+      box-shadow: 0 4px 20px rgba(200,50,50,0.12);
+    }
+    .ttype-monster { border-color: #5a1e1e !important; }
+    .ttype-setback { border-color: #3a2e10 !important; }
+    .ttype-break   { border-color: #1e3a1e !important; }
+
+    /* ── Mutant card ── */
+    .mutant-card {
+      width: var(--card-w);
+      height: var(--card-h);
+      background: #140e1a;
+      border: 1px solid #3a1e5a;
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 8px 8px 6px;
+      gap: 4px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mutant-card:hover {
+      border-color: #7a3ea8;
+      box-shadow: 0 4px 20px rgba(120,50,200,0.14);
+    }
+
+    /* ── Shared card internals ── */
+    .card-type-badge {
+      font-size: 0.44rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 2px;
+      align-self: flex-start;
+      line-height: 1.6;
+    }
+    .badge-gather  { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
+    .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
+    .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
+    .badge-vehicle { background: rgba(180,120,20,0.3);  color: #d8a040; border: 1px solid rgba(180,120,20,0.55); }
+    .badge-armor   { background: rgba(80,140,200,0.28); color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
+    .badge-mutant  { background: rgba(140,60,200,0.3);  color: #c080f0; border: 1px solid rgba(140,60,200,0.5); }
+    .ttype-break   { background: rgba(60,120,60,0.3);   color: #80c880; border: 1px solid rgba(60,120,60,0.5); }
+    .ttype-setback { background: rgba(160,120,30,0.3);  color: #d8a848; border: 1px solid rgba(160,120,30,0.5); }
+    .ttype-monster { background: rgba(180,40,40,0.35);  color: #e06060; border: 1px solid rgba(180,40,40,0.6); }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: #f0e8d8;
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+    }
+
+    .card-icon-img {
+      font-size: 1.8rem;
+      line-height: 1;
+      text-align: center;
+      display: block;
+      margin: 2px auto 2px;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+      align-self: center;
+    }
+    img.card-icon-img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      font-size: unset;
+      display: block;
+      margin: 2px auto 2px;
+    }
+
+    .card-divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin: 1px 0;
+      width: 100%;
+    }
+
+    .card-effects { display: flex; flex-wrap: wrap; gap: 3px; }
+
+    .effect-chip {
+      font-size: 0.5rem;
+      padding: 1px 4px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-family: 'Spectral', serif;
+    }
+    .effect-chip .ef-icon { font-size: 0.75rem; line-height: 1; }
+    .ef-food     { color: #e08c28; }
+    .ef-health   { color: #e05050; }
+    .ef-sanity   { color: #6688dd; }
+    .ef-mutation { color: #aa60e0; }
+    .ef-pos      { color: #ddd0b8; }
+    .ef-neg      { color: #e05050; }
+
+    .card-stat {
+      font-size: 0.5rem;
+      color: #b89848;
+      font-family: 'Spectral', serif;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-text {
+      font-family: 'Spectral', serif;
+      font-size: 0.48rem;
+      color: #c8bca8;
+      line-height: 1.4;
+      margin-top: auto;
+    }
+
+    .card-value {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 0.4rem;
+      color: var(--gold-dim);
+      opacity: 0.4;
+      font-family: 'Spectral', serif;
+    }
+
+    /* ── Duplicate badge ── */
+    .card-dupe-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 0.38rem;
+      background: rgba(200,150,42,0.15);
+      color: var(--gold-dim);
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      padding: 0 4px;
+      font-family: 'Spectral', serif;
+    }
+
+    /* ── View toggle ── */
+    .view-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+    .view-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-dim);
+      padding: 5px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+    }
+    .view-btn:hover, .view-btn.active {
+      background: rgba(200,150,42,0.12);
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* ── Tally row ── */
+    .group-tally {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding-left: 4px;
+    }
+    .tally-chip {
+      font-family: 'Spectral', serif;
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      color: #8a7a58;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .tally-chip .tally-type {
+      text-transform: capitalize;
+      color: #6b5f48;
+    }
+    .tally-chip .tally-n {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ── Loading ── */
+    #loading {
+      text-align: center;
+      padding: 60px;
+      color: #6b5f48;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+    }
+    #error-msg {
+      display: none;
+      text-align: center;
+      color: #e05050;
+      padding: 40px;
+      font-family: 'Spectral', serif;
+    }
+  </style>
+</head>
+<body>
+
+<h1>The Road</h1>
+<p class="subtitle">Card Catalog — dynamically loaded from JSON</p>
+
+<div id="loading">Loading decks…</div>
+<div id="error-msg"></div>
+
+<div id="view-bar" class="view-bar" style="display:none">
+  <button class="view-btn active" data-view="location">By Location</button>
+  <button class="view-btn" data-view="type">By Type</button>
+</div>
+
+<div id="catalog" style="display:none"></div>
+
+<script>
+  const EFFECT_META = {
+    food:     { icon: '🍖', cls: 'ef-food',     label: 'Food' },
+    health:   { icon: '❤',  cls: 'ef-health',   label: 'Health' },
+    sanity:   { icon: '🧠', cls: 'ef-sanity',   label: 'Sanity' },
+    mutation: { icon: '☣',  cls: 'ef-mutation', label: 'Mutation' },
+  };
+
+  const LOCATIONS = ['road', 'sprawl', 'hive'];
+  const LOCATION_LABELS = { road: 'The Road', sprawl: 'The Sprawl', hive: 'The Hive' };
+  const LOOT_TYPES  = ['gather', 'weapon', 'armor', 'item'];
+  const THREAT_TYPES = ['break', 'setback', 'monster'];
+
+  /* ── Icon helper ── */
+  function createIconEl(icon, name, className) {
+    if (!icon) return null;
+    if (icon.toLowerCase().endsWith('.svg') || icon.toLowerCase().endsWith('.png')) {
+      const img = document.createElement('img');
+      img.src = icon;
+      img.alt = name || '';
+      img.className = className;
+      return img;
+    }
+    const span = document.createElement('span');
+    span.className = className;
+    span.textContent = icon;
+    return span;
+  }
+
+  /* ── Render loot card ── */
+  function renderLootCard(card, dupeCount) {
+    const wrap = document.createElement('div');
+    wrap.className = 'loot-card';
+
+    const badge = document.createElement('div');
+    badge.className = `card-type-badge badge-${card.type}`;
+    badge.textContent = card.type;
+    wrap.appendChild(badge);
+
+    if (dupeCount > 1) {
+      const dupe = document.createElement('div');
+      dupe.className = 'card-dupe-badge';
+      dupe.textContent = `×${dupeCount}`;
+      wrap.appendChild(dupe);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    const iconEl = createIconEl(card.icon, card.name, 'card-icon-img');
+    if (iconEl) wrap.appendChild(iconEl);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    if (card.effects && Object.keys(card.effects).length > 0) {
+      const efRow = document.createElement('div');
+      efRow.className = 'card-effects';
+      for (const [key, val] of Object.entries(card.effects)) {
+        const meta = EFFECT_META[key];
+        if (!meta) continue;
+        const chip = document.createElement('div');
+        chip.className = 'effect-chip';
+        const ico = document.createElement('span');
+        ico.className = `ef-icon ${meta.cls}`;
+        ico.textContent = meta.icon;
+        const num = document.createElement('span');
+        num.className = val >= 0 ? 'ef-pos' : 'ef-neg';
+        num.textContent = (val > 0 ? '+' : '') + val;
+        chip.appendChild(ico); chip.appendChild(num);
+        efRow.appendChild(chip);
+      }
+      wrap.appendChild(efRow);
+    }
+
+    if (card.strength != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      const classTag = card.weapon_class ? ` · ${card.weapon_class}` : '';
+      stat.textContent = `⚔ STR ${card.strength}${classTag}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(stat);
+    }
+    if (card.move != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      stat.textContent = `🚗 MOVE ${card.move}` + (card.uses ? ` · ${card.uses} uses` : '');
+      wrap.appendChild(stat);
+    }
+    if (card.absorb != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
+      stat.textContent = `🛡 Absorbs: ${parts}`;
+      wrap.appendChild(stat);
+      const slotTag = document.createElement('div');
+      slotTag.className = 'card-stat';
+      slotTag.textContent = `📍 ${card.armor_slot}`;
+      wrap.appendChild(slotTag);
+    }
+    if (card.text) {
+      const txt = document.createElement('div');
+      txt.className = 'card-text';
+      txt.textContent = card.text;
+      wrap.appendChild(txt);
+    }
+    if (card.mechanism) {
+      const txt = document.createElement('div');
+      txt.className = 'card-text';
+      txt.textContent = mechanismSummary(card.mechanism);
+      wrap.appendChild(txt);
+    }
+
+    const val = document.createElement('div');
+    val.className = 'card-value';
+    val.textContent = card.value;
+    wrap.appendChild(val);
+
+    return wrap;
+  }
+
+  /* ── Render threat card ── */
+  function renderThreatCard(card, dupeCount) {
+    const wrap = document.createElement('div');
+    wrap.className = `threat-card ttype-${card.type}`;
+
+    const badge = document.createElement('div');
+    badge.className = `card-type-badge ttype-${card.type}`;
+    badge.textContent = card.type;
+    wrap.appendChild(badge);
+
+    if (dupeCount > 1) {
+      const dupe = document.createElement('div');
+      dupe.className = 'card-dupe-badge';
+      dupe.textContent = `×${dupeCount}`;
+      wrap.appendChild(dupe);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    const iconEl = createIconEl(card.icon, card.name, 'card-icon-img');
+    if (iconEl) wrap.appendChild(iconEl);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    if (card.effects && Object.keys(card.effects).length > 0) {
+      const efRow = document.createElement('div');
+      efRow.className = 'card-effects';
+      for (const [key, val] of Object.entries(card.effects)) {
+        const meta = EFFECT_META[key];
+        if (!meta) continue;
+        const chip = document.createElement('div');
+        chip.className = 'effect-chip';
+        const ico = document.createElement('span');
+        ico.className = `ef-icon ${meta.cls}`;
+        ico.textContent = meta.icon;
+        const num = document.createElement('span');
+        num.className = val >= 0 ? 'ef-pos' : 'ef-neg';
+        num.textContent = (val > 0 ? '+' : '') + val;
+        chip.appendChild(ico); chip.appendChild(num);
+        efRow.appendChild(chip);
+      }
+      wrap.appendChild(efRow);
+    }
+
+    if (card.strength != null) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      stat.textContent = `⚔ STR ${card.strength}`;
+      wrap.appendChild(stat);
+    }
+    if (card.damage) {
+      const stat = document.createElement('div');
+      stat.className = 'card-stat';
+      const parts = Object.entries(card.damage).map(([k,v]) => `${v > 0 ? '+' : ''}${v} ${k}`).join(', ');
+      stat.textContent = `💥 Tie/loss: ${parts}`;
+      wrap.appendChild(stat);
+    }
+    if (card.type === 'break') {
+      const txt = document.createElement('div');
+      txt.className = 'card-text';
+      txt.textContent = 'Clear path — no threat.';
+      wrap.appendChild(txt);
+    }
+
+    return wrap;
+  }
+
+  /* ── Render mutant card ── */
+  function renderMutantCard(card) {
+    const wrap = document.createElement('div');
+    wrap.className = 'mutant-card';
+
+    const badge = document.createElement('div');
+    badge.className = 'card-type-badge badge-mutant';
+    badge.textContent = 'mutant';
+    wrap.appendChild(badge);
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    const iconEl = createIconEl(card.icon, card.name, 'card-icon-img');
+    if (iconEl) wrap.appendChild(iconEl);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    const txt = document.createElement('div');
+    txt.className = 'card-text';
+    txt.textContent = card.text;
+    wrap.appendChild(txt);
+
+    return wrap;
+  }
+
+  /* ── Human-readable mechanism summary ── */
+  function mechanismSummary(m) {
+    if (!m) return '';
+    switch (m.type) {
+      case 'passive_event': {
+        const triggerLabel = {
+          battle_win_or_tie: 'On battle win/tie',
+          gather_gain: `On gain ${m.stat_filter ?? 'any stat'}`,
+          starvation: 'On starvation',
+        }[m.trigger] ?? m.trigger;
+        const eff = m.effect ? Object.entries(m.effect).map(([k,v]) => `${v>0?'+':''}${v} ${k}`).join(', ') : '';
+        return `Passive: ${triggerLabel} → ${eff}`;
+      }
+      case 'cost_modifier': {
+        const slotLabel = m.slots ? `slots ${m.slots.join('/')}` : 'all slots';
+        return `Passive: ${slotLabel} cost ${m.amount > 0 ? '+' : ''}${m.amount} ${m.cost} (min ${m.min ?? 0})`;
+      }
+      case 'battle_str': {
+        const cond = m.weapon_classes ? m.weapon_classes.join('/') : 'any';
+        return `Passive: +${m.bonus} STR with ${cond} weapon`;
+      }
+      case 'active': {
+        const timingLabel = { turn_start: 'Turn start', pre_pick: 'Before pick', pre_battle: 'Before battle' }[m.timing] ?? m.timing;
+        const eff = typeof m.effect === 'string'
+          ? m.effect.replace(/_/g, ' ')
+          : Object.entries(m.effect).map(([k,v]) => `${v>0?'+':''}${v} ${k}`).join(', ');
+        return `Active (${timingLabel}): ${eff}${m.bonus ? ` +${m.bonus}` : ''}`;
+      }
+      case 'instant': {
+        return `Instant: ${m.effect.replace(/_/g, ' ')}${m.weapon_class ? ` (${m.weapon_class})` : ''}`;
+      }
+      case 'capacity': {
+        return `Capacity: ${m.stat} max → ${m.max}`;
+      }
+      case 'protection': {
+        return `Protection: ${m.effect.replace(/_/g, ' ')} on ${m.trigger}`;
+      }
+      default:
+        return `${m.type}`;
+    }
+  }
+
+  /* ── Group cards, collapsing duplicates ── */
+  function collapsedupes(cards) {
+    const seen = new Map();
+    for (const card of cards) {
+      const key = card.name;
+      if (seen.has(key)) {
+        seen.get(key).count++;
+      } else {
+        seen.set(key, { card, count: 1 });
+      }
+    }
+    return [...seen.values()];
+  }
+
+  /* ── Build section with collapse toggle ── */
+  function buildSection(title, bodyFn) {
+    const section = document.createElement('div');
+    section.className = 'section';
+
+    const heading = document.createElement('div');
+    heading.className = 'section-title';
+    heading.textContent = title;
+
+    const countSpan = document.createElement('span');
+    countSpan.className = 'card-count';
+    heading.appendChild(countSpan);
+
+    const body = document.createElement('div');
+    body.className = 'section-body';
+
+    heading.addEventListener('click', () => {
+      heading.classList.toggle('collapsed');
+      body.classList.toggle('collapsed');
+    });
+
+    section.appendChild(heading);
+    section.appendChild(body);
+
+    const totalCards = bodyFn(body);
+    countSpan.textContent = `${totalCards} cards`;
+
+    return section;
+  }
+
+  /* ── Build a card group (sub-heading + card row) ── */
+  function buildGroup(label, cardEls, count) {
+    if (cardEls.length === 0) return null;
+    const group = document.createElement('div');
+    group.className = 'group';
+    const title = document.createElement('div');
+    title.className = 'group-title';
+    const displayCount = count ?? cardEls.length;
+    title.textContent = `${label} · ${displayCount}`;
+    group.appendChild(title);
+    const row = document.createElement('div');
+    row.className = 'card-row';
+    cardEls.forEach(el => row.appendChild(el));
+    group.appendChild(row);
+    return group;
+  }
+
+  /* ── Build a tally row from {type → count} map ── */
+  function buildTallyRow(tallies) {
+    const row = document.createElement('div');
+    row.className = 'group-tally';
+    for (const [type, n] of Object.entries(tallies)) {
+      if (!n) continue;
+      const chip = document.createElement('div');
+      chip.className = 'tally-chip';
+      chip.innerHTML = `<span class="tally-type">${type}</span><span class="tally-n">${n}</span>`;
+      row.appendChild(chip);
+    }
+    return row;
+  }
+
+  /* ── Main render ── */
+  let allLoot = [], allThreats = [], allMutants = [];
+  let currentView = 'location';
+
+  function renderCatalog() {
+    const catalog = document.getElementById('catalog');
+    catalog.innerHTML = '';
+
+    /* ─── 1. LOOT ─── */
+    catalog.appendChild(buildSection('1. Loot Cards', body => {
+      let total = 0;
+
+      if (currentView === 'location') {
+        for (const loc of LOCATIONS) {
+          const locCards = allLoot.filter(c => (c.location ?? '').toLowerCase() === loc);
+          if (!locCards.length) continue;
+
+          const locGroup = document.createElement('div');
+          locGroup.className = 'group';
+          const locTitle = document.createElement('div');
+          locTitle.className = 'group-title';
+          locTitle.textContent = `${LOCATION_LABELS[loc] ?? loc} · ${locCards.length}`;
+          locGroup.appendChild(locTitle);
+
+          // Tally by type for this location
+          const tallies = {};
+          for (const type of LOOT_TYPES) {
+            const n = locCards.filter(c => c.type === type).length;
+            if (n) tallies[type] = n;
+          }
+          locGroup.appendChild(buildTallyRow(tallies));
+
+          for (const type of LOOT_TYPES) {
+            const typeCards = locCards.filter(c => c.type === type);
+            if (!typeCards.length) continue;
+            const duped = collapsedupes(typeCards);
+            const cardEls = duped.map(({ card, count }) => renderLootCard(card, count));
+            const sub = buildGroup(type, cardEls, typeCards.length);
+            if (sub) locGroup.appendChild(sub);
+            total += typeCards.length;
+          }
+          body.appendChild(locGroup);
+        }
+      } else {
+        // by type — show location breakdown in tally
+        for (const type of LOOT_TYPES) {
+          const typeCards = allLoot.filter(c => c.type === type);
+          if (!typeCards.length) continue;
+          const duped = collapsedupes(typeCards);
+          const cardEls = duped.map(({ card, count }) => renderLootCard(card, count));
+          const group = buildGroup(type, cardEls, typeCards.length);
+          if (group) {
+            const tallies = {};
+            for (const loc of LOCATIONS) {
+              const n = typeCards.filter(c => (c.location ?? '').toLowerCase() === loc).length;
+              if (n) tallies[LOCATION_LABELS[loc]] = n;
+            }
+            group.insertBefore(buildTallyRow(tallies), group.querySelector('.card-row'));
+            body.appendChild(group);
+          }
+          total += typeCards.length;
+        }
+      }
+      return total;
+    }));
+
+    /* ─── 2. THREATS ─── */
+    catalog.appendChild(buildSection('2. Threat Cards', body => {
+      let total = 0;
+
+      const threatLocs = ['The Road', 'The Sprawl', 'The Hive'];
+      if (currentView === 'location') {
+        for (const loc of threatLocs) {
+          const locCards = allThreats.filter(c => c.location === loc);
+          if (!locCards.length) continue;
+
+          const locGroup = document.createElement('div');
+          locGroup.className = 'group';
+          const locTitle = document.createElement('div');
+          locTitle.className = 'group-title';
+          locTitle.textContent = `${loc} · ${locCards.length}`;
+          locGroup.appendChild(locTitle);
+
+          const tallies = {};
+          for (const type of THREAT_TYPES) {
+            const n = locCards.filter(c => c.type === type).length;
+            if (n) tallies[type] = n;
+          }
+          locGroup.appendChild(buildTallyRow(tallies));
+
+          for (const type of THREAT_TYPES) {
+            const typeCards = locCards.filter(c => c.type === type);
+            if (!typeCards.length) continue;
+            const duped = collapsedupes(typeCards);
+            const cardEls = duped.map(({ card, count }) => renderThreatCard(card, count));
+            const sub = buildGroup(type, cardEls, typeCards.length);
+            if (sub) locGroup.appendChild(sub);
+            total += typeCards.length;
+          }
+          body.appendChild(locGroup);
+        }
+      } else {
+        for (const type of THREAT_TYPES) {
+          const typeCards = allThreats.filter(c => c.type === type);
+          if (!typeCards.length) continue;
+          const duped = collapsedupes(typeCards);
+          const cardEls = duped.map(({ card, count }) => renderThreatCard(card, count));
+          const group = buildGroup(type, cardEls, typeCards.length);
+          if (group) {
+            const tallies = {};
+            for (const loc of threatLocs) {
+              const n = typeCards.filter(c => c.location === loc).length;
+              if (n) tallies[loc] = n;
+            }
+            group.insertBefore(buildTallyRow(tallies), group.querySelector('.card-row'));
+            body.appendChild(group);
+          }
+          total += typeCards.length;
+        }
+      }
+      return total;
+    }));
+
+    /* ─── 3. MUTANTS ─── */
+    catalog.appendChild(buildSection('3. Mutant Ability Cards', body => {
+      const row = document.createElement('div');
+      row.className = 'card-row';
+      allMutants.forEach(card => row.appendChild(renderMutantCard(card)));
+      body.appendChild(row);
+      return allMutants.length;
+    }));
+  }
+
+  /* ── Load data ── */
+  const ts = Date.now();
+  Promise.all([
+    fetch(`loot-deck.json?v=${ts}`).then(r => r.json()),
+    fetch(`threat-deck.json?v=${ts}`).then(r => r.json()),
+    fetch(`mutant-deck.json?v=${ts}`).then(r => r.json()),
+  ]).then(([lootData, threatData, mutantData]) => {
+    allLoot    = lootData.loot_deck   ?? [];
+    allThreats = threatData.threat_deck ?? [];
+    allMutants = mutantData.mutant_deck ?? [];
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('catalog').style.display = '';
+    document.getElementById('view-bar').style.display = '';
+
+    renderCatalog();
+  }).catch(err => {
+    document.getElementById('loading').style.display = 'none';
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = '';
+    errEl.textContent = `Failed to load decks: ${err.message}. Make sure you are running via a local HTTP server (python3 -m http.server).`;
+  });
+
+  /* ── View toggle ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('view-bar')?.addEventListener('click', e => {
+      const btn = e.target.closest('.view-btn');
+      if (!btn) return;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentView = btn.dataset.view;
+      renderCatalog();
+    });
+  });
+</script>
+</body>
+</html>

@@ -126,14 +126,14 @@
       "icon": "SVGs/Apple.svg"
     },
     {
-      "name": "Bomb",
-      "location": "sprawl",
+      "name": "Handgun",
+      "location": "road",
       "type": "weapon",
-      "strength": 4,
-      "uses": 1,
-      "weapon_class": "explosive",
-      "value": 4,
-      "icon": "SVGs/rolling-bomb.svg"
+      "strength": 5,
+      "uses": 2,
+      "weapon_class": "ranged",
+      "value": 10,
+      "icon": "SVGs/pistol-gun.svg"
     },
     {
       "name": "Apples",
@@ -233,15 +233,6 @@
       "weapon_class": "melee",
       "value": 5,
       "icon": "SVGs/claw-hammer.svg"
-    },
-    {
-      "name": "Hiking sticks",
-      "location": "road",
-      "type": "vehicle",
-      "uses": 5,
-      "move": 1,
-      "value": 4.5,
-      "icon": "SVGs/hiking.svg"
     },
     {
       "name": "Strawberries",
@@ -389,14 +380,14 @@
       "icon": "SVGs/knapsack.svg"
     },
     {
-      "name": "Grenade",
-      "location": "hive",
-      "type": "weapon",
-      "strength": 7,
-      "uses": 1,
-      "weapon_class": "explosive",
-      "value": 7,
-      "icon": "SVGs/rolling-bomb.svg"
+      "name": "Shotgun",
+      "location": "sprawl",
+      "type": "hive",
+      "strength": 6,
+      "uses": 2,
+      "weapon_class": "ranged",
+      "value": 12,
+      "icon": "SVGs/sawed-off-shotgun.svg"
     },
     {
       "name": "Chocolate bar",
@@ -410,15 +401,6 @@
       "icon": "SVGs/chocolate-bar.svg"
     },
     {
-      "name": "Small car",
-      "location": "road",
-      "type": "vehicle",
-      "uses": 3,
-      "move": 3,
-      "value": 8.1,
-      "icon": "🚗"
-    },
-    {
       "name": "Can of soda",
       "location": "road",
       "type": "gather",
@@ -428,15 +410,6 @@
       },
       "value": 8.3,
       "icon": "SVGs/soda-can.svg"
-    },
-    {
-      "name": "Bikes",
-      "location": "road",
-      "type": "vehicle",
-      "uses": 5,
-      "move": 2,
-      "value": 9.5,
-      "icon": "🚲"
     },
     {
       "name": "Binoculars",
@@ -496,15 +469,6 @@
       "icon": "SVGs/spade.svg"
     },
     {
-      "name": "Minivan",
-      "location": "sprawl",
-      "type": "vehicle",
-      "uses": 3,
-      "move": 4,
-      "value": 10.8,
-      "icon": "🚐"
-    },
-    {
       "name": "Bow and arrows",
       "location": "road",
       "type": "weapon",
@@ -525,15 +489,6 @@
       "icon": "SVGs/sawed-off-shotgun.svg"
     },
     {
-      "name": "Service van",
-      "location": "hive",
-      "type": "vehicle",
-      "uses": 3,
-      "move": 5,
-      "value": 13.5,
-      "icon": "🚚"
-    },
-    {
       "name": "Rifle",
       "location": "hive",
       "type": "weapon",
@@ -542,24 +497,6 @@
       "weapon_class": "ranged",
       "value": 14,
       "icon": "🔫"
-    },
-    {
-      "name": "Mountain Bikes",
-      "location": "sprawl",
-      "type": "vehicle",
-      "uses": 5,
-      "move": 3,
-      "value": 14.5,
-      "icon": "🚵"
-    },
-    {
-      "name": "Pickup Truck",
-      "location": "hive",
-      "type": "vehicle",
-      "uses": 2,
-      "move": 6,
-      "value": 14.8,
-      "icon": "🛻"
     },
     {
       "name": "Hatchet",
@@ -593,15 +530,6 @@
       "weapon_class": "melee",
       "value": 17.5,
       "icon": "🦅"
-    },
-    {
-      "name": "Monster Truck",
-      "location": "sprawl",
-      "type": "vehicle",
-      "uses": 2,
-      "move": 6,
-      "value": 12,
-      "icon": "🚛"
     },
     {
       "name": "Acorns",
@@ -642,15 +570,6 @@
       "weapon_class": "melee",
       "value": 4,
       "icon": "SVGs/monkey-wrench.svg"
-    },
-    {
-      "name": "Scooter",
-      "location": "road",
-      "type": "vehicle",
-      "uses": 2,
-      "move": 2,
-      "value": 3.5,
-      "icon": "🛵"
     },
     {
       "name": "Ammo",
@@ -737,26 +656,6 @@
       "icon": "🔦"
     },
     {
-      "name": "Quad bike",
-      "location": "sprawl",
-      "type": "vehicle",
-      "text": "Nimble through debris. Gets you places the big vehicles can't.",
-      "move": 3,
-      "uses": 4,
-      "value": 10.8,
-      "icon": "🏍️"
-    },
-    {
-      "name": "Stolen sedan",
-      "location": "sprawl",
-      "type": "vehicle",
-      "text": "Runs on fumes. Less powerful than the minivan but easier to find.",
-      "move": 4,
-      "uses": 2,
-      "value": 7.2,
-      "icon": "🚗"
-    },
-    {
       "name": "Fungal growth",
       "location": "hive",
       "type": "gather",
@@ -822,16 +721,6 @@
       "uses": 4,
       "value": 20,
       "icon": "SVGs/bow-arrow.svg"
-    },
-    {
-      "name": "Armoured APC",
-      "location": "hive",
-      "type": "vehicle",
-      "text": "Military surplus left behind. The best way out of the city.",
-      "move": 5,
-      "uses": 4,
-      "value": 18,
-      "icon": "🚌"
     },
     {
       "name": "face wrap",

@@ -22,21 +22,26 @@ No build step required.
 ## Project Structure
 
 ```
-index.html          # Entire game — HTML, CSS (~3,800 lines), and JS (~3,500 lines) in one file
-loot-deck.json      # 70 loot cards (weapons, armor, items, vehicles, gather)
+index.html          # Game HTML and JS (~4,000 lines)
+style.css           # All game CSS (~3,100 lines)
+catalog.html        # Card catalog viewer (reads from JSON, no game logic)
+loot-deck.json      # Loot cards (weapons, armor, items, gather)
 threat-deck.json    # 36 threat cards (break/setback/monster) across 3 locations
 mutant-deck.json    # 9 mutant ability cards
+SVGs/               # Card icons
 the_road_components.pdf  # Game design reference document
 README.md
 ```
 
 ## Key Architecture Notes
 
-`index.html` is the single source of truth — all game logic, state, and UI live here. There is no separate build output or compiled artifact.
+Game logic and UI live in `index.html`; all styling lives in `style.css`. There is no build output or compiled artifact.
 
 **Game state** is managed in JavaScript variables (no localStorage, no backend).
 
 **Game over conditions**: health ≤ 0, sanity ≤ 0, or mutation ≥ 10.
+
+**Armor mode only** — the vehicle/movement variant has been removed. Three armor slots (Head, Body, Accessory) absorb incoming damage. Sanity modifies combat STR instead of SPD.
 
 ### Card Data Format
 
@@ -46,18 +51,21 @@ All three JSON decks follow a similar schema:
 {
   "name": "Machete",
   "location": "road",          // road | sprawl | hive
-  "type": "weapon",            // gather | weapon | vehicle | item | armor
+  "type": "weapon",            // gather | weapon | item | armor
   "effects": { "food": 0, "health": 0, "sanity": 0, "mutation": 0 },
   "strength": 4,               // weapons only
-  "uses": 3,                   // weapons/vehicles
+  "uses": 3,                   // weapons only
   "value": 12,                 // balance weight
-  "icon": "🔪"
+  "icon": "SVGs/machete.svg"   // or emoji fallback
 }
 ```
 
+Item cards also carry a `mechanism` field that drives all item special behavior — see the MECHANISM ENGINE block in `index.html`.
+
 ## Editing Guidelines
 
-- **All game logic changes go in `index.html`** — search for JavaScript function names with Grep to locate them quickly.
+- **CSS changes go in `style.css`** — the file mirrors the structure of the HTML so sections are easy to find.
+- **Game logic changes go in `index.html`** — use Grep on function names to locate them quickly.
 - **Card balance changes go in the JSON files** — each card has a `value` field for tracking relative power.
 - When adding new cards, follow the existing schema exactly; the game engine reads specific property names.
 - The three locations have intentionally escalating difficulty — keep that in mind when adding/adjusting cards.
@@ -68,7 +76,9 @@ All three JSON decks follow a similar schema:
 
 **Change game stats or balancing**: Search `index.html` for the relevant mechanic (e.g., `starvation`, `battleResult`, `threatCost`).
 
-**Find a specific game mechanic**: Use Grep on `index.html` — the JS starts around line 3,806.
+**Find a specific game mechanic**: Use Grep on `index.html` — the JS starts around line 110.
+
+**Browse all cards visually**: Open `catalog.html` via the local server.
 
 ## No Tests
 
