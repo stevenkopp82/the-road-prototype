@@ -160,6 +160,7 @@
       "location": "sprawl",
       "type": "item",
       "text": "Use once: Reload range weapon",
+      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
       "value": 4,
       "icon": "SVGs/heavy-bullets.svg"
     },
@@ -168,6 +169,7 @@
       "location": "hive",
       "type": "item",
       "text": "Use once: Reload range weapon",
+      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
       "value": 4,
       "icon": "SVGs/heavy-bullets.svg"
     },
@@ -176,6 +178,7 @@
       "location": "road",
       "type": "item",
       "text": "+1 food after any battle win or tie (passive)",
+      "mechanism": { "type": "passive_event", "trigger": "battle_win_or_tie", "effect": { "food": 1 } },
       "value": 4,
       "icon": "SVGs/matchbox.svg"
     },
@@ -217,7 +220,7 @@
       "location": "road",
       "type": "item",
       "text": "Passive: Slots 2 & 3 cost 1 less food",
-      "uses": 1,
+      "mechanism": { "type": "cost_modifier", "cost": "food", "slots": [1, 2], "amount": -1, "min": 0 },
       "value": 5,
       "icon": "SVGs/treasure-map.svg"
     },
@@ -256,6 +259,7 @@
       "location": "sprawl",
       "type": "item",
       "text": "Passive: Absorbs starvation — sets food to 1 instead of starving (5 uses)",
+      "mechanism": { "type": "protection", "trigger": "starvation", "effect": "absorb_starvation" },
       "uses": 5,
       "value": 5.5,
       "icon": "SVGs/cardboard-box-closed.svg"
@@ -287,6 +291,7 @@
       "location": "road",
       "type": "item",
       "text": "+2 STR when using ranged or explosive weapon in battle",
+      "mechanism": { "type": "battle_str", "bonus": 2, "condition": "weapon_class", "weapon_classes": ["ranged", "explosive"] },
       "value": 6,
       "icon": "SVGs/cowboy-holster.svg"
     },
@@ -326,6 +331,7 @@
       "location": "road",
       "type": "item",
       "text": "At the start of your turn, may use to increase sanity by 1",
+      "mechanism": { "type": "active", "timing": "turn_start", "effect": { "sanity": 1 } },
       "uses": 3,
       "value": 6,
       "icon": "SVGs/primitive-torch.svg"
@@ -378,6 +384,7 @@
       "location": "road",
       "type": "item",
       "text": "Expand max food to 10",
+      "mechanism": { "type": "capacity", "stat": "food", "max": 10 },
       "value": 7,
       "icon": "SVGs/knapsack.svg"
     },
@@ -436,6 +443,7 @@
       "location": "road",
       "type": "item",
       "text": "Reduce threat cost on slots 4 and 5 by 1",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3, 4], "amount": -1, "min": 1 },
       "value": 10,
       "icon": "SVGs/binoculars.svg"
     },
@@ -453,7 +461,8 @@
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "???",
+      "text": "Passive: slots 1 & 2 cost 1 less food (min 0)",
+      "mechanism": { "type": "cost_modifier", "cost": "food", "slots": [0, 1], "amount": -1, "min": 0 },
       "value": 10,
       "icon": "SVGs/compass.svg"
     },
@@ -462,6 +471,7 @@
       "location": "road",
       "type": "item",
       "text": "Passive: When you gain health from a gather card, +1 extra health",
+      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "health", "effect": { "health": 1 } },
       "uses": 2,
       "value": 10,
       "icon": "SVGs/camping-tent.svg"
@@ -471,6 +481,7 @@
       "location": "road",
       "type": "item",
       "text": "When you gain food, +1 food",
+      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "food", "effect": { "food": 1 } },
       "value": 10,
       "icon": "SVGs/flint-spark.svg"
     },
@@ -646,6 +657,7 @@
       "location": "hive",
       "type": "item",
       "text": "Use once: Reload range weapon",
+      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
       "value": 4,
       "icon": "🔫"
     },
@@ -697,6 +709,7 @@
       "location": "sprawl",
       "type": "item",
       "text": "3 uses. Once per turn: skip all threat draws on your next card pick.",
+      "mechanism": { "type": "active", "timing": "pre_pick", "effect": "suppress_threats" },
       "uses": 3,
       "value": 10,
       "icon": "📻"
@@ -783,6 +796,7 @@
       "location": "hive",
       "type": "item",
       "text": "2 uses. Active: gain +3 STR for your next battle only.",
+      "mechanism": { "type": "active", "timing": "pre_battle", "effect": "temp_str_bonus", "bonus": 3 },
       "uses": 2,
       "value": 10,
       "icon": "💉"

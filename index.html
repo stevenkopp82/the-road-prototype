@@ -2604,66 +2604,6 @@
       border-left: 1px solid rgba(139,74,200,0.4);
     }
 
-    #antiviral-dialog {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.72);
-      z-index: 700;
-      align-items: center;
-      justify-content: center;
-    }
-    #antiviral-dialog.open { display: flex; }
-    .antiviral-box {
-      background: #1a1508;
-      border: 1px solid var(--mutate-col);
-      border-radius: 6px;
-      padding: 1.8rem 1.6rem;
-      max-width: 340px;
-      width: 90%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.9rem;
-      box-shadow: 0 0 40px rgba(139,74,200,0.3);
-    }
-    .antiviral-title {
-      font-family: 'Cinzel', serif;
-      font-size: 0.85rem;
-      letter-spacing: 0.15em;
-      color: var(--mutate-col);
-      text-transform: uppercase;
-      text-align: center;
-    }
-    .antiviral-body {
-      font-family: 'Spectral', serif;
-      font-size: 0.8rem;
-      color: var(--parchment);
-      opacity: 0.85;
-      text-align: center;
-      line-height: 1.6;
-    }
-    .antiviral-uses {
-      font-size: 0.65rem;
-      color: var(--mutate-col);
-      opacity: 0.7;
-      text-align: center;
-      font-family: 'Spectral', serif;
-    }
-    .antiviral-btns { display: flex; gap: 0.6rem; justify-content: center; }
-    .antiviral-btn {
-      font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 0.45rem 1rem;
-      border-radius: 3px;
-      border: 1px solid;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .antiviral-btn:hover { opacity: 0.85; }
-    .av-block  { background: rgba(139,74,200,0.2); border-color: var(--mutate-col); color: #c080f0; }
-    .av-accept { background: rgba(60,40,40,0.4);   border-color: rgba(120,80,80,0.5); color: #a08080; }
 
     /* ── Binoculars peek dialog ── */
     #peek-dialog {
@@ -3394,7 +3334,7 @@
       <tr><td>5</td><td>2 Food + 3 Threats + 1 Mutation</td><td>—</td></tr>
     </table>
     <div class="rb-body">
-      <p>Items that reduce costs (Binoculars, Area Map, Compass in Armor variant, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
+      <p>Items that reduce costs (Binoculars, Area Map, Compass, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -3485,7 +3425,7 @@
       <tr><td>Area Map</td><td>1 use</td><td>Before paying a slot cost, activate to reduce it to 1 Food and 0 Threats.</td></tr>
       <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Raises maximum Food from 8 to 10.</td></tr>
       <tr><td>Binoculars</td><td>Passive</td><td>−1 Threat on slots 4 and 5 (minimum 1 threat).</td></tr>
-      <tr><td>Compass</td><td>Passive</td><td><em>Normal:</em> +1 SPD per turn. <em>Armor:</em> −1 Food cost on slots 1 &amp; 2 (min 0).</td></tr>
+      <tr><td>Compass</td><td>Passive</td><td>−1 Food cost on slots 1 &amp; 2 (min 0).</td></tr>
       <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain Food from a gather card, gain +1 extra Food.</td></tr>
       <tr><td>Fuel Can</td><td>Instant <em>(Normal only)</em></td><td>Fully restores all uses of your vehicle.</td></tr>
       <tr><td>Holster</td><td>Passive</td><td>+2 STR when using a ranged or explosive weapon in battle.</td></tr>
@@ -3502,7 +3442,7 @@
     <div class="rb-section-title" id="rb-movement">Movement <em>(Normal variant only)</em></div>
     <div class="rb-body">
       <p>After resolving a card and discarding the board, you move. Movement discards cards from the top of the draw pile — one per point of SPD. Those cards go to the discard pile and return in a future location's deck.</p>
-      <p>Base SPD is derived from Sanity. A Compass adds +1 permanently. A vehicle adds its Move value per turn, consuming one use each turn.</p>
+      <p>Base SPD is derived from Sanity. A vehicle adds its Move value per turn, consuming one use each turn.</p>
     </div>
     <div class="rb-callout"><div class="rb-body">If movement empties the draw pile mid-turn, the location transition triggers immediately. In the Armor variant, there is no movement step — location transitions happen only when the draw pile runs out naturally.</div></div>
 
@@ -3620,17 +3560,6 @@
     </div>
   </div>
 
-  <div id="antiviral-dialog">
-    <div class="antiviral-box">
-      <div class="antiviral-title">🧬 Mutation Incoming</div>
-      <div class="antiviral-body" id="av-body">You are about to gain a mutation point.</div>
-      <div class="antiviral-uses" id="av-uses"></div>
-      <div class="antiviral-btns">
-        <button class="antiviral-btn av-block"  id="av-btn-block">🧪 Use Anti-viral</button>
-        <button class="antiviral-btn av-accept" id="av-btn-accept">Accept Mutation</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ══════════════════════════════════════
        COMPASS LOOT PEEK DIALOG
@@ -4173,23 +4102,10 @@
     return false;
   }
 
-  /* ── Apply starvation: health −1, sanity −1 (blocked if Stash raises floor to 1) ── */
+  /* ── Apply starvation: health −1, sanity −1 (blocked by protection mechanism) ── */
   function applyStarvation() {
     if (gameOver) return;
-    // Stash passive: food floor of 1 — absorb the starvation hit, consume one use
-    const stashIdx = itemSlots.findIndex(c => c?.name === 'Stash of ration packs');
-    if (stashIdx >= 0 && itemUsesArr[stashIdx] > 0) {
-      itemUsesArr[stashIdx]--;
-      if (playerState.food.set) playerState.food.set(1); // floor at 1
-      if (itemUsesArr[stashIdx] === 0) {
-        showToast('🌾 Stash absorbed starvation!\n🎒 Stash depleted — discarded', true, 2800);
-        setItemSlot(stashIdx, null);
-      } else {
-        showToast(`🌾 Stash absorbed starvation! (${itemUsesArr[stashIdx]} uses left)`, true, 2400);
-        renderItemSlots();
-      }
-      return; // no health/sanity loss
-    }
+    if (triggerStarvationProtection()) return;
     gameLog.add('🌾 Starving — −1 health, −1 sanity', 'warn');
     const newHealth = Math.max(0, playerState.health.value - 1);
     if (playerState.health.set) playerState.health.set(newHealth);
@@ -4237,31 +4153,20 @@
   // Returns {food, threat, mutation} after applying all item/mutant discounts for a slot
   function getEffectiveCosts(slotIndex) {
     const slotDef = getSlots()[slotIndex];
-    let food     = slotDef.food     ?? 0;
-    let threat   = slotDef.threat   ?? 0;
-    let mutation = slotDef.mutation ?? 0;
+    let costs = {
+      food:     slotDef.food     ?? 0,
+      threat:   slotDef.threat   ?? 0,
+      mutation: slotDef.mutation ?? 0,
+    };
 
-    // Compass (armor variant): −1 food on slots 1 & 2 (index 0 & 1)
-    if (gameVariant === 'armor' && (slotIndex === 0 || slotIndex === 1) && itemSlots.some(c => c?.name === 'Compass')) {
-      food = Math.max(0, food - 1);
-    }
-    // Area Map: −1 food on slots 2 & 3 (index 1 & 2)
-    if ((slotIndex === 1 || slotIndex === 2) && itemSlots.some(c => c?.name === 'Area map')) {
-      food = Math.max(0, food - 1);
-    }
-    // Binoculars: −1 threat on slots 4 & 5 (index 3 & 4), min 1
-    if ((slotIndex === 3 || slotIndex === 4) && itemSlots.some(c => c?.name === 'Binoculars')) {
-      threat = Math.max(1, threat - 1);
-    }
-    // Future flicker mutant: additional −1 threat on slots 4 & 5, min 1
+    // Item cost_modifier mechanisms
+    costs = applyItemCostModifiers(slotIndex, costs);
+
+    // Future flicker mutant: −1 threat on slots 4 & 5, min 1
     if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
-      threat = Math.max(1, threat - 1);
+      costs.threat = Math.max(1, costs.threat - 1);
     }
-    // Gas mask: −1 mutation cost on all Hive slots (min 0)
-    if (deckPass >= 2 && itemSlots.some(c => c?.name === 'Gas mask')) {
-      mutation = Math.max(0, mutation - 1);
-    }
-    return { food, threat, mutation };
+    return costs;
   }
 
   const SEPARATORS_AFTER = new Set([0, 2]);
@@ -4477,6 +4382,167 @@
     wrap.appendChild(val);
 
     return wrap;
+  }
+
+  /* ═══════════════════════════════════════════
+     MECHANISM ENGINE
+     All item card special behaviour is driven by
+     the `mechanism` field in loot-deck.json.
+     No hardcoded card-name checks outside this block.
+  ═══════════════════════════════════════════ */
+
+  // ── cost_modifier: called from getEffectiveCosts ──────────────────
+  function applyItemCostModifiers(slotIndex, costs) {
+    let { food, threat, mutation } = costs;
+    for (const card of itemSlots) {
+      if (!card?.mechanism || card.mechanism.type !== 'cost_modifier') continue;
+      const m = card.mechanism;
+      if (!m.slots.includes(slotIndex)) continue;
+      if (m.cost === 'food')     food     = Math.max(m.min, food     + m.amount);
+      if (m.cost === 'threat')   threat   = Math.max(m.min, threat   + m.amount);
+      if (m.cost === 'mutation') mutation = Math.max(m.min, mutation + m.amount);
+    }
+    return { food, threat, mutation };
+  }
+
+  // ── battle_str: called when computing effective player STR ────────
+  // Returns { bonus, labels } where labels is an array of display strings
+  function getItemBattleStrBonus(usingWeapon, weaponCard) {
+    let bonus = 0;
+    const labels = [];
+    for (const card of itemSlots) {
+      if (!card?.mechanism || card.mechanism.type !== 'battle_str') continue;
+      const m = card.mechanism;
+      if (m.condition === 'weapon_class') {
+        if (!usingWeapon || !weaponCard) continue;
+        if (!m.weapon_classes.includes(weaponCard.weapon_class)) continue;
+      }
+      bonus += m.bonus;
+      labels.push(`+${m.bonus} ${card.name.toLowerCase()}`);
+    }
+    return { bonus, labels };
+  }
+
+  // ── passive_event / battle_win_or_tie ─────────────────────────────
+  // Returns array of toast/log lines
+  function triggerBattleWinOrTie() {
+    const lines = [];
+    for (const card of itemSlots) {
+      if (!card?.mechanism) continue;
+      const m = card.mechanism;
+      if (m.type !== 'passive_event' || m.trigger !== 'battle_win_or_tie') continue;
+      for (const [stat, amt] of Object.entries(m.effect)) {
+        const cap = stat === 'food' ? maxFood : 10;
+        const next = Math.min(cap, playerState[stat].value + amt);
+        if (playerState[stat].set) playerState[stat].set(next);
+        lines.push(`${card.name} — ${stat} +${amt}`);
+      }
+    }
+    return lines;
+  }
+
+  // ── passive_event / gather_gain ───────────────────────────────────
+  // Called after a gather stat is applied; returns extra lines
+  function triggerGatherGain(stat, amountGained) {
+    if (amountGained <= 0) return [];
+    const lines = [];
+    for (const [idx, card] of itemSlots.entries()) {
+      if (!card?.mechanism) continue;
+      const m = card.mechanism;
+      if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
+      if (m.stat_filter && m.stat_filter !== stat) continue;
+      // Check uses if the card has them
+      if (card.uses != null) {
+        if (itemUsesArr[idx] <= 0) continue;
+        itemUsesArr[idx]--;
+        if (itemUsesArr[idx] === 0) {
+          setItemSlot(idx, null);
+        } else {
+          renderItemSlots();
+        }
+      }
+      for (const [eStat, eAmt] of Object.entries(m.effect)) {
+        const cap = eStat === 'food' ? maxFood : 10;
+        const next = Math.min(cap, playerState[eStat].value + eAmt);
+        if (playerState[eStat].set) playerState[eStat].set(next);
+        lines.push(`${card.name} — ${eStat} +${eAmt}`);
+      }
+    }
+    return lines;
+  }
+
+  // ── protection / starvation ───────────────────────────────────────
+  // Returns true if starvation was absorbed
+  function triggerStarvationProtection() {
+    for (const [idx, card] of itemSlots.entries()) {
+      if (!card?.mechanism) continue;
+      const m = card.mechanism;
+      if (m.type !== 'protection' || m.trigger !== 'starvation') continue;
+      if (itemUsesArr[idx] <= 0) continue;
+      itemUsesArr[idx]--;
+      if (playerState.food.set) playerState.food.set(1);
+      if (itemUsesArr[idx] === 0) {
+        showToast(`🌾 ${card.name} absorbed starvation!\n🎒 ${card.name} depleted — discarded`, true, 2800);
+        setItemSlot(idx, null);
+      } else {
+        showToast(`🌾 ${card.name} absorbed starvation! (${itemUsesArr[idx]} uses left)`, true, 2400);
+        renderItemSlots();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // ── capacity: called on equip/unequip ────────────────────────────
+  function applyCapacityMechanism(card, equipping) {
+    if (!card?.mechanism || card.mechanism.type !== 'capacity') return;
+    const m = card.mechanism;
+    if (m.stat === 'food') {
+      if (equipping) {
+        maxFood = m.max;
+      } else {
+        maxFood = 8;
+        if (playerState.food.value > 8 && playerState.food.set) playerState.food.set(8);
+      }
+      renderFoodTrack();
+    }
+  }
+
+  // ── instant: called at card acquisition ──────────────────────────
+  // Returns effect lines
+  function resolveInstantMechanism(card) {
+    const m = card.mechanism;
+    const lines = [];
+    discardPile.push(card);
+    if (m.effect === 'reload_weapon') {
+      const weapon = inventory.weapon;
+      if (weapon && weapon.weapon_class === m.weapon_class) {
+        weaponUsesRemaining = weapon.uses;
+        refreshWeaponZone();
+        playReloadSound();
+        lines.push(`🔫 ${weapon.name} reloaded (${weapon.uses} uses restored)`);
+      } else {
+        lines.push(`🔫 No ${m.weapon_class} weapon to reload`);
+      }
+    } else if (m.effect === 'reload_vehicle') {
+      const vehicle = inventory.vehicle;
+      if (vehicle) {
+        vehicleUsesRemaining = vehicle.uses;
+        refreshVehicleZone();
+        lines.push(`⛽ ${vehicle.name} refuelled (${vehicle.uses} uses restored)`);
+      } else {
+        lines.push('⛽ No vehicle to refuel');
+      }
+    }
+    return lines;
+  }
+
+  // ── active: update item bar buttons ──────────────────────────────
+  function updateActiveItemBars() {
+    // Torch (turn_start), Walkie-talkie (pre_pick), Adrenaline (pre_battle)
+    updateTorchBar();
+    updateWalkieBar();
+    updateAdrenalineBar();
   }
 
   function placeCards(cards) {
@@ -4715,9 +4781,10 @@
     const prev = itemSlots[idx];
     itemSlots[idx] = card;
     itemUsesArr[idx] = card ? (card.uses ?? 0) : 0;
-    // If a backpack was removed and none remain, revert food cap
-    if (prev?.name === 'Backpack' && !itemSlots.some(c => c?.name === 'Backpack')) {
-      unequipBackpack();
+    // If a capacity item was removed and none of that stat remain, revert cap
+    if (prev?.mechanism?.type === 'capacity') {
+      const stillHas = itemSlots.some(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === prev.mechanism.stat);
+      if (!stillHas) applyCapacityMechanism(prev, false);
     }
     renderItemSlots();
   }
@@ -4733,20 +4800,6 @@
     });
   }
 
-  /* ── Equip Backpack: expand max food to 10 ── */
-  function equipBackpack() {
-    maxFood = 10;
-    renderFoodTrack();
-  }
-
-  /* ── Unequip Backpack: shrink max food to 8, clamp current food ── */
-  function unequipBackpack() {
-    maxFood = 8;
-    if (playerState.food.value > 8) {
-      if (playerState.food.set) playerState.food.set(8);
-    }
-    renderFoodTrack();
-  }
 
   function refreshWeaponZone() {
     const card = inventory.weapon;
@@ -4875,7 +4928,7 @@
     return { absorbed, lines };
   }
 
-  // setInventorySlot only handles vehicle/weapon now; items use setItemSlot / equipBackpack
+  // setInventorySlot only handles vehicle/weapon now; items use setItemSlot
   function setInventorySlot(type, card) {
     if (type === 'item') { throw new Error('Use setItemSlot for items'); }
     inventory[type] = card;
@@ -4908,30 +4961,6 @@
     }
   }
 
-  let antiviralResolve = null;
-
-  function promptAntiviralBlock(mutationAmount, slotIdx) {
-    return new Promise(resolve => {
-      antiviralResolve = resolve;
-      const name = itemSlots[slotIdx]?.name ?? 'Anti-viral';
-      const uses = itemUsesArr[slotIdx] ?? 0;
-      document.getElementById('av-body').textContent =
-        `You are about to gain ${mutationAmount} mutation. Use your ${name} to block it?`;
-      document.getElementById('av-uses').textContent =
-        `${uses} use${uses !== 1 ? 's' : ''} remaining`;
-      document.getElementById('antiviral-dialog').classList.add('open');
-    });
-  }
-
-  document.getElementById('av-btn-block').addEventListener('click', () => {
-    document.getElementById('antiviral-dialog').classList.remove('open');
-    if (antiviralResolve) { antiviralResolve(true); antiviralResolve = null; }
-  });
-
-  document.getElementById('av-btn-accept').addEventListener('click', () => {
-    document.getElementById('antiviral-dialog').classList.remove('open');
-    if (antiviralResolve) { antiviralResolve(false); antiviralResolve = null; }
-  });
 
   /* ── Binoculars ── passive: -1 threat on slots 4 & 5 ── */
 
@@ -4944,37 +4973,38 @@
   function updateItemBars() {
     updateBinocularsBar();
     updateCompassBar();
-    updateTentSkipBtn();
-    updateTorchBar();
-    updateWalkieBar();
-    updateAdrenalineBar();
+    updateActiveItemBars();
   }
 
-  function updateTentSkipBtn() { /* Tent is now passive — no skip bar needed */ }
-
   function updateTorchBar() {
-    const torchIdx = itemSlots.findIndex(c => c?.name === 'Torch');
+    const torchIdx = itemSlots.findIndex(c => c?.mechanism?.timing === 'turn_start');
     const bar = document.getElementById('torch-bar');
     if (torchIdx < 0) { bar.style.display = 'none'; return; }
     const uses = itemUsesArr[torchIdx];
     bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
-    const lbl = document.getElementById('torch-uses-label');
-    lbl.textContent = uses > 0 ? `${uses} use${uses !== 1 ? 's' : ''} remaining` : '';
+    document.getElementById('torch-uses-label').textContent =
+      uses > 0 ? `${uses} use${uses !== 1 ? 's' : ''} remaining` : '';
   }
 
   document.getElementById('torch-use-btn').addEventListener('click', () => {
-    const torchIdx = itemSlots.findIndex(c => c?.name === 'Torch');
+    const torchIdx = itemSlots.findIndex(c => c?.mechanism?.timing === 'turn_start');
     if (torchIdx < 0 || cardSelected) return;
-    const uses = itemUsesArr[torchIdx];
-    if (uses <= 0) return;
+    if (itemUsesArr[torchIdx] <= 0) return;
+    const card = itemSlots[torchIdx];
+    const effect = card.mechanism.effect;
     itemUsesArr[torchIdx]--;
-    const newSanity = Math.min(10, playerState.sanity.value + 1);
-    if (playerState.sanity.set) playerState.sanity.set(newSanity);
+    const lines = [];
+    for (const [stat, amt] of Object.entries(effect)) {
+      const next = Math.min(10, playerState[stat].value + amt);
+      if (playerState[stat].set) playerState[stat].set(next);
+      lines.push(`${stat} +${amt}`);
+    }
+    const summary = `🕯 ${card.name} — ${lines.join(', ')}`;
     if (itemUsesArr[torchIdx] === 0) {
-      showToast('🕯 Torch lit — sanity +1\n🎒 Torch burned out — discarded', false, 2500);
+      showToast(`${summary}\n🎒 ${card.name} depleted — discarded`, false, 2500);
       setItemSlot(torchIdx, null);
     } else {
-      showToast('🕯 Torch lit — sanity +1', false, 2000);
+      showToast(summary, false, 2000);
       renderItemSlots();
     }
     updateTorchBar();
@@ -4985,9 +5015,10 @@
 
   /* ── Walkie-talkie: arm/disarm threat suppression for next pick ── */
   function updateWalkieBar() {
-    const idx = itemSlots.findIndex(c => c?.name === 'Walkie-talkie');
+    const idx = itemSlots.findIndex(c => c?.mechanism?.timing === 'pre_pick');
     const bar = document.getElementById('walkie-bar');
     if (idx < 0) { bar.style.display = 'none'; suppressThreatNextPick = false; return; }
+    const card = itemSlots[idx];
     const uses = itemUsesArr[idx];
     bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
     document.getElementById('walkie-uses-label').textContent =
@@ -4995,22 +5026,24 @@
     const btn = document.getElementById('walkie-use-btn');
     btn.style.background = suppressThreatNextPick ? 'rgba(100,180,120,0.25)' : 'rgba(100,180,120,0.08)';
     btn.textContent = suppressThreatNextPick
-      ? '📻 Walkie-Talkie — ARMED (threats suppressed)'
-      : '📻 Walkie-Talkie — skip all threats this pick';
+      ? `📻 ${card.name} — ARMED (threats suppressed)`
+      : `📻 ${card.name} — skip all threats this pick`;
   }
 
   document.getElementById('walkie-use-btn').addEventListener('click', () => {
-    const idx = itemSlots.findIndex(c => c?.name === 'Walkie-talkie');
+    const idx = itemSlots.findIndex(c => c?.mechanism?.timing === 'pre_pick');
     if (idx < 0 || cardSelected || itemUsesArr[idx] <= 0) return;
-    suppressThreatNextPick = !suppressThreatNextPick; // toggle — click again to cancel
+    suppressThreatNextPick = !suppressThreatNextPick;
     updateWalkieBar();
   });
 
-  /* ── Adrenaline shot: +3 STR for one battle ── */
+  /* ── Adrenaline shot (pre_battle active): temp STR bonus for one battle ── */
   function updateAdrenalineBar() {
-    const idx = itemSlots.findIndex(c => c?.name === 'Adrenaline shot');
+    const idx = itemSlots.findIndex(c => c?.mechanism?.timing === 'pre_battle');
     const bar = document.getElementById('adrenaline-bar');
     if (idx < 0) { bar.style.display = 'none'; return; }
+    const card = itemSlots[idx];
+    const bonus = card.mechanism.bonus;
     const uses = itemUsesArr[idx];
     bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
     document.getElementById('adrenaline-uses-label').textContent =
@@ -5018,21 +5051,23 @@
     const btn = document.getElementById('adrenaline-use-btn');
     btn.style.background = tempStrBonus > 0 ? 'rgba(200,80,80,0.25)' : 'rgba(200,80,80,0.08)';
     btn.textContent = tempStrBonus > 0
-      ? '💉 Adrenaline Shot — ACTIVE (+3 STR this battle)'
-      : '💉 Adrenaline Shot — +3 STR next battle';
+      ? `💉 ${card.name} — ACTIVE (+${bonus} STR this battle)`
+      : `💉 ${card.name} — +${bonus} STR next battle`;
   }
 
   document.getElementById('adrenaline-use-btn').addEventListener('click', () => {
-    const idx = itemSlots.findIndex(c => c?.name === 'Adrenaline shot');
+    const idx = itemSlots.findIndex(c => c?.mechanism?.timing === 'pre_battle');
     if (idx < 0 || cardSelected || itemUsesArr[idx] <= 0) return;
-    if (tempStrBonus > 0) { tempStrBonus = 0; updateAdrenalineBar(); return; } // cancel
+    const card = itemSlots[idx];
+    const bonus = card.mechanism.bonus;
+    if (tempStrBonus > 0) { tempStrBonus = 0; updateAdrenalineBar(); return; }
     itemUsesArr[idx]--;
-    tempStrBonus = 3;
+    tempStrBonus = bonus;
     if (itemUsesArr[idx] === 0) {
-      showToast('💉 Adrenaline loaded — +3 STR this battle\n🎒 Adrenaline shot depleted — discarded', false, 2800);
+      showToast(`💉 ${card.name} loaded — +${bonus} STR this battle\n🎒 ${card.name} depleted — discarded`, false, 2800);
       setItemSlot(idx, null);
     } else {
-      showToast(`💉 Adrenaline loaded — +3 STR this battle (${itemUsesArr[idx]} use${itemUsesArr[idx] !== 1 ? 's' : ''} left)`, false, 2400);
+      showToast(`💉 ${card.name} loaded — +${bonus} STR this battle (${itemUsesArr[idx]} use${itemUsesArr[idx] !== 1 ? 's' : ''} left)`, false, 2400);
       renderItemSlots();
     }
     updateAdrenalineBar();
@@ -5371,26 +5406,24 @@
   function getPlayerStrength() {
     const base = getBaseStrength();
     const weapon = inventory.weapon;
-    const weaponBonus = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
-    const camoBonus = itemSlots.some(c => c?.name === 'Camouflage') ? 1 : 0;
+    const usingWeapon = weapon && weaponUsesRemaining > 0;
+    const weaponBonus = usingWeapon ? (weapon.strength ?? 0) : 0;
     const sanityMod = getSanityStrModifier();
-    const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
     const isMelee = weapon && weapon.weapon_class === 'melee';
-    const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile && weaponBonus > 0) ? 2 : 0;
+    const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
     // Mutant bonuses
-    const tuskBonus    = countMutants('forehead_tusk') * 2;
+    const tuskBonus     = countMutants('forehead_tusk') * 2;
     const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
     const extraArmBonus = (hasMutant('extra_arm') && isMelee && weaponBonus > 0) ? 3 : 0;
-    return base + weaponBonus + camoBonus + holsterBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
+    return base + weaponBonus + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
   }
 
-  /* ── Movement speed: SPD from sanity + vehicle move (if uses remain) + compass ── */
+  /* ── Movement speed: SPD from sanity + vehicle move (if uses remain) ── */
   function getPlayerSpeed() {
     if (gameVariant === 'armor') return 0; // No movement in armor variant
-    const spd         = getSpeed(playerState.sanity.value);
-    const vehMove     = (inventory.vehicle && vehicleUsesRemaining > 0) ? (inventory.vehicle.move ?? 0) : 0;
-    const compassMov  = itemSlots.some(c => c?.name === 'Compass') ? 1 : 0;
-    return spd + vehMove + compassMov;
+    const spd     = getSpeed(playerState.sanity.value);
+    const vehMove = (inventory.vehicle && vehicleUsesRemaining > 0) ? (inventory.vehicle.move ?? 0) : 0;
+    return spd + vehMove;
   }
 
   /* ── Apply an effects object to player state ── */
@@ -5418,25 +5451,6 @@
       if (!playerState[track]) continue;
       const current = playerState[track].value;
 
-      // Anti-viral intercept: mutation increase when anti-viral is in any item slot with uses
-      if (track === 'mutation' && amount > 0) {
-        const avIdx = itemSlots.findIndex((c, i) => c && (c.name === 'Anti-viral' || c.name === 'Anti-virals') && itemUsesArr[i] > 0);
-        if (avIdx >= 0) {
-          const blocked = await promptAntiviralBlock(amount, avIdx);
-          if (blocked) {
-            itemUsesArr[avIdx]--;
-            const avName = itemSlots[avIdx].name;
-            if (itemUsesArr[avIdx] <= 0) {
-              lines.push(`🧪 ${avName} used — mutation blocked! (depleted, discarded)`);
-              setItemSlot(avIdx, null);
-            } else {
-              renderItemSlots();
-              lines.push(`🧪 ${avName} used — mutation blocked! (${itemUsesArr[avIdx]} uses left)`);
-            }
-            continue;
-          }
-        }
-      }
 
       const next = Math.max(0, Math.min(10, current + amount));
       if (playerState[track].set) playerState[track].set(next);
@@ -5519,16 +5533,14 @@
         const weapon     = inventory.weapon;
         const weaponStr  = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
         const hasWeapon  = weapon != null && weaponUsesRemaining > 0;
-        const camoBonus  = itemSlots.some(c => c?.name === 'Camouflage') ? 1 : 0;
         const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
         const isMelee      = weapon && weapon.weapon_class === 'melee';
-        const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile) ? 2 : 0;
         // Mutant bonuses
         const tuskBonus     = countMutants('forehead_tusk') * 2;
         const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
         // extra_arm: +3 STR only when using a melee weapon
         const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
-        // Adrenaline shot: +3 STR for this battle only
+        // Adrenaline (pre_battle active): +N STR for this battle only
         const adrenalineBonus = tempStrBonus;
         tempStrBonus = 0; // consumed regardless of outcome
 
@@ -5575,19 +5587,18 @@
             const usingMelee = usingWeapon && isMelee;
             const extraArmBonus = getExtraArmBonus(usingMelee);
             const sanityMod = getSanityStrModifier();
+            const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
             const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                         + camoBonus + (usingWeapon ? holsterBonus : 0)
-                         + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
+                         + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
             const weaponLabel    = usingWeapon     ? ` +${weaponStr} weapon`   : '';
-            const camoLabel      = camoBonus        ? ` +1 camo`               : '';
-            const holsterLabel   = (usingWeapon && holsterBonus)   ? ` +2 holster`   : '';
+            const itemLabel      = itemLabels.length ? ' ' + itemLabels.join(' ') : '';
             const tuskLabel      = tuskBonus        ? ` +${tuskBonus} tusk`    : '';
             const hiveMindLabel  = hiveMindBonus    ? ` +3 hive mind`          : '';
             const extraArmLabel  = extraArmBonus    ? ` +3 extra arm`          : '';
-            const adrenalineLabel= adrenalineBonus  ? ` +3 adrenaline`          : '';
+            const adrenalineLabel= adrenalineBonus  ? ` +${adrenalineBonus} adrenaline` : '';
             const sanityLabel    = sanityMod > 0    ? ` +${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? ` ${sanityMod} sanity` : '';
             playerSide.innerHTML = `
-              <span class="battle-stat-label">Your STR${weaponLabel}${camoLabel}${holsterLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}</span>
+              <span class="battle-stat-label">Your STR${weaponLabel}${itemLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}</span>
               <span class="battle-stat-value player-str">${effStr}</span>`;
           };
 
@@ -5608,12 +5619,13 @@
           updatePlayerSide();
         } else {
           const sanityModBare = getSanityStrModifier();
-          const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
+          const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null);
+          const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
           const bareLabel = [
-            camoBonus        ? '+1 camo'              : '',
+            ...bareItemLabels,
             tuskBonus        ? `+${tuskBonus} tusk`   : '',
             hiveMindBonus    ? '+3 hive mind'          : '',
-            adrenalineBonus  ? '+3 adrenaline'         : '',
+            adrenalineBonus  ? `+${adrenalineBonus} adrenaline` : '',
             sanityModBare > 0 ? `+${sanityModBare} sanity${sanityModBare===2?' (frenzy)':''}` : '',
             sanityModBare < 0 ? `${sanityModBare} sanity` : '',
           ].filter(Boolean).join(' ');
@@ -5631,9 +5643,9 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
+          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                       + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
+                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
           lootLostThisCard = effStr < monsterStr;
           outcomeEl.className = 'battle-outcome';
           effectLines = [];
@@ -5675,9 +5687,9 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
+          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                       + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
+                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
 
           // Helper: apply damage with armor absorption
           const applyBattleDamage = async () => {
@@ -5697,11 +5709,10 @@
 
           // Helper: apply win/tie passive bonuses (Matches, feral instinct, hardened skin)
           const applyWinBonuses = () => {
-            const matchesIdx = itemSlots.findIndex(c => c?.name === 'Matches');
-            if (matchesIdx >= 0) {
-              if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 1));
-              showToast('🔥 Matches — cooked the meat, food +1', false, 2000);
-            }
+            // Item passive_event: battle_win_or_tie
+            const itemLines = triggerBattleWinOrTie();
+            itemLines.forEach(l => showToast(l, false, 2000));
+            // Mutant bonuses
             if (hasMutant('feral_instinct')) {
               if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
               showToast('🧬 Feral instinct — food +2', false, 2400);
@@ -5948,10 +5959,8 @@
       const weapon     = inventory.weapon;
       const weaponStr  = (weapon && weaponUsesRemaining > 0) ? (weapon.strength ?? 0) : 0;
       const hasWeapon  = weapon != null && weaponUsesRemaining > 0;
-      const camoBonus  = itemSlots.some(c => c?.name === 'Camouflage') ? 1 : 0;
       const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
       const isMelee      = weapon && weapon.weapon_class === 'melee';
-      const holsterBonus = (itemSlots.some(c => c?.name === 'Holster') && isProjectile) ? 2 : 0;
       const tuskBonus     = countMutants('forehead_tusk') * 2;
       const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
       const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
@@ -5991,19 +6000,16 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
+          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                       + camoBonus + (usingWeapon ? holsterBonus : 0)
-                       + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
-          const labels = [
-            usingWeapon ? `+${weaponStr} weapon` : '',
-            camoBonus ? '+1 camo' : '',
-            (usingWeapon && holsterBonus) ? '+2 holster' : '',
-            tuskBonus ? `+${tuskBonus} tusk` : '',
-            hiveMindBonus ? '+3 hive mind' : '',
-            extraArmBonus ? '+3 extra arm' : '',
-            sanityMod > 0 ? `+${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : '',
-            sanityMod < 0 ? `${sanityMod} sanity` : '',
-          ].filter(Boolean).join(' ');
+                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
+          const weaponLabel   = usingWeapon       ? `+${weaponStr} weapon` : '';
+          const itemLabel     = itemLabels.length  ? itemLabels.join(' ')   : '';
+          const tuskLabel     = tuskBonus          ? `+${tuskBonus} tusk`  : '';
+          const hiveMindLabel = hiveMindBonus      ? '+3 hive mind'         : '';
+          const extraArmLabel = extraArmBonus      ? '+3 extra arm'         : '';
+          const sanityLabel   = sanityMod > 0      ? `+${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? `${sanityMod} sanity` : '';
+          const labels = [weaponLabel, itemLabel, tuskLabel, hiveMindLabel, extraArmLabel, sanityLabel].filter(Boolean).join(' ');
           playerSide.innerHTML = `
             <span class="battle-stat-label">Your STR${labels ? ' ' + labels : ''}</span>
             <span class="battle-stat-value player-str">${effStr}</span>`;
@@ -6023,9 +6029,10 @@
         updatePlayerSide();
       } else {
         const sanityModBare2 = getSanityStrModifier();
-        const bareStr = baseStr + camoBonus + tuskBonus + hiveMindBonus + sanityModBare2;
+        const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null);
+        const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + sanityModBare2;
         const bareLabels = [
-          camoBonus?'+1 camo':'',
+          ...bareItemLabels,
           tuskBonus?`+${tuskBonus} tusk`:'',
           hiveMindBonus?'+3 hive mind':'',
           sanityModBare2>0?`+${sanityModBare2} sanity${sanityModBare2===2?' (frenzy)':''}` : '',
@@ -6044,9 +6051,9 @@
       function updateOutcome() {
         const usingMelee = usingWeapon && isMelee;
         const extraArmBonus = getExtraArmBonus(usingMelee);
+        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
         const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                     + camoBonus + (usingWeapon ? holsterBonus : 0)
-                     + tuskBonus + hiveMindBonus + extraArmBonus;
+                     + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus;
         outcomeEl.className = 'battle-outcome';
         effectsEl.innerHTML = '';
         if (effStr > monsterStr) {
@@ -6085,9 +6092,9 @@
         btn.removeEventListener('click', handler);
         const usingMelee = usingWeapon && isMelee;
         const extraArmBonus = getExtraArmBonus(usingMelee);
+        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
         const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                     + camoBonus + (usingWeapon ? holsterBonus : 0)
-                     + tuskBonus + hiveMindBonus + extraArmBonus;
+                     + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus;
 
         if (usingWeapon && hasWeapon) {
           weaponUsesRemaining--;
@@ -6384,21 +6391,13 @@
         for (const [track, amount] of Object.entries(card.effects)) {
           let rounded = Math.round(amount);
           if (!rounded || !playerState[track]) continue;
-          // Firestarter kit: +1 extra food whenever food is collected
-          if (track === 'food' && rounded > 0 && itemSlots.some(c => c?.name === 'Firestarter kit')) {
-            rounded += 1;
-            effectLines.push(`🔥 Firestarter kit — +1 extra food`);
-          }
           const next = Math.max(0, Math.min(track === 'food' ? maxFood : 10, playerState[track].value + rounded));
           if (playerState[track].set) playerState[track].set(next);
           effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
-          // Tent passive: +1 extra health whenever health is gained from a gather card
-          if (track === 'health' && rounded > 0 && itemSlots.some(c => c?.name === 'Tent')) {
-            const tentHealth = Math.min(10, playerState.health.value + 1);
-            if (playerState.health.set) playerState.health.set(tentHealth);
-            effectLines.push(`⛺ Tent — +1 extra health`);
-          }
-          // Regenerative tissue mutant: stacks with Tent — +1 extra health per mutation card on health gain
+          // Item passive_event: gather_gain
+          const gatherBonusLines = triggerGatherGain(track, rounded);
+          effectLines.push(...gatherBonusLines);
+          // Regenerative tissue mutant: stacks with gather_gain items — +1 extra health per mutation card on health gain
           if (track === 'health' && rounded > 0) {
             const regenCount = countMutants('regenerative_tissue');
             if (regenCount > 0) {
@@ -6418,29 +6417,9 @@
           }
         }
       }
-    } else if (card.name === 'Ammo') {
-      // Instant-use: consumed immediately → discard
-      discardPile.push(card);
-      const weapon = inventory.weapon;
-      if (weapon && weapon.weapon_class === 'ranged') {
-        weaponUsesRemaining = weapon.uses;
-        refreshWeaponZone();
-        playReloadSound();
-        effectLines.push(`🔫 ${weapon.name} reloaded (${weapon.uses} uses restored)`);
-      } else {
-        effectLines.push('🔫 No ranged weapon to reload');
-      }
-    } else if (card.name === 'Fuel Can') {
-      // Instant-use: consumed immediately → discard
-      discardPile.push(card);
-      const vehicle = inventory.vehicle;
-      if (vehicle) {
-        vehicleUsesRemaining = vehicle.uses;
-        refreshVehicleZone();
-        effectLines.push(`⛽ ${vehicle.name} refuelled (${vehicle.uses} uses restored)`);
-      } else {
-        effectLines.push('⛽ No vehicle to refuel');
-      }
+    } else if (card.mechanism?.type === 'instant') {
+      // Instant-use: resolved immediately, card goes to discard
+      effectLines.push(...resolveInstantMechanism(card));
     } else {
       const type = card.type;
       let gearAcquired = false;
@@ -6454,28 +6433,27 @@
           effectLines.push(`🛡️ Kept existing ${card.armor_slot} armor`);
         }
       } else if (type === 'item') {
-        if (card.name === 'Backpack') {
-          if (itemSlots.some(c => c?.name === 'Backpack')) {
-            // Duplicate backpack — not taken → discard
+        if (card.mechanism?.type === 'capacity') {
+          // Capacity item (e.g. Backpack): only one per stat
+          const dupIdx = itemSlots.findIndex(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
+          if (dupIdx >= 0) {
             discardPile.push(card);
-            effectLines.push('🎒 Already carrying a Backpack');
+            effectLines.push(`🎒 Already carrying a ${card.name}`);
           } else {
-            // Place in first empty slot like any other item
             const emptyIdx = firstEmptyItemSlot();
             if (emptyIdx >= 0) {
               setItemSlot(emptyIdx, card);
-              equipBackpack();
-              effectLines.push('🎒 Backpack equipped — food capacity expanded to 10');
+              applyCapacityMechanism(card, true);
+              effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
               gearAcquired = true;
             } else {
               const discardIdx = await promptItemDiscard(card);
               if (discardIdx >= 0) {
                 const displaced = itemSlots[discardIdx];
-                // If displacing another backpack, revert food
-                if (displaced?.name === 'Backpack') unequipBackpack();
+                if (displaced?.mechanism?.type === 'capacity') applyCapacityMechanism(displaced, false);
                 setItemSlot(discardIdx, card);
-                equipBackpack();
-                effectLines.push('🎒 Backpack equipped — food capacity expanded to 10');
+                applyCapacityMechanism(card, true);
+                effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
                 gearAcquired = true;
               } else {
                 discardPile.push(card);
@@ -6488,13 +6466,7 @@
           if (emptyIdx >= 0) {
             setItemSlot(emptyIdx, card);
             // Card goes to inventory — not discard
-            if (card.name === 'Compass') {
-              effectLines.push(gameVariant === 'armor'
-                ? '🧭 Compass — reduces food cost on slots 1 & 2 by 1'
-                : '🧭 Compass — +1 SPD per turn');
-            } else {
-              effectLines.push(`🎒 ${card.name} placed in item slot`);
-            }
+            effectLines.push(`🎒 ${card.name} placed in item slot`);
             gearAcquired = true;
           } else {
             const discardIdx = await promptItemDiscard(card);
@@ -6558,20 +6530,19 @@
       }
       const baseSpd      = getSpeed(playerState.sanity.value);
       const vehLabel     = vehContributed ? ` + ${vehCard.move} (${vehCard.name})` : '';
-      const compassLabel = itemSlots.some(c => c?.name === 'Compass') ? ' + 1 (🧭)' : '';
       const tendonsCount = countMutants('elastic_tendons');
       const tendonsLabel = tendonsCount > 0 ? ` + ${tendonsCount * 2} (🧬)` : '';
 
       if (reachedEnd) {
         const locationNames = ['The Sprawl', 'The Hive', 'The Sanctuary'];
         const nextName = locationNames[Math.min(deckPass, 2)];
-        showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${compassLabel}${tendonsLabel}${vehLabel}\n📍 Arriving at ${nextName}…`, false, 3000);
+        showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${tendonsLabel}${vehLabel}\n📍 Arriving at ${nextName}…`, false, 3000);
         await new Promise(r => setTimeout(r, 2000));
         await onDeckExhausted();
         return;
       }
 
-      showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${compassLabel}${tendonsLabel}${vehLabel}\n${drawPile.length} cards remaining`, false, 2500);
+      showToast(`🚶 Moved ${speed} — ${baseSpd} SPD${tendonsLabel}${vehLabel}\n${drawPile.length} cards remaining`, false, 2500);
       await new Promise(r => setTimeout(r, 2200));
     }
 
@@ -6779,7 +6750,7 @@
       fullDeck = data.loot_deck;
 
       // Separate by location; armor variant excludes vehicles, anti-virals, fuel cans
-      const ARMOR_EXCLUDE = new Set(['Anti-viral','Anti-virals','Fuel Can','Camouflage','Body armour','Gas mask']);
+      const ARMOR_EXCLUDE = new Set(['Fuel Can','Camouflage','Body armour','Gas mask']);
       const variantFilter = c => gameVariant === 'armor'
         ? (c.type !== 'vehicle' && !ARMOR_EXCLUDE.has(c.name))
         : (c.type !== 'armor');
@@ -6811,7 +6782,7 @@
       // Pull 3 random item or weapon cards from the road portion of the full deck
       // (drawPile already sliced; sample from fullDeck road items/weapons instead,
       //  avoiding cards already in the draw pile by sampling from the full filtered pool)
-      const ARMOR_EXCLUDE = new Set(['Anti-viral','Anti-virals','Fuel Can','Camouflage','Body armour','Gas mask']);
+      const ARMOR_EXCLUDE = new Set(['Fuel Can','Camouflage','Body armour','Gas mask']);
       const eligible = shuffle(
         fullDeck.filter(c =>
           c.location === 'road' &&
@@ -7062,8 +7033,7 @@
         } else {
           // item — place in first slot (always empty at game start)
           setItemSlot(0, startingCard);
-          // Special post-equip effects
-          if (startingCard.name === 'Backpack') equipBackpack();
+          if (startingCard.mechanism?.type === 'capacity') applyCapacityMechanism(startingCard, true);
           updateItemBars();
         }
         gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
