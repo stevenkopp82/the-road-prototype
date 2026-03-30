@@ -496,7 +496,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 14,
-      "icon": "🔫"
+      "icon": "SVGs/ak47.svg"
     },
     {
       "name": "Hatchet",
@@ -516,7 +516,7 @@
       "uses": 2,
       "weapon_class": "ranged",
       "value": 16,
-      "icon": "🎯"
+      "icon": "SVGs/fn-fal.svg"
     },
     {
       "name": "Mutant Claw",
@@ -578,7 +578,7 @@
       "text": "Use once: Reload range weapon",
       "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
       "value": 4,
-      "icon": "🔫"
+      "icon": "SVGs/heavy-bullets.svg"
     },
     {
       "name": "Brass knuckes",
@@ -588,7 +588,7 @@
       "uses": 5,
       "weapon_class": "melee",
       "value": 15,
-      "icon": "✊"
+      "icon": "SVGs/brass-knuckles.svg"
     },
     {
       "name": "Edible Bugs",
@@ -631,7 +631,7 @@
       "mechanism": { "type": "active", "timing": "pre_pick", "effect": "suppress_threats" },
       "uses": 3,
       "value": 10,
-      "icon": "📻"
+      "icon": "SVGs/walkie-talkie.svg"
     },
     {
       "name": "Machete",
@@ -665,7 +665,7 @@
         "mutation": 2
       },
       "value": 1,
-      "icon": "🍄"
+      "icon": "SVGs/trunk-mushroom.svg"
     },
     {
       "name": "Medical cache",
@@ -677,7 +677,7 @@
         "mutation": 1
       },
       "value": 6,
-      "icon": "💊"
+      "icon": "SVGs/medicine-pills.svg"
     },
     {
       "name": "Scavenged wire",
@@ -688,7 +688,7 @@
         "sanity": 2
       },
       "value": 4,
-      "icon": "⚡"
+      "icon": "SVGs/wire-coil.svg"
     },
     {
       "name": "Adrenaline shot",
@@ -720,7 +720,7 @@
       "strength": 5,
       "uses": 4,
       "value": 20,
-      "icon": "SVGs/bow-arrow.svg"
+      "icon": "SVGs/crossbow.svg"
     },
     {
       "name": "face wrap",

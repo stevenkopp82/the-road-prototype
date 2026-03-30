@@ -296,6 +296,7 @@
     </div>
   </div>
 </div>
+</div>
 
 <div id="you-win">
   <div class="you-win-box">
@@ -338,24 +339,6 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       AREA MAP DIALOG
-  ══════════════════════════════════════ -->
-  <div id="areamap-dialog">
-    <div class="areamap-box">
-      <div class="areamap-title">🗺️ Area Map</div>
-      <div class="areamap-body" id="am-body">You have an Area Map. Use it to reduce this card's cost to 1 food and 0 threat?</div>
-      <div class="areamap-cost-preview" id="am-cost-preview"></div>
-      <div class="areamap-btns">
-        <button class="areamap-btn am-use"  id="am-btn-use">🗺️ Use Map</button>
-        <button class="areamap-btn am-skip" id="am-btn-skip">Save for Later</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       ANTI-VIRAL DIALOG
-  ══════════════════════════════════════ -->
-  <!-- ══════════════════════════════════════
        MUTANT CARD DIALOG
   ══════════════════════════════════════ -->
   <div id="mutant-dialog">
@@ -363,36 +346,6 @@
       <div class="mutant-title">🧬 Mutation Gained</div>
       <div class="mutant-subtitle" id="mutant-subtitle">Your body is changing — choose what takes hold.</div>
       <div class="mutant-choice-row" id="mutant-choice-row"></div>
-    </div>
-  </div>
-
-
-  <!-- ══════════════════════════════════════
-       COMPASS LOOT PEEK DIALOG
-  ══════════════════════════════════════ -->
-  <div id="compass-peek-dialog">
-    <div class="compass-peek-box">
-      <div class="compass-peek-title">🧭 Loot Preview</div>
-      <div class="compass-peek-subtitle">Top card of the loot deck</div>
-      <div class="peek-card-display" id="compass-card-display"></div>
-      <div class="peek-btns">
-        <button class="peek-btn-action peek-keep"    id="compass-btn-keep">Leave on Deck</button>
-        <button class="peek-btn-action peek-discard" id="compass-btn-discard">Discard</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       BINOCULARS PEEK DIALOG
-  ══════════════════════════════════════ -->
-  <div id="peek-dialog">
-    <div class="peek-box">
-      <div class="peek-title">🔭 Threat Revealed</div>
-      <div class="peek-card-display" id="peek-card-display"></div>
-      <div class="peek-btns">
-        <button class="peek-btn-action peek-keep"    id="peek-btn-keep">Return to Deck</button>
-        <button class="peek-btn-action peek-discard" id="peek-btn-discard">Discard</button>
-      </div>
     </div>
   </div>
 
@@ -491,23 +444,20 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       PAYMENT CHOICE DIALOG (slot 1)
-  ══════════════════════════════════════ -->
-  <!-- ══════════════════════════════════════
        DRAFT DIALOG
   ══════════════════════════════════════ -->
-  <!-- ══════════════════════════════════════
-       STARTING GEAR PICK
-  ══════════════════════════════════════ -->
-  <div id="starting-gear-dialog">
+  <div id="starting-gear-dialog" class="open">
     <div class="draft-box">
       <div class="draft-title" id="sg-title">⚙ Starting Gear</div>
-      <div class="draft-subtitle" id="sg-subtitle">Choose one item to begin your journey with.</div>
+      <div class="draft-subtitle" id="sg-subtitle">Preparing your options…</div>
       <div class="draft-cards" id="sg-cards"></div>
       <button class="draft-confirm-btn" id="sg-confirm-btn" disabled>Take It</button>
     </div>
   </div>
 
+    <!-- ══════════════════════════════════════
+       STARTING GEAR PICK
+  ══════════════════════════════════════ -->
   <div id="draft-dialog">
     <div class="draft-box">
       <div class="draft-title" id="draft-title">📦 Choose Your Supplies</div>
@@ -518,6 +468,9 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════
+       PAYMENT CHOICE DIALOG (slot 1)
+  ══════════════════════════════════════ -->
   <div id="payment-dialog">
     <div class="payment-box">
       <div class="payment-title">How Will You Pay?</div>
@@ -1866,44 +1819,6 @@
       zone.appendChild(btn);
       return { btn, refresh };
     };
-
-    if (card.name === 'Stash of ration packs') {
-      // passive — handled in applyStarvation
-
-    } else if (card.name === 'Camouflage') {
-      // passive — handled in getPlayerStrength
-
-    } else if (card.name === 'Matches') {
-      // passive — handled in resolveThreatCard on battle win/tie
-
-    } else if (card.name === 'Torch') {
-      // optional start-of-turn — button lives in #torch-bar
-
-    } else if (card.name === 'Tent') {
-      // passive — handled on health gain from gather
-
-    } else if (card.name === 'Compass') {
-      // passive — effect applied automatically; toast shown at acquisition time
-
-    } else if (card.name === 'Binoculars') {
-      // passive — handled in getEffectiveCosts / onCardSelected
-
-    } else if (card.name === 'Area map') {
-      // passive — handled in getEffectiveCosts / onCardSelected
-
-    } else if (card.name === 'Walkie-talkie') {
-      // active button — handled by walkie-bar / updateWalkieBar
-
-    } else if (card.name === 'Body armour') {
-      // passive — handled in resolveThreatCard damage application
-
-    } else if (card.name === 'Gas mask') {
-      // passive — handled in getEffectiveCosts / onCardSelected
-      updateSlotCosts();
-
-    } else if (card.name === 'Adrenaline shot') {
-      // active button — handled by adrenaline-bar / updateAdrenalineBar
-    }
   }
   let replaceResolve = null; // resolve fn for the pending promise
 
@@ -3490,6 +3405,7 @@
       // Pull 3 random item or weapon cards from the road portion of the full deck
       // (drawPile already sliced; sample from fullDeck road items/weapons instead,
       //  avoiding cards already in the draw pile by sampling from the full filtered pool)
+      console.log('Running starting gear pick');
       const eligible = shuffle(
         fullDeck.filter(c => c.location === 'road' && (c.type === 'item' || c.type === 'weapon'))
       ).slice(0, 3);
@@ -3506,10 +3422,12 @@
       subtitleEl.textContent = 'You scavenged something before setting out. Choose one to keep.';
       confirmBtn.disabled    = true;
       cardsEl.innerHTML      = '';
-
+      // Dialog is already open from page load — no classList.add needed
+      console.log('Eligible starting gear:', eligible);
       let chosen = null;
 
       const wraps = eligible.map((card) => {
+        console.log('Rendering starting gear option:', card);
         const wrap = document.createElement('div');
         wrap.className = 'draft-card-wrap';
 
@@ -3531,8 +3449,7 @@
         return wrap;
       });
 
-      dialog.classList.add('open');
-
+      console.log('Starting gear dialog rendered, awaiting player choice');
       confirmBtn.onclick = () => {
         dialog.classList.remove('open');
         resolve(chosen);
@@ -3983,10 +3900,17 @@
 
   loadThreatDeck();
   loadMutantDeck();
+  const _deckReady = loadDeck(0); // start fetch immediately, in parallel with other decks
+
+  // Show chrome immediately
+  document.getElementById('restart-btn').style.display = 'block';
+  document.getElementById('rules-btn-game').style.display = 'flex';
 
   /* ── Start game sequence on page load ── */
   (async function startGame() {
-    await loadDeck(0); // populate fullDeck so gear pick can sample from it
+    console.log('Starting game...');
+    await _deckReady; // await the already-in-flight fetch (usually already done by now)
+    console.log('Deck loaded, running starting gear pick...');
     const startingCard = await runStartingGearPick();
     await loadDeck(gameDealCount, startingCard?.name ?? null);
     if (startingCard) {
@@ -4002,8 +3926,6 @@
     gameLog.newTurn('Game Start');
     document.getElementById('game-log').classList.add('log-visible');
     document.getElementById('log-toggle-btn').style.display = 'block';
-    document.getElementById('restart-btn').style.display = 'block';
-    document.getElementById('rules-btn-game').style.display = 'flex';
     const count = Math.min(drawPile.length, DRAW_SLOTS);
     const drawn = drawPile.splice(0, count);
     placeCards(drawn);
