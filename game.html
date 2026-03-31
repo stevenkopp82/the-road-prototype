@@ -112,7 +112,7 @@
     <table class="rb-table">
       <tr><th>#</th><th>Step</th><th>Notes</th></tr>
       <tr><td>1</td><td>Select a card</td><td>Click any face-up card on the Gather Track.</td></tr>
-      <tr><td>2</td><td>Pay the cost</td><td>Each slot has a food and/or threat cost (and sometimes a mutation cost in The Hive). Some slots offer a payment choice.</td></tr>
+      <tr><td>2</td><td>Pay the cost</td><td>Each slot has a food and/or threat cost. Some slots offer a payment choice.</td></tr>
       <tr><td>3</td><td>Resolve threats</td><td>Draw and resolve threat cards one at a time. A monster loss skips any remaining threats that turn.</td></tr>
       <tr><td>4</td><td>Resolve the card</td><td>Apply the card's effect — gain stats, take gear, or use an instant item.</td></tr>
       <tr><td>5</td><td>Discard board</td><td>All unselected cards are discarded. If you lost a battle, the loot card stays in its slot instead.</td></tr>
@@ -147,11 +147,11 @@
     <div class="rb-subsection">The Hive — Slot Costs</div>
     <table class="rb-table">
       <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
-      <tr><td>1</td><td>1 Food + 1 Threat</td><td>2 Food + 1 Mutation</td></tr>
+      <tr><td>1</td><td>1 Food + 1 Threat</td><td>—</td></tr>
       <tr><td>2</td><td>2 Food + 1 Threat</td><td>—</td></tr>
       <tr><td>3</td><td>2 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>4</td><td>2 Food + 2 Threats + 1 Mutation</td><td>—</td></tr>
-      <tr><td>5</td><td>2 Food + 3 Threats + 1 Mutation</td><td>—</td></tr>
+      <tr><td>4</td><td>2 Food + 2 Threats</td><td>—</td></tr>
+      <tr><td>5</td><td>2 Food + 3 Threats</td><td>—</td></tr>
     </table>
     <div class="rb-body">
       <p>Items that reduce costs (Binoculars, Area Map, Compass, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
@@ -213,7 +213,7 @@
     <!-- MUTATIONS -->
     <div class="rb-section-title" id="rb-mutations">Mutations</div>
     <div class="rb-body">
-      <p>Mutation increases from gather cards, monster ties and losses, threat setbacks, and Hive slot costs. The track moves in one direction only — toward game over at 10.</p>
+      <p>Mutation increases from gather cards, monster ties and losses, and threat setbacks. The track moves in one direction only — toward game over at 10.</p>
       <p>When your mutation marker crosses positions <strong>4</strong>, <strong>6</strong>, or <strong>9</strong>, draw <strong>two</strong> Mutant cards. Choose one to keep permanently; the other is shuffled back into the deck.</p>
     </div>
     <table class="rb-table">
@@ -263,7 +263,7 @@
       <tr><th>Location</th><th>Cards</th><th>Flavour</th></tr>
       <tr><td>🛣️ The Road</td><td>Road deck (30–40 based on difficulty)</td><td>Open wasteland. Manageable threats, scarce resources.</td></tr>
       <tr><td>🏘️ The Sprawl</td><td>Draft + discard pile</td><td>Silent suburbs. More gear, more danger.</td></tr>
-      <tr><td>🏙️ The Hive</td><td>Draft + discard pile</td><td>Demolished city. High reward, high threat. Mutation costs on some slots.</td></tr>
+      <tr><td>🏙️ The Hive</td><td>Draft + discard pile</td><td>Demolished city. High reward, high threat.</td></tr>
       <tr><td>🏛️ The Sanctuary</td><td>Win condition</td><td>Safety — if you can reach it.</td></tr>
     </table>
     <div class="rb-subsection">Location Transitions &amp; The Draft</div>
@@ -892,11 +892,11 @@
     ],
     // The Hive
     [
-      { food: 1, threat: 1,          alt: { food: 2, threat: 0, mutation: 1 } },
+      { food: 1, threat: 1 },
       { food: 2, threat: 1 },
       { food: 2, threat: 2 },
-      { food: 2, threat: 2, mutation: 1 },
-      { food: 2, threat: 3, mutation: 1 },
+      { food: 2, threat: 2 },
+      { food: 2, threat: 3 },
     ],
   ];
 
@@ -1108,7 +1108,7 @@
       const stat = document.createElement('div');
       stat.className = 'card-stat';
       const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
-      stat.innerHTML = `🛡️ Absorbs: ${parts}`;
+      stat.innerHTML = `🛡️: ${parts}`;
       wrap.appendChild(stat);
       const slotTag = document.createElement('div');
       slotTag.className = 'card-stat';
@@ -1598,19 +1598,9 @@
     const existing = armorSlots[slotKey];
 
     if (existing) {
-      // Prompt replace (same dialog as weapons)
-      document.getElementById('replace-name').textContent    = existing.card.name;
-      document.getElementById('replace-incoming').textContent = card.name;
-      const replace = await new Promise(resolve => {
-        replaceResolve = resolve;
-        document.getElementById('replace-dialog').classList.add('open');
-      });
-      if (!replace) {
-        // Kept existing — incoming card goes to permanent discard (not loot pile)
-        return { taken: false };
-      }
+      const replace = await promptReplace('armor', existing.card, card);
+      if (!replace) return { taken: false };
       // Trash the old armor permanently (no discard pile cycle)
-      // (don't push to discardPile — armor is trashed out of play)
     }
     armorSlots[slotKey] = { card, pips: { ...card.absorb } };
     refreshArmorSlot(slotKey);
@@ -1919,6 +1909,7 @@
   let mutantFull  = [];
   let mutantPile  = [];
   let mutantCards = []; // cards the player currently holds
+  let _pendingMutantSpots = 0; // count of mutation thresholds crossed, awaited by game flow
 
   async function loadMutantDeck() {
     try {
@@ -1953,10 +1944,18 @@
     if (mutantCards.length === 0) { panel.style.display = 'none'; return; }
     panel.style.display = '';
     mutantCards.forEach(c => {
-      const tag = document.createElement('div');
-      tag.className = 'mutant-card-tag';
-      tag.textContent = `${c.icon ? c.icon + ' ' : ''}${c.name} — ${c.text}`;
-      container.appendChild(tag);
+      // Render as a loot-style card by building a synthetic card object
+      const synth = {
+        name: c.name,
+        type: 'mutant',
+        icon: c.icon ?? '🧬',
+        effects: {},
+        text: c.text,
+      };
+      const cardEl = renderCard(synth);
+      cardEl.addEventListener('mouseenter', () => showMagnifier(synth, cardEl));
+      cardEl.addEventListener('mouseleave', hideMagnifier);
+      container.appendChild(cardEl);
     });
   }
 
@@ -2036,6 +2035,14 @@
     renderMutantPanel();
     // Refresh board costs — some mutations affect slot costs (e.g. future_flicker)
     updateSlotCosts();
+  }
+
+  /* Await all pending mutation card picks before continuing game flow */
+  async function drainMutantSpots() {
+    while (_pendingMutantSpots > 0) {
+      _pendingMutantSpots--;
+      await onMutantCardSpot();
+    }
   }
 
   function drawThreatCard() {
@@ -2842,6 +2849,7 @@
     }
 
     dialog.classList.remove('open');
+    await drainMutantSpots(); // show mutation card picks immediately after all threats resolve
     return { lootLost };
   }
 
@@ -3405,7 +3413,7 @@
       // Pull 3 random item or weapon cards from the road portion of the full deck
       // (drawPile already sliced; sample from fullDeck road items/weapons instead,
       //  avoiding cards already in the draw pile by sampling from the full filtered pool)
-      console.log('Running starting gear pick');
+
       const eligible = shuffle(
         fullDeck.filter(c => c.location === 'road' && (c.type === 'item' || c.type === 'weapon'))
       ).slice(0, 3);
@@ -3423,11 +3431,9 @@
       confirmBtn.disabled    = true;
       cardsEl.innerHTML      = '';
       // Dialog is already open from page load — no classList.add needed
-      console.log('Eligible starting gear:', eligible);
       let chosen = null;
 
       const wraps = eligible.map((card) => {
-        console.log('Rendering starting gear option:', card);
         const wrap = document.createElement('div');
         wrap.className = 'draft-card-wrap';
 
@@ -3436,6 +3442,8 @@
         check.textContent = '✓';
         wrap.appendChild(check);
         wrap.appendChild(renderCard(card));
+        wrap.addEventListener('mouseenter', () => showMagnifier(card, wrap));
+        wrap.addEventListener('mouseleave', hideMagnifier);
 
         wrap.addEventListener('click', () => {
           // Deselect all, select this one
@@ -3449,7 +3457,6 @@
         return wrap;
       });
 
-      console.log('Starting gear dialog rendered, awaiting player choice');
       confirmBtn.onclick = () => {
         dialog.classList.remove('open');
         resolve(chosen);
@@ -3494,6 +3501,8 @@
         check.textContent = '✓';
         wrap.appendChild(check);
         wrap.appendChild(renderCard(card));
+        wrap.addEventListener('mouseenter', () => showMagnifier(card, wrap));
+        wrap.addEventListener('mouseleave', hideMagnifier);
 
         wrap.addEventListener('click', () => {
           if (selected.has(i)) {
@@ -3705,15 +3714,13 @@
       render();
       // Refresh item action buttons when food changes
       if (track.id === 'food') renderItemSlots();
-      // Trigger mutant card draw when mutation marker crosses onto a card-spot
+      // Track mutation thresholds crossed — game flow awaits these via drainMutantSpots()
       if (track.id === 'mutation') {
         const MUTATION_CARDS_SET = new Set([4, 6, 9]);
-        // Check each card spot between prevVal (exclusive) and newVal (inclusive)
         const lo = Math.min(prevVal, newVal), hi = Math.max(prevVal, newVal);
         for (const spot of MUTATION_CARDS_SET) {
           if (spot > lo && spot <= hi && newVal > prevVal) {
-            // Landed on or crossed this spot moving upward
-            setTimeout(() => onMutantCardSpot(), 100);
+            _pendingMutantSpots++;
             break; // one card per move
           }
         }
@@ -3908,9 +3915,8 @@
 
   /* ── Start game sequence on page load ── */
   (async function startGame() {
-    console.log('Starting game...');
+
     await _deckReady; // await the already-in-flight fetch (usually already done by now)
-    console.log('Deck loaded, running starting gear pick...');
     const startingCard = await runStartingGearPick();
     await loadDeck(gameDealCount, startingCard?.name ?? null);
     if (startingCard) {

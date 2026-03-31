@@ -604,7 +604,6 @@
       "name": "Canned goods haul",
       "location": "sprawl",
       "type": "gather",
-      "text": "A looted convenience store — shelves mostly bare, but you fill your pack.",
       "effects": {
         "food": 5
       },
@@ -615,7 +614,6 @@
       "name": "Survivor's journal",
       "location": "sprawl",
       "type": "gather",
-      "text": "Someone else's record of making it this far. Reading it steadies you.",
       "effects": {
         "sanity": 3,
         "health": 1
@@ -637,7 +635,7 @@
       "name": "Machete",
       "location": "sprawl",
       "type": "weapon",
-      "text": "Melee. The suburban workhorse — nothing fancy, just reliable.",
+      "text": "Melee",
       "weapon_class": "melee",
       "strength": 4,
       "uses": 6,
@@ -648,12 +646,12 @@
       "name": "Flare gun",
       "location": "sprawl",
       "type": "weapon",
-      "text": "Ranged. Reload with Ammo. Blinding flash — not meant to kill, but it does the job.",
+      "text": "Ranged. Reload with Ammo.",
       "weapon_class": "ranged",
       "strength": 5,
       "uses": 2,
       "value": 10,
-      "icon": "SVGs/flare-gun.svg"
+      "icon": "SVGs/firework-rocket.svg"
     },
     {
       "name": "Fungal growth",
@@ -989,7 +987,7 @@
         "sanity": 3
       },
       "value": 5,
-      "icon": "SVGs/photo-album.svg"
+      "icon": "SVGs/photo-camera.svg"
     },
     {
       "name": "Blood transfusion kit",

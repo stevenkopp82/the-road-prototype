@@ -820,6 +820,7 @@
     .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
     .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
     .badge-armor   { background: rgba(80,140,200,0.28);  color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
+    .badge-mutant  { background: rgba(139,74,200,0.3);  color: #b87ee8; border: 1px solid rgba(139,74,200,0.55); }
 
     .card-name {
       font-family: 'Cinzel', serif;
@@ -2577,17 +2578,13 @@
     /* Mutant cards list panel */
     #mutant-cards-panel {
       margin-top: 0.6rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
     }
-    .mutant-card-tag {
-      font-family: 'Spectral', serif;
-      font-size: 0.62rem;
-      color: #c080f0;
-      opacity: 0.75;
-      padding: 2px 6px;
-      border-left: 1px solid rgba(139,74,200,0.4);
+    #mutant-tags-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
     }
 
 
