@@ -35,8 +35,8 @@ Player selects a character at the start of the game. Each character has a passiv
 | **Hunter** | Gain +2 whenever he wins a battle. Starts with the bow and arrow |
 
 ### Implementation Notes
-- Eliminate the gear selection dialog, since some characters start with gear.
+- Eliminate the gear selection dialog, since some characters start with gear. If the character does not have starting gear, just don't equip and item/weapon
 - Character selection appears on `index.html` before difficulty.
 - The chosen character is saved to `sessionStorage` and read in `game.html` on load.
 - Most benefits are passive modifiers applied at known hook points (gather resolution, battle STR calc, cost modifiers) — no new architecture needed.
-- Starting gear bonuses (e.g. Ranger starts with Binoculars) can be handled in the starting gear dialog by pre-equipping the item rather than offering it as a choice.
+- The Player Board should say Character Name instead of Player Board at the top

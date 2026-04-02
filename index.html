@@ -25,6 +25,38 @@
       <span class="sm-goal-title">Your Objective</span>
       Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
     </div>
+    <!-- Character selection -->
+    <div class="sm-character" id="sm-character">
+      <div class="sm-character-label">Who are you?</div>
+      <div class="sm-char-btns">
+        <button class="sm-char-btn" data-char="soldier">
+          <span class="sm-char-icon">⚔️</span>
+          <span class="sm-char-name">Soldier</span>
+          <span class="sm-char-benefit">+1 STR in all battles. Starts with a Handgun.</span>
+        </button>
+        <button class="sm-char-btn" data-char="medic">
+          <span class="sm-char-icon">🩺</span>
+          <span class="sm-char-name">Medic</span>
+          <span class="sm-char-benefit">+1 Health on gather heals. Starts with +2 Health.</span>
+        </button>
+        <button class="sm-char-btn" data-char="survivalist">
+          <span class="sm-char-icon">🎒</span>
+          <span class="sm-char-name">Survivalist</span>
+          <span class="sm-char-benefit">+1 Food on gather food. Starts with the Backpack.</span>
+        </button>
+        <button class="sm-char-btn" data-char="psychologist">
+          <span class="sm-char-icon">🧠</span>
+          <span class="sm-char-name">Psychologist</span>
+          <span class="sm-char-benefit">+1 Sanity on gather sanity. Starts with +2 Sanity.</span>
+        </button>
+        <button class="sm-char-btn" data-char="hunter">
+          <span class="sm-char-icon">🏹</span>
+          <span class="sm-char-name">Hunter</span>
+          <span class="sm-char-benefit">+2 Food on battle win. Starts with Bow &amp; Arrows.</span>
+        </button>
+      </div>
+    </div>
+
     <!-- variant selection hidden; armor mode is active by default -->
     <div class="sm-difficulty">
       <div class="sm-difficulty-label">How much do you have left to lose?</div>
@@ -44,8 +76,26 @@
 <button class="rules-btn" id="rules-btn-start" title="Rulebook">?</button>
 
 <script>
+  let selectedChar = null;
+
+  document.querySelectorAll('.sm-char-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
+      btn.classList.add('sm-char-selected');
+      selectedChar = btn.dataset.char;
+      document.getElementById('sm-character').classList.remove('sm-character-required');
+    });
+  });
+
   document.querySelectorAll('.sm-diff-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      if (!selectedChar) {
+        const charEl = document.getElementById('sm-character');
+        charEl.classList.add('sm-character-required');
+        setTimeout(() => charEl.classList.remove('sm-character-required'), 600);
+        return;
+      }
+      sessionStorage.setItem('character', selectedChar);
       sessionStorage.setItem('deal',     btn.dataset.deal);
       sessionStorage.setItem('food',     btn.dataset.food);
       sessionStorage.setItem('health',   btn.dataset.health);

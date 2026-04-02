@@ -446,7 +446,7 @@
   <!-- ══════════════════════════════════════
        DRAFT DIALOG
   ══════════════════════════════════════ -->
-  <div id="starting-gear-dialog" class="open">
+  <div id="starting-gear-dialog">
     <div class="draft-box">
       <div class="draft-title" id="sg-title">⚙ Starting Gear</div>
       <div class="draft-subtitle" id="sg-subtitle">Preparing your options…</div>
@@ -537,7 +537,7 @@
       <div class="corner-br"></div>
       <div class="corner-bl"></div>
 
-      <div class="board-title">Player Board</div>
+      <div class="board-title" id="board-title">Player Board</div>
       <div class="divider"></div>
 
       <div class="tracks-container" id="tracks-container"></div>
@@ -2087,10 +2087,13 @@
   /* ── Compute player's base strength (no weapon) ── */
   function getBaseStrength() {
     const healthVal = playerState.health.value;
-    if (healthVal === 10)    return 3;
-    if (healthVal >= 7)      return 2;
-    if (healthVal >= 3)      return 1;
-    return 0;
+    let base;
+    if (healthVal === 10)    base = 3;
+    else if (healthVal >= 7) base = 2;
+    else if (healthVal >= 3) base = 1;
+    else                     base = 0;
+    if (character === 'soldier') base += 1;
+    return base;
   }
 
   /* ── Sanity STR modifier ── */
@@ -2420,6 +2423,11 @@
             // Item passive_event: battle_win_or_tie
             const itemLines = triggerBattleWinOrTie();
             itemLines.forEach(l => showToast(l, false, 2000));
+            // Character passive: Hunter gains +2 food on battle win/tie
+            if (character === 'hunter') {
+              if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
+              showToast('🏹 Hunter — food +2', false, 2400);
+            }
             // Mutant bonuses
             if (hasMutant('feral_instinct')) {
               if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
@@ -3108,6 +3116,22 @@
               effectLines.push(`🧬 Loss of fear — +${fearCount} extra sanity`);
             }
           }
+          // Character passive bonuses on gather gains
+          if (track === 'health' && rounded > 0 && character === 'medic') {
+            const next = Math.min(10, playerState.health.value + 1);
+            if (playerState.health.set) playerState.health.set(next);
+            effectLines.push('🩺 Medic — +1 extra health');
+          }
+          if (track === 'food' && rounded > 0 && character === 'survivalist') {
+            const next = Math.min(maxFood, playerState.food.value + 1);
+            if (playerState.food.set) playerState.food.set(next);
+            effectLines.push('🎒 Survivalist — +1 extra food');
+          }
+          if (track === 'sanity' && rounded > 0 && character === 'psychologist') {
+            const next = Math.min(10, playerState.sanity.value + 1);
+            if (playerState.sanity.set) playerState.sanity.set(next);
+            effectLines.push('🧠 Psychologist — +1 extra sanity');
+          }
         }
       }
     } else if (card.mechanism?.type === 'instant') {
@@ -3636,6 +3660,17 @@
     sanity:   parseInt(sessionStorage.getItem('sanity')   ?? '7',  10),
     mutation: parseInt(sessionStorage.getItem('mutation') ?? '1',  10),
   };
+
+  /* ── Character selection ── */
+  const CHARACTER_DEFS = {
+    soldier:      { label: 'Soldier',      startGear: 'Handgun',         strBonus: 1 },
+    medic:        { label: 'Medic',        startGear: null,              strBonus: 0, statBonus: { health: 2 } },
+    survivalist:  { label: 'Survivalist',  startGear: 'Backpack',        strBonus: 0 },
+    psychologist: { label: 'Psychologist', startGear: null,              strBonus: 0, statBonus: { sanity: 2 } },
+    hunter:       { label: 'Hunter',       startGear: 'Bow and arrows',  strBonus: 0 },
+  };
+  const character = sessionStorage.getItem('character') ?? 'soldier';
+  const charDef   = CHARACTER_DEFS[character] ?? CHARACTER_DEFS.soldier;
   gameDealCount = _session.deal;
   playerState.food.value     = _session.food;
   playerState.health.value   = _session.health;
@@ -3657,6 +3692,22 @@
   TRACKS.find(t => t.id === 'health').defaultValue   = _session.health;
   TRACKS.find(t => t.id === 'sanity').defaultValue   = _session.sanity;
   TRACKS.find(t => t.id === 'mutation').defaultValue = _session.mutation;
+
+  // Apply character starting stat bonuses
+  if (charDef.statBonus?.health) {
+    const h = Math.min(10, _session.health + charDef.statBonus.health);
+    playerState.health.value = h;
+    TRACKS.find(t => t.id === 'health').defaultValue = h;
+  }
+  if (charDef.statBonus?.sanity) {
+    const s = Math.min(10, _session.sanity + charDef.statBonus.sanity);
+    playerState.sanity.value = s;
+    TRACKS.find(t => t.id === 'sanity').defaultValue = s;
+  }
+
+  // Set player board title to character name
+  const boardTitleEl = document.getElementById('board-title');
+  if (boardTitleEl) boardTitleEl.textContent = charDef.label;
 
   const SPACES = 10;
 
@@ -3942,7 +3993,9 @@
   (async function startGame() {
 
     await _deckReady; // await the already-in-flight fetch (usually already done by now)
-    const startingCard = await runStartingGearPick();
+    // Character-based starting gear — skip the random gear dialog
+    const gearName    = charDef.startGear;
+    const startingCard = gearName ? (fullDeck.find(c => c.name === gearName) ?? null) : null;
     await loadDeck(gameDealCount, startingCard?.name ?? null);
     if (startingCard) {
       if (startingCard.type === 'weapon') {
