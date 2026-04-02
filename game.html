@@ -1104,6 +1104,19 @@
       stat.innerHTML = `🔧 STR ${card.strength}${classTag}` + (card.uses ? ` · ${card.uses} uses` : '');
       wrap.appendChild(stat);
     }
+    if (card.env_bonuses?.length) {
+      const envRow = document.createElement('div');
+      envRow.className = 'card-env-bonuses';
+      card.env_bonuses.forEach(eb => {
+        const envDef = SLOT_ENVIRONMENTS.find(e => e.label.toLowerCase() === eb.env?.toLowerCase());
+        const badge = document.createElement('span');
+        badge.className = 'card-env-badge';
+        badge.textContent = `${envDef?.icon ?? ''}`;
+        badge.title = `+${eb.bonus} STR in ${eb.env.charAt(0).toUpperCase() + eb.env.slice(1)}`;
+        envRow.appendChild(badge);
+      });
+      wrap.appendChild(envRow);
+    }
     if (card.absorb != null) {
       const stat = document.createElement('div');
       stat.className = 'card-stat';
