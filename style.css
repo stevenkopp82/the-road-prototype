@@ -377,8 +377,18 @@
       letter-spacing: 0.12em;
       color: var(--gold-dim);
       opacity: 0.5;
+      margin-bottom: 2px;
+      font-family: 'Spectral', serif;
+    }
+
+    .slot-env {
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-dim);
+      opacity: 0.65;
       margin-bottom: 4px;
       font-family: 'Spectral', serif;
+      text-transform: uppercase;
     }
 
     /* Compact cost header above each loot card */

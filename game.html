@@ -3302,6 +3302,14 @@
     return costEl;
   }
 
+  const SLOT_ENVIRONMENTS = [
+    { label: 'Exposed', icon: '☀️' },
+    { label: 'Ruin',    icon: '🧱' },
+    { label: 'Water',   icon: '💧' },
+    { label: 'Dark',    icon: '🌑' },
+    { label: 'Nest',    icon: '🕸️' },
+  ];
+
   function buildSlot(slotDef, index) {
     const col = document.createElement('div');
     col.className = 'slot-col' + (slotDef.reserved ? ' reserved-slot' : '');
@@ -3310,6 +3318,14 @@
     num.className = 'slot-number';
     num.textContent = index + 1;
     col.appendChild(num);
+
+    const env = SLOT_ENVIRONMENTS[index];
+    if (env) {
+      const envEl = document.createElement('div');
+      envEl.className = 'slot-env';
+      envEl.textContent = `${env.icon} ${env.label}`;
+      col.appendChild(envEl);
+    }
 
     // Compact cost header
     const costEl = buildCostEl(slotDef, index);
