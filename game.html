@@ -1384,17 +1384,9 @@
   }
 
   function clearLootZones() {
-    // Any cards still on the board (not selected) go to the discard pile,
-    // except the retained slot (battle loss) which stays on the board.
-    slotCards.forEach((c, i) => {
-      if (c && !(retainedSlot && i === retainedSlot.slotIndex)) discardPile.push(c);
-    });
+    // Any cards still on the board (not selected) go to the discard pile.
+    slotCards.forEach(c => { if (c) discardPile.push(c); });
     lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
-      if (retainedSlot && i === retainedSlot.slotIndex) {
-        // Leave the retained slot visually intact, just unlock it
-        zone.classList.remove('locked');
-        return;
-      }
       zone.innerHTML = '';
       zone.classList.remove('has-card', 'locked', 'slot-disabled');
       slotCards[i] = null;
@@ -3019,7 +3011,7 @@
       mutationCost = Math.max(0, mutationCost - 1);
     }
 
-    if (isSlot1) {
+    if (isSlot1 && slotDef.alt) {
       const choice = await promptPaymentChoice(slotDef);
       if (choice === 'alt') {
         // Use alt payment: could be (food+threat) or (food+mutation)
@@ -3087,9 +3079,8 @@
     let effectLines = [];
 
     if (lootBlocked) {
-      effectLines.push('❌ Loot lost — the card remains in the slot');
-      // Keep the card on the board — it stays in its slot next round
-      retainedSlot = { card, slotIndex };
+      effectLines.push('❌ Loot lost — card discarded');
+      discardPile.push(card);
     } else if (card.type === 'gather') {
       // Gather cards are trashed (removed from play) — deck size shrinks predictably
       if (card.effects) {
@@ -3225,31 +3216,21 @@
 
     // 7. Auto-redraw
 
-    if (drawPile.length === 0 && !retainedSlot) {
+    if (drawPile.length === 0) {
       updateDeckCount();
       cardSelected = false;
       await onDeckExhausted();
     } else {
-      // Fill all empty slots (up to DRAW_SLOTS, minus any retained slot)
-      const emptySlots = DRAW_SLOTS - (retainedSlot ? 1 : 0);
-      const count = Math.min(drawPile.length, emptySlots);
+      const count = Math.min(drawPile.length, DRAW_SLOTS);
       const slotsRowEl = document.getElementById('slots-row');
       slotsRowEl.classList.add('redrawing');
       await new Promise(r => setTimeout(r, 250));
       const drawn = drawPile.splice(0, count);
-      if (retainedSlot) {
-        // Render new cards into the empty slots, leaving the retained slot in place
-        placeCardsWithRetained(drawn, retainedSlot);
-        retainedSlot = null;
-      } else {
-        placeCards(drawn);
-      }
+      placeCards(drawn);
       updateDeckCount();
       cardSelected = false;
       updateItemBars();
       slotsRowEl.classList.remove('redrawing');
-      // Draw pile is empty but cards are on the board — let the player pick first.
-      // onDeckExhausted fires at the start of the NEXT redraw after the player selects.
     }
   }
 
