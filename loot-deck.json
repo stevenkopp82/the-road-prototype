@@ -323,9 +323,8 @@
       "name": "Torch",
       "location": "road",
       "type": "item",
-      "text": "At the start of your turn, may use to increase sanity by 1",
-      "mechanism": { "type": "active", "timing": "turn_start", "effect": { "sanity": 1 } },
-      "uses": 3,
+      "text": "Passive: −1 threat in Dark (min 1)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3], "amount": -1, "min": 1 },
       "value": 6,
       "icon": "SVGs/primitive-torch.svg"
     },
@@ -418,8 +417,8 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Reduce threat cost on slots 4 and 5 by 1",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3, 4], "amount": -1, "min": 1 },
+      "text": "Passive: −1 threat in Exposed (min 1)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [0], "amount": -1, "min": 1 },
       "value": 10,
       "icon": "SVGs/binoculars.svg"
     },
@@ -438,8 +437,8 @@
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "Passive: slots 1 & 2 cost 1 less food (min 0)",
-      "mechanism": { "type": "cost_modifier", "cost": "food", "slots": [0, 1], "amount": -1, "min": 0 },
+      "text": "Passive: −1 threat in Ruin (min 1)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [1], "amount": -1, "min": 1 },
       "value": 10,
       "icon": "SVGs/compass.svg"
     },

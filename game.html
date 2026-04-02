@@ -154,7 +154,7 @@
       <tr><td>5</td><td>2 Food + 3 Threats</td><td>—</td></tr>
     </table>
     <div class="rb-body">
-      <p>Items that reduce costs (Binoculars, Area Map, Compass, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
+      <p>Items that reduce costs (Binoculars, Compass, Torch, Area Map, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -226,7 +226,7 @@
       <tr><td>Feral Instinct</td><td>+2 Food on monster win or tie</td></tr>
       <tr><td>Extra Arm</td><td>+3 STR when using a melee weapon</td></tr>
       <tr><td>Glowing Fingers</td><td>−1 Threat when picking up an item card (min 0)</td></tr>
-      <tr><td>Future Flicker</td><td>−1 Threat on slots 4 &amp; 5 (stacks with Binoculars, min 1)</td></tr>
+      <tr><td>Future Flicker</td><td>−1 Threat on slots 4 &amp; 5 (min 1)</td></tr>
     </table>
 
     <div class="rb-divider"></div>
@@ -239,14 +239,14 @@
       <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon in your inventory.</td></tr>
       <tr><td>Area Map</td><td>1 use</td><td>Before paying a slot cost, activate to reduce it to 1 Food and 0 Threats.</td></tr>
       <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Raises maximum Food from 8 to 10.</td></tr>
-      <tr><td>Binoculars</td><td>Passive</td><td>−1 Threat on slots 4 and 5 (minimum 1 threat).</td></tr>
-      <tr><td>Compass</td><td>Passive</td><td>−1 Food cost on slots 1 &amp; 2 (min 0).</td></tr>
+      <tr><td>Binoculars</td><td>Passive</td><td>−1 Threat in Exposed (slot 1, minimum 1 threat).</td></tr>
+      <tr><td>Compass</td><td>Passive</td><td>−1 Threat in Ruin (slot 2, minimum 1 threat).</td></tr>
       <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain Food from a gather card, gain +1 extra Food.</td></tr>
       <tr><td>Holster</td><td>Passive</td><td>+2 STR when using a ranged or explosive weapon in battle.</td></tr>
       <tr><td>Matches</td><td>Passive</td><td>On a monster win or tie, gain +1 Food. Triggers automatically, unlimited uses.</td></tr>
       <tr><td>Stash of Ration Packs</td><td>5 uses, passive</td><td>Absorbs starvation — food set to 1 instead of triggering health/sanity loss.</td></tr>
       <tr><td>Tent</td><td>Passive</td><td>Whenever you gain Health, gain +1 extra Health (stacks with Regenerative Tissue).</td></tr>
-      <tr><td>Torch</td><td>3 uses, active</td><td>Once per turn: use the Torch button to gain +1 Sanity. No food cost.</td></tr>
+      <tr><td>Torch</td><td>Passive</td><td>−1 Threat in Dark (slot 4, minimum 1 threat).</td></tr>
       <tr><td>Walkie-Talkie</td><td>3 uses, active</td><td>Activate before a pick: skip all threat draws that turn.</td></tr>
     </table>
 
@@ -1078,6 +1078,18 @@
         envBadge.className = 'card-env-badge';
         envBadge.textContent = envDef?.icon ?? '';
         envBadge.title = `+${eb.bonus} STR in ${eb.env.charAt(0).toUpperCase() + eb.env.slice(1)}`;
+        headerRow.appendChild(envBadge);
+      });
+    }
+    if (card.mechanism?.type === 'cost_modifier' && card.mechanism.slots?.length) {
+      const costIcon = card.mechanism.cost === 'food' ? '🌾' : card.mechanism.cost === 'threat' ? '☣' : '🧬';
+      card.mechanism.slots.forEach(slotIdx => {
+        const envDef = SLOT_ENVIRONMENTS[slotIdx];
+        if (!envDef) return;
+        const envBadge = document.createElement('span');
+        envBadge.className = 'card-env-badge';
+        envBadge.textContent = envDef.icon;
+        envBadge.title = `${card.mechanism.amount} ${costIcon} in ${envDef.label}`;
         headerRow.appendChild(envBadge);
       });
     }
@@ -2988,19 +3000,9 @@
     const isSlot1   = slotIndex === 0;
 
     // 1. For slot 1, ask the player how they want to pay
-    let foodCost     = slotDef.food;
-    let threatCount  = slotDef.threat ?? 0;
-    let mutationCost = slotDef.mutation ?? 0;
-
-    // Binoculars passive: reduce threat on slots 4 & 5 (index 3 & 4) by 1 (minimum 1)
-    if ((slotIndex === 3 || slotIndex === 4) && itemSlots.some(c => c?.name === 'Binoculars')) {
-      threatCount = Math.max(1, threatCount - 1);
-    }
-
-    // Future flicker mutant: stacks with Binoculars — additional −1 threat on slots 4 & 5 (min 1)
-    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
-      threatCount = Math.max(1, threatCount - 1);
-    }
+    // getEffectiveCosts handles all item cost_modifier mechanics (Binoculars, Compass, Torch,
+    // Area Map, etc.) and the Future Flicker mutant automatically via mechanism data.
+    let { food: foodCost, threat: threatCount, mutation: mutationCost } = getEffectiveCosts(slotIndex);
 
     // Glowing fingers mutant: −1 threat when picking up an item card (min 0)
     if (card.type === 'item' && hasMutant('glowing_fingers')) {
@@ -3020,11 +3022,6 @@
         mutationCost = slotDef.alt.mutation ?? 0;
       }
       // choice === 'primary': keep defaults already set from slotDef
-    }
-
-    // 1a. Area Map passive: reduce food cost of slots 2 & 3 (index 1 & 2) by 1, min 0
-    if ((slotIndex === 1 || slotIndex === 2) && itemSlots.some(c => c?.name === 'Area map')) {
-      foodCost = Math.max(0, foodCost - 1);
     }
 
     // 1. Pay food cost
