@@ -2082,6 +2082,16 @@
     return 0;                // 3-7 neutral
   }
 
+  /* ── Environment bonus for a weapon at a given slot ── */
+  function getWeaponEnvBonus(weapon, slotIndex) {
+    if (!weapon?.env_bonuses) return 0;
+    const envName = SLOT_ENVIRONMENTS[slotIndex]?.label?.toLowerCase();
+    if (!envName) return 0;
+    return weapon.env_bonuses.reduce((total, eb) => {
+      return eb.env?.toLowerCase() === envName ? total + (eb.bonus ?? 0) : total;
+    }, 0);
+  }
+
   /* ── Full strength with weapon (if usable) ── */
   function getPlayerStrength() {
     const base = getBaseStrength();
@@ -2215,6 +2225,8 @@
         const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
         // Adrenaline (pre_battle active): +N STR for this battle only
         const adrenalineBonus = tempStrBonus;
+        // Environment bonus from weapon's env_bonuses array
+        const envBonus = getWeaponEnvBonus(weapon, slotIndex);
         tempStrBonus = 0; // consumed regardless of outcome
 
         // Weapon use state — default to using weapon if available
@@ -2261,8 +2273,9 @@
             const extraArmBonus = getExtraArmBonus(usingMelee);
             const sanityMod = getSanityStrModifier();
             const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
+            const activeEnvBonus = usingWeapon ? envBonus : 0;
             const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                         + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
+                         + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
             const weaponLabel    = usingWeapon     ? ` +${weaponStr} weapon`   : '';
             const itemLabel      = itemLabels.length ? ' ' + itemLabels.join(' ') : '';
             const tuskLabel      = tuskBonus        ? ` +${tuskBonus} tusk`    : '';
@@ -2270,8 +2283,9 @@
             const extraArmLabel  = extraArmBonus    ? ` +3 extra arm`          : '';
             const adrenalineLabel= adrenalineBonus  ? ` +${adrenalineBonus} adrenaline` : '';
             const sanityLabel    = sanityMod > 0    ? ` +${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? ` ${sanityMod} sanity` : '';
+            const envLabel       = activeEnvBonus   ? ` +${activeEnvBonus} ${SLOT_ENVIRONMENTS[slotIndex]?.label?.toLowerCase()}` : '';
             playerSide.innerHTML = `
-              <span class="battle-stat-label">Your STR${weaponLabel}${itemLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}</span>
+              <span class="battle-stat-label">Your STR${weaponLabel}${itemLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}${envLabel}</span>
               <span class="battle-stat-value player-str">${effStr}</span>`;
           };
 
@@ -2317,8 +2331,9 @@
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
           const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+          const activeEnvBonus = usingWeapon ? envBonus : 0;
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
+                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
           lootLostThisCard = effStr < monsterStr;
           outcomeEl.className = 'battle-outcome';
           effectLines = [];

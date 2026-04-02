@@ -132,6 +132,7 @@
       "strength": 5,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 10,
       "icon": "SVGs/pistol-gun.svg"
     },
@@ -231,6 +232,7 @@
       "strength": 1,
       "uses": 5,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 5,
       "icon": "SVGs/claw-hammer.svg"
     },
@@ -386,6 +388,7 @@
       "strength": 6,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 12,
       "icon": "SVGs/sawed-off-shotgun.svg"
     },
@@ -427,6 +430,7 @@
       "strength": 5,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 10,
       "icon": "SVGs/pistol-gun.svg"
     },
@@ -465,6 +469,7 @@
       "strength": 2,
       "uses": 5,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 10,
       "icon": "SVGs/spade.svg"
     },
@@ -475,6 +480,7 @@
       "strength": 4,
       "uses": 3,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 12,
       "icon": "SVGs/bow-arrow.svg"
     },
@@ -485,6 +491,7 @@
       "strength": 6,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 12,
       "icon": "SVGs/sawed-off-shotgun.svg"
     },
@@ -495,6 +502,7 @@
       "strength": 7,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 14,
       "icon": "SVGs/ak47.svg"
     },
@@ -505,6 +513,7 @@
       "strength": 3,
       "uses": 5,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 15,
       "icon": "SVGs/hatchet.svg"
     },
@@ -515,6 +524,7 @@
       "strength": 8,
       "uses": 2,
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "value": 16,
       "icon": "SVGs/fn-fal.svg"
     },
@@ -528,6 +538,7 @@
       "strength": 4,
       "uses": 5,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 17.5,
       "icon": "SVGs/claw.svg"
     },
@@ -548,6 +559,7 @@
       "strength": 1,
       "uses": 2,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 2,
       "icon": "SVGs/wood-stick.svg"
     },
@@ -558,6 +570,7 @@
       "strength": 2,
       "uses": 4,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 8,
       "icon": "SVGs/pitchfork.svg"
     },
@@ -568,6 +581,7 @@
       "strength": 1,
       "uses": 4,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 4,
       "icon": "SVGs/monkey-wrench.svg"
     },
@@ -587,6 +601,7 @@
       "strength": 3,
       "uses": 5,
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "value": 15,
       "icon": "SVGs/brass-knuckles.svg"
     },
@@ -637,6 +652,7 @@
       "type": "weapon",
       "text": "Melee",
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "strength": 4,
       "uses": 6,
       "value": 22,
@@ -648,6 +664,7 @@
       "type": "weapon",
       "text": "Ranged. Reload with Ammo.",
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "strength": 5,
       "uses": 2,
       "value": 10,
@@ -704,6 +721,7 @@
       "type": "weapon",
       "text": "Melee. Loud and brutal. Extra Arm mutant makes this devastating.",
       "weapon_class": "melee",
+      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
       "strength": 6,
       "uses": 3,
       "value": 18,
@@ -715,6 +733,7 @@
       "type": "weapon",
       "text": "Ranged. Reload with Ammo. Quiet, accurate, and built to last.",
       "weapon_class": "ranged",
+      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
       "strength": 5,
       "uses": 4,
       "value": 20,
