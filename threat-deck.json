@@ -84,7 +84,7 @@
       "damage": {
         "sanity": -1
       },
-      "icon": "🐕"
+      "icon": "SVGs/hound.svg"
     },
     {
       "name": "Snake pit",
