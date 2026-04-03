@@ -862,7 +862,7 @@
         "mutation": 2
       },
       "value": 4,
-      "icon": "😷"
+      "icon": "SVGs/construction-mask.svg"
     },
     {
       "name": "belt",
@@ -1049,7 +1049,7 @@
         "health": 2
       },
       "value": 7,
-      "icon": "🍲"
+      "icon": "SVGs/bubbling-bowl.svg"
     },
     {
       "name": "Distilled spirits",
@@ -1060,7 +1060,7 @@
         "health": -1
       },
       "value": 5,
-      "icon": "🥃"
+      "icon": "SVGs/booze.svg"
     },
     {
       "name": "Irradiated supplement",
@@ -1071,7 +1071,7 @@
         "mutation": 3
       },
       "value": 4,
-      "icon": "☢️"
+      "icon": "SVGs/medicine-pills_2.svg"
     }
   ]
 }
