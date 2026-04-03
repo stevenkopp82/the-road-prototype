@@ -862,7 +862,7 @@
         "mutation": 2
       },
       "value": 4,
-      "icon": "SVGs/construction-mask.svg"
+      "icon": "SVGs/construction_mask.svg"
     },
     {
       "name": "belt",

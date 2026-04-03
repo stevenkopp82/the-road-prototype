@@ -7,36 +7,11 @@
    viewBox="0 0 512 512"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
-   sodipodi:docname="construction_mask.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="false"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     inkscape:zoom="0.34431467"
-     inkscape:cx="792.87936"
-     inkscape:cy="974.39936"
-     inkscape:window-width="1920"
-     inkscape:window-height="991"
-     inkscape:window-x="-9"
-     inkscape:window-y="-9"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
   <defs
      id="defs1" />
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1">
     <ellipse
        style="fill:#784421;stroke-width:0.264583"
@@ -48,8 +23,7 @@
     <path
        id="rect1"
        style="fill:#b3b3b3;stroke-width:0.144655"
-       d="m 181.35057,202.86673 h 152.15005 l 13.83182,122.1811 H 165.98188 Z"
-       sodipodi:nodetypes="ccccc" />
+       d="m 181.35057,202.86673 h 152.15005 l 13.83182,122.1811 H 165.98188 Z" />
     <ellipse
        style="fill:#784421;stroke-width:0.264583"
        id="path2"
