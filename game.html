@@ -6,6 +6,42 @@
   <title>The Road</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase (compat SDK — no build tools required) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    // Analytics — wraps Firestore writes so errors never break the game
+    let _db = null;
+    let _gameDocRef = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      _db = firebase.firestore();
+    } catch(e) { console.warn('[Analytics] Firebase init failed:', e); }
+
+    function logGameStart(difficulty, character) {
+      if (!_db) return;
+      try {
+        _gameDocRef = _db.collection('games').doc();
+        _gameDocRef.set({
+          startedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          difficulty,
+          character,
+        });
+      } catch(e) { console.warn('[Analytics] logGameStart failed:', e); }
+    }
+
+    function logGameEnd({ outcome, lossReason, location, turns }) {
+      if (!_db || !_gameDocRef) return;
+      try {
+        const data = { outcome, turns };
+        if (lossReason) data.lossReason = lossReason;
+        if (location)   data.location   = location;
+        _gameDocRef.update(data);
+      } catch(e) { console.warn('[Analytics] logGameEnd failed:', e); }
+    }
+  </script>
 </head>
 <body>
 
@@ -36,7 +72,7 @@
       <a class="rb-toc-link" href="#rb-threats">Threats &amp; Combat</a>
       <a class="rb-toc-link" href="#rb-cards">Card Types</a>
       <a class="rb-toc-link" href="#rb-mutations">Mutations</a>
-      <a class="rb-toc-link" href="#rb-items">Item Reference</a>
+      <a class="rb-toc-link" href="catalog.html" target="_blank">Card Catalog ↗</a>
       <a class="rb-toc-link" href="#rb-locations">Locations</a>
       <a class="rb-toc-link" href="#rb-endgame">Winning &amp; Losing</a>
     </div>
@@ -78,8 +114,8 @@
     <table class="rb-table">
       <tr><th>Mode</th><th>Road Cards</th><th>Food</th><th>Health</th><th>Sanity</th><th>Mutation</th></tr>
       <tr><td>Cautious</td><td>30</td><td>8</td><td>8</td><td>8</td><td>0</td></tr>
-      <tr><td>Resolute</td><td>35</td><td>7</td><td>7</td><td>7</td><td>1</td></tr>
-      <tr><td>Desperate</td><td>40</td><td>6</td><td>6</td><td>6</td><td>2</td></tr>
+      <tr><td>Resolute</td><td>30</td><td>7</td><td>7</td><td>7</td><td>1</td></tr>
+      <tr><td>Desperate</td><td>30</td><td>6</td><td>6</td><td>6</td><td>2</td></tr>
     </table>
     <div class="rb-body">
       <p>Cards beyond the deal count are permanently set aside — they never enter play. This creates variation between runs even at the same difficulty. Five cards are automatically dealt to the Gather Track when the journey begins.</p>
@@ -124,37 +160,10 @@
     <!-- GATHER TRACK -->
     <div class="rb-section-title" id="rb-gather">The Gather Track</div>
     <div class="rb-body">
-      <p>Five cards are dealt face-up each turn. Slot costs vary by location. Slot 1 always offers a payment choice. You may only pick <strong>one card per turn</strong>.</p>
+      <p>Five cards are dealt face-up each turn. Slot costs vary by location. You may only pick <strong>one card per turn</strong>.</p>
     </div>
-    <div class="rb-subsection">The Road — Slot Costs</div>
-    <table class="rb-table">
-      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
-      <tr><td>1</td><td>2 Food</td><td>1 Threat</td></tr>
-      <tr><td>2</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>3</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>4</td><td>1 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>5</td><td>1 Food + 2 Threats</td><td>—</td></tr>
-    </table>
-    <div class="rb-subsection">The Sprawl — Slot Costs</div>
-    <table class="rb-table">
-      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
-      <tr><td>1</td><td>2 Food</td><td>1 Food + 1 Threat</td></tr>
-      <tr><td>2</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>3</td><td>2 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>4</td><td>1 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>5</td><td>1 Food + 3 Threats</td><td>—</td></tr>
-    </table>
-    <div class="rb-subsection">The Hive — Slot Costs</div>
-    <table class="rb-table">
-      <tr><th>Slot</th><th>Primary Cost</th><th>Alt Cost</th></tr>
-      <tr><td>1</td><td>1 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>2</td><td>2 Food + 1 Threat</td><td>—</td></tr>
-      <tr><td>3</td><td>2 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>4</td><td>2 Food + 2 Threats</td><td>—</td></tr>
-      <tr><td>5</td><td>2 Food + 3 Threats</td><td>—</td></tr>
-    </table>
     <div class="rb-body">
-      <p>Items that reduce costs (Binoculars, Compass, Torch, Area Map, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
+      <p>Each slot has an environment label that interacts with certain items and weapon bonuses. Items that reduce costs (Binoculars, Compass, Torch, Area Map, and the Future Flicker mutation) are shown in green on the slot cost display when active.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -180,11 +189,11 @@
     </table>
     <div class="rb-subsection">Injured Monsters</div>
     <div class="rb-body">
-      <p>When you lose a battle, the monster lingers at that slot with its remaining strength (monster STR − your STR). A 💀 badge appears. Next time you pick that slot, pay 1 extra food and fight the injured monster first. Win or tie to clear it; lose again and it weakens further.</p>
+      <p>When you lose a battle, you'll be give one more chance to defeat the monster. To do this, roll a die and compare the value on the die with the monster's remaining STR. Follow the same win/loss/tie rules. If the player loses a second time, they cannot trie again.</p>
     </div>
     <div class="rb-subsection">STR Bonuses</div>
     <div class="rb-body">
-      <p><strong>Holster</strong> +2 STR with ranged or explosive weapons. <strong>Forehead Tusk</strong> mutant +2 STR (stacks). <strong>Extra Arm</strong> mutant +3 STR with melee only. <strong>Hive Mind</strong> mutant +3 STR in The Hive. <strong>Adrenaline Shot</strong> +3 STR for one battle (active item). <strong>Sanity modifier</strong> always applies (see Derived Stats).</p>
+      <p>Pay attention to STR bonsues on any cards you have collected.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -197,7 +206,7 @@
     </div>
     <div class="rb-subsection"><span class="rb-tag rb-tag-item">Item</span> Inventory Cards</div>
     <div class="rb-body">
-      <p>Placed into your item slots (1 slot by default; 3 with a Backpack). If all slots are full, you must discard an existing item to make room. Items are passive or have limited active uses — see Item Reference below.</p>
+      <p>Placed into one of your 3 item slots. If all slots are full, you must discard an existing item to make room. Items are passive or have limited active uses — see the Card Catalog for a full list.</p>
     </div>
     <div class="rb-subsection"><span class="rb-tag rb-tag-ranged">Weapon</span> Combat Cards</div>
     <div class="rb-body">
@@ -231,24 +240,11 @@
 
     <div class="rb-divider"></div>
 
-    <!-- ITEM REFERENCE -->
-    <div class="rb-section-title" id="rb-items">Item Quick Reference</div>
-    <table class="rb-table">
-      <tr><th>Item</th><th>Type</th><th>Effect</th></tr>
-      <tr><td>Adrenaline Shot</td><td>2 uses, active</td><td>Activate before a pick: +3 STR for your next battle only.</td></tr>
-      <tr><td>Ammo</td><td>Instant</td><td>Fully reloads a ranged weapon in your inventory.</td></tr>
-      <tr><td>Area Map</td><td>1 use</td><td>Before paying a slot cost, activate to reduce it to 1 Food and 0 Threats.</td></tr>
-      <tr><td>Backpack</td><td>Passive</td><td>Expands item slots from 1 to 3. Raises maximum Food from 8 to 10.</td></tr>
-      <tr><td>Binoculars</td><td>Passive</td><td>−1 Threat in Exposed (slot 1, minimum 1 threat).</td></tr>
-      <tr><td>Compass</td><td>Passive</td><td>−1 Threat in Ruin (slot 2, minimum 1 threat).</td></tr>
-      <tr><td>Firestarter Kit</td><td>Passive</td><td>Whenever you gain Food from a gather card, gain +1 extra Food.</td></tr>
-      <tr><td>Holster</td><td>Passive</td><td>+2 STR when using a ranged or explosive weapon in battle.</td></tr>
-      <tr><td>Matches</td><td>Passive</td><td>On a monster win or tie, gain +1 Food. Triggers automatically, unlimited uses.</td></tr>
-      <tr><td>Stash of Ration Packs</td><td>5 uses, passive</td><td>Absorbs starvation — food set to 1 instead of triggering health/sanity loss.</td></tr>
-      <tr><td>Tent</td><td>Passive</td><td>Whenever you gain Health, gain +1 extra Health (stacks with Regenerative Tissue).</td></tr>
-      <tr><td>Torch</td><td>Passive</td><td>−1 Threat in Dark (slot 4, minimum 1 threat).</td></tr>
-      <tr><td>Walkie-Talkie</td><td>3 uses, active</td><td>Activate before a pick: skip all threat draws that turn.</td></tr>
-    </table>
+    <!-- CARD CATALOG LINK -->
+    <div class="rb-section-title" id="rb-items">Card Catalog</div>
+    <div class="rb-body">
+      <p>For a full list of all loot, weapon, armor, item, and mutant cards, open the <a href="catalog.html" target="_blank" style="color:var(--accent,#c8a96e);">Card Catalog</a>.</p>
+    </div>
 
     <div class="rb-divider"></div>
 
@@ -268,8 +264,7 @@
     </table>
     <div class="rb-subsection">Location Transitions &amp; The Draft</div>
     <div class="rb-body">
-      <p>When the draw pile empties, a transition screen appears. For The Sprawl and The Hive, a <strong>draft</strong> follows: 7 location-specific cards are drawn from the pool and you choose 5 to keep. The 2 you don't pick return to the pool. Your new deck is those 5 cards plus your full discard pile, shuffled together. This is how Sprawl and Hive cards enter play.</p>
-      <p>Injured monsters are cleared on each location transition.</p>
+      <p>When the draw pile empties, a transition screen appears. For The Sprawl and The Hive, a <strong>draft</strong> follows: a pool of location-specific cards is revealed and you choose a subset to keep. The rest return to the pool. Your new deck is your picks plus your full discard pile, shuffled together. Draw 9 cards from the next location deck and draft 6. Player the remaining 3 back into the location deck, out of play.</p>
     </div>
 
     <div class="rb-divider"></div>
@@ -664,7 +659,7 @@
       entryCount = 0;
     }
 
-    return { newTurn, add, clear };
+    return { newTurn, add, clear, getTurnNum: () => turnNum };
   })();
 
   document.getElementById('log-clear-btn').addEventListener('click', () => gameLog.clear());
@@ -701,6 +696,8 @@
     gameOver = true;
     const goLabels = { health: '💀 You Have Fallen', sanity: '🌑 Lost to Madness', mutation: '🧬 The Change is Complete' };
     gameLog.add(goLabels[reason] ?? '💀 Game Over', 'warn');
+    const locationNames = ['The Road', 'The Sprawl', 'The Hive'];
+    logGameEnd({ outcome: 'loss', lossReason: reason, location: locationNames[Math.min(deckPass, 2)], turns: gameLog.getTurnNum() });
 
     const def = GAME_OVER_DEFS[reason];
     const el  = document.getElementById('game-over');
@@ -839,6 +836,7 @@
     if (gameOver) return;
     gameOver = true;
     gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
+    logGameEnd({ outcome: 'win', turns: gameLog.getTurnNum() });
     const el = document.getElementById('you-win');
     el.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
@@ -4027,6 +4025,7 @@
       }
       gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
     }
+    logGameStart(_session.difficulty, character);
     gameLog.newTurn('Game Start');
     document.getElementById('game-log').classList.add('log-visible');
     document.getElementById('log-toggle-btn').style.display = 'block';
