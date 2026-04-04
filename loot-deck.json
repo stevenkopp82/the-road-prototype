@@ -712,7 +712,7 @@
       "mechanism": { "type": "active", "timing": "pre_battle", "effect": "temp_str_bonus", "bonus": 3 },
       "uses": 2,
       "value": 10,
-      "icon": "💉"
+      "icon": "SVGs/syringe.svg"
     },
     {
       "name": "Chainsaw",
@@ -724,7 +724,7 @@
       "strength": 6,
       "uses": 3,
       "value": 18,
-      "icon": "⚙️"
+      "icon": "SVGs/chainsaw.svg"
     },
     {
       "name": "Crossbow",
@@ -873,7 +873,7 @@
         "sanity": 2
       },
       "value": 4,
-      "icon": "🪢"
+      "icon": "SVGs/belt.svg"
     },
     {
       "name": "parka",
@@ -896,7 +896,7 @@
         "sanity": 1
       },
       "value": 8,
-      "icon": "🦺"
+      "icon": "SVGs/kevlar-vest.svg"
     },
     {
       "name": "combat helmet",
@@ -907,7 +907,7 @@
         "health": 2
       },
       "value": 4,
-      "icon": "⛑️"
+      "icon": "SVGs/stahlhelm.svg"
     },
     {
       "name": "hazmat suit",
@@ -918,7 +918,7 @@
         "mutation": 5
       },
       "value": 10,
-      "icon": "☣️"
+      "icon": "SVGs/hazmat-suit.svg"
     },
     {
       "name": "military gas mask",
@@ -929,10 +929,10 @@
         "mutation": 4
       },
       "value": 8,
-      "icon": "😷"
+      "icon": "SVGs/gas-mask.svg"
     },
     {
-      "name": "police body armor",
+      "name": "Body armor",
       "location": "sprawl",
       "type": "armor",
       "armor_slot": "body",
@@ -941,7 +941,7 @@
         "sanity": 1
       },
       "value": 12,
-      "icon": "🛡️"
+      "icon": "SVGs/trench-body-armor.svg"
     },
     {
       "name": "biohazard gloves",
@@ -952,7 +952,7 @@
         "mutation": 3
       },
       "value": 6,
-      "icon": "🧤"
+      "icon": "SVGs/biohazard_gloves.svg"
     },
     {
       "name": "gold necklace",
@@ -963,7 +963,7 @@
         "sanity": 3
       },
       "value": 6,
-      "icon": "📿"
+      "icon": "SVGs/pearl-necklace.svg"
     },
     {
       "name": "Bottled water",

@@ -74,7 +74,7 @@
       "damage": {
         "health": -1
       },
-      "icon": "🦊"
+      "icon": "SVGs/fox.svg"
     },
     {
       "name": "Feral dog",
@@ -94,7 +94,7 @@
       "damage": {
         "mutation": 1
       },
-      "icon": "🐍"
+      "icon": "SVGs/snake.svg"
     },
     {
       "name": "Wolf",
@@ -104,7 +104,7 @@
       "damage": {
         "health": -2
       },
-      "icon": "🐺"
+      "icon": "SVGs/wolf-head.svg"
     },
     {
       "name": "Abandoned House",
@@ -302,7 +302,7 @@
       "damage": {
         "health": -2
       },
-      "icon": "🦇"
+      "icon": "SVGs/bat.svg"
     },
     {
       "name": "Giant spider",
@@ -312,7 +312,7 @@
       "damage": {
         "sanity": -2
       },
-      "icon": "🕷️"
+      "icon": "SVGs/spider-face.svg"
     },
     {
       "name": "Fungal Bear",
@@ -323,7 +323,7 @@
         "health": -1,
         "mutation": 1
       },
-      "icon": "🐻"
+      "icon": "SVGs/bear-head.svg"
     }
   ]
 }
