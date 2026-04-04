@@ -1093,6 +1093,19 @@
         headerRow.appendChild(envBadge);
       });
     }
+    if (card.mechanism?.type === 'passive_event' && card.mechanism.trigger === 'gather_gain' && card.mechanism.slots?.length) {
+      const gainIcon = card.mechanism.stat_filter === 'food' ? '🌾' : card.mechanism.stat_filter === 'health' ? '❤️' : '✨';
+      card.mechanism.slots.forEach(slotIdx => {
+        const envDef = SLOT_ENVIRONMENTS[slotIdx];
+        if (!envDef) return;
+        const envBadge = document.createElement('span');
+        envBadge.className = 'card-env-badge';
+        envBadge.textContent = envDef.icon;
+        const amt = Object.values(card.mechanism.effect ?? {})[0] ?? 1;
+        envBadge.title = `+${amt} ${gainIcon} in ${envDef.label}`;
+        headerRow.appendChild(envBadge);
+      });
+    }
 
     wrap.appendChild(headerRow);
 
@@ -1217,7 +1230,7 @@
 
   // ── passive_event / gather_gain ───────────────────────────────────
   // Called after a gather stat is applied; returns extra lines
-  function triggerGatherGain(stat, amountGained) {
+  function triggerGatherGain(stat, amountGained, slotIndex) {
     if (amountGained <= 0) return [];
     const lines = [];
     for (const [idx, card] of itemSlots.entries()) {
@@ -1225,6 +1238,7 @@
       const m = card.mechanism;
       if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
       if (m.stat_filter && m.stat_filter !== stat) continue;
+      if (m.slots && !m.slots.includes(slotIndex)) continue;
       // Check uses if the card has them
       if (card.uses != null) {
         if (itemUsesArr[idx] <= 0) continue;
@@ -3096,7 +3110,7 @@
           if (playerState[track].set) playerState[track].set(next);
           effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
           // Item passive_event: gather_gain
-          const gatherBonusLines = triggerGatherGain(track, rounded);
+          const gatherBonusLines = triggerGatherGain(track, rounded, slotIndex);
           effectLines.push(...gatherBonusLines);
           // Regenerative tissue mutant: stacks with gather_gain items — +1 extra health per mutation card on health gain
           if (track === 'health' && rounded > 0) {
