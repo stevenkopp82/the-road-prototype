@@ -70,7 +70,7 @@
       "name": "Rabid fox",
       "location": "The Road",
       "type": "monster",
-      "strength": 1,
+      "strength": 2,
       "damage": {
         "health": -1
       },
@@ -80,7 +80,7 @@
       "name": "Feral dog",
       "location": "The Road",
       "type": "monster",
-      "strength": 2,
+      "strength": 3,
       "damage": {
         "sanity": -1
       },
@@ -90,7 +90,7 @@
       "name": "Snake pit",
       "location": "The Road",
       "type": "monster",
-      "strength": 3,
+      "strength": 4,
       "damage": {
         "mutation": 1
       },
@@ -100,7 +100,7 @@
       "name": "Wolf",
       "location": "The Road",
       "type": "monster",
-      "strength": 4,
+      "strength": 5,
       "damage": {
         "health": -2
       },
@@ -179,7 +179,7 @@
       "name": "Raving survivor",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 3,
+      "strength": 4,
       "damage": {
         "sanity": -1
       },
@@ -189,7 +189,7 @@
       "name": "Lone bandit",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 4,
+      "strength": 5,
       "damage": {
         "mutation": 1
       },
@@ -199,7 +199,7 @@
       "name": "Backstabber",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 6,
+      "strength": 7,
       "damage": {
         "health": -1
       },
@@ -209,7 +209,7 @@
       "name": "Cannibal hunter",
       "location": "The Sprawl",
       "type": "monster",
-      "strength": 7,
+      "strength": 8,
       "damage": {
         "sanity": -2
       },
@@ -288,7 +288,7 @@
       "name": "Third-eye squirrel",
       "location": "The Hive",
       "type": "monster",
-      "strength": 4,
+      "strength": 5,
       "damage": {
         "mutation": 2
       },
@@ -298,7 +298,7 @@
       "name": "Mutated bats",
       "location": "The Hive",
       "type": "monster",
-      "strength": 5,
+      "strength": 6,
       "damage": {
         "health": -2
       },
@@ -308,7 +308,7 @@
       "name": "Giant spider",
       "location": "The Hive",
       "type": "monster",
-      "strength": 7,
+      "strength": 8,
       "damage": {
         "sanity": -2
       },
@@ -318,7 +318,7 @@
       "name": "Fungal Bear",
       "location": "The Hive",
       "type": "monster",
-      "strength": 8,
+      "strength": 10,
       "damage": {
         "health": -1,
         "mutation": 1

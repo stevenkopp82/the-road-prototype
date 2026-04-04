@@ -872,43 +872,20 @@
      GATHER BOARD
   ═══════════════════════════════════════════ */
 
-  // Slot costs vary by location (deckPass 0=Road, 1=Sprawl, 2=Hive)
-  const SLOTS_BY_PASS = [
-    // The Road (same as before)
-    [
-      { food: 2, threat: 0,          alt: { food: 0, threat: 1 } },
-      { food: 1, threat: 1 },
-      { food: 1, threat: 1 },
-      { food: 1, threat: 2 },
-      { food: 1, threat: 2 },
-    ],
-    // The Sprawl
-    [
-      { food: 2, threat: 0,          alt: { food: 1, threat: 1 } },
-      { food: 1, threat: 1 },
-      { food: 2, threat: 1 },
-      { food: 1, threat: 2 },
-      { food: 1, threat: 3 },
-    ],
-    // The Hive
-    [
-      { food: 1, threat: 1 },
-      { food: 2, threat: 1 },
-      { food: 2, threat: 2 },
-      { food: 2, threat: 2 },
-      { food: 2, threat: 3 },
-    ],
-  ];
+  // Populated from gather-track.json by loadGatherTrack()
+  let SLOTS_BY_PASS = null;
 
   function getSlots() { return SLOTS_BY_PASS[Math.min(deckPass, 2)]; }
 
-  // Returns {food, threat, mutation} after applying all item/mutant discounts for a slot
+  // Returns {food, threat, mutation, health, sanity} after applying all item/mutant discounts for a slot
   function getEffectiveCosts(slotIndex) {
     const slotDef = getSlots()[slotIndex];
     let costs = {
       food:     slotDef.food     ?? 0,
       threat:   slotDef.threat   ?? 0,
       mutation: slotDef.mutation ?? 0,
+      health:   slotDef.health   ?? 0,
+      sanity:   slotDef.sanity   ?? 0,
     };
 
     // Item cost_modifier mechanisms
@@ -921,8 +898,9 @@
     return costs;
   }
 
-  const SEPARATORS_AFTER = new Set([0, 2]);
-  const DRAW_SLOTS = 5;
+  // Populated from gather-track.json by loadGatherTrack()
+  let SEPARATORS_AFTER = new Set();
+  let DRAW_SLOTS = 5;
 
   let fullDeck      = [];
   let drawPile      = [];
@@ -1180,7 +1158,7 @@
 
   // ── cost_modifier: called from getEffectiveCosts ──────────────────
   function applyItemCostModifiers(slotIndex, costs) {
-    let { food, threat, mutation } = costs;
+    let { food, threat, mutation, health, sanity } = costs;
     for (const card of itemSlots) {
       if (!card?.mechanism || card.mechanism.type !== 'cost_modifier') continue;
       const m = card.mechanism;
@@ -1188,8 +1166,10 @@
       if (m.cost === 'food')     food     = Math.max(m.min, food     + m.amount);
       if (m.cost === 'threat')   threat   = Math.max(m.min, threat   + m.amount);
       if (m.cost === 'mutation') mutation = Math.max(m.min, mutation + m.amount);
+      if (m.cost === 'health')   health   = Math.max(m.min, health   + m.amount);
+      if (m.cost === 'sanity')   sanity   = Math.max(m.min, sanity   + m.amount);
     }
-    return { food, threat, mutation };
+    return { food, threat, mutation, health, sanity };
   }
 
   // ── battle_str: called when computing effective player STR ────────
@@ -1921,6 +1901,17 @@
   /* ═══════════════════════════════════════════
      THREAT DECK
   ═══════════════════════════════════════════ */
+  async function loadGatherTrack() {
+    const res  = await fetch('gather-track.json?v=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status} loading gather-track.json`);
+    const data = await res.json();
+    const diff = data.difficulties[_session.difficulty] ?? data.difficulties['resolute'];
+    SLOT_ENVIRONMENTS = data.environments;
+    DRAW_SLOTS        = data.drawSlots;
+    SEPARATORS_AFTER  = new Set(data.separatorsAfter);
+    SLOTS_BY_PASS     = [diff.road, diff.sprawl, diff.hive];
+  }
+
   let threatFull = [];
   let threatPile = [];
 
@@ -3024,7 +3015,7 @@
     // 1. For slot 1, ask the player how they want to pay
     // getEffectiveCosts handles all item cost_modifier mechanics (Binoculars, Compass, Torch,
     // Area Map, etc.) and the Future Flicker mutant automatically via mechanism data.
-    let { food: foodCost, threat: threatCount, mutation: mutationCost } = getEffectiveCosts(slotIndex);
+    let { food: foodCost, threat: threatCount, mutation: mutationCost, health: healthCost, sanity: sanityCost } = getEffectiveCosts(slotIndex);
 
     // Glowing fingers mutant: −1 threat when picking up an item card (min 0)
     if (card.type === 'item' && hasMutant('glowing_fingers')) {
@@ -3039,9 +3030,11 @@
       const choice = await promptPaymentChoice(slotDef);
       if (choice === 'alt') {
         // Use alt payment: could be (food+threat) or (food+mutation)
-        foodCost     = slotDef.alt.food    ?? 0;
-        threatCount  = slotDef.alt.threat  ?? 0;
+        foodCost     = slotDef.alt.food     ?? 0;
+        threatCount  = slotDef.alt.threat   ?? 0;
         mutationCost = slotDef.alt.mutation ?? 0;
+        healthCost   = slotDef.alt.health   ?? 0;
+        sanityCost   = slotDef.alt.sanity   ?? 0;
       }
       // choice === 'primary': keep defaults already set from slotDef
     }
@@ -3063,6 +3056,22 @@
       if (playerState.mutation.set) playerState.mutation.set(newMut);
       gameLog.add(`🧬 Slot cost: +${mutationCost} mutation`, 'warn');
       if (newMut >= 10) { triggerGameOver('mutation'); return; }
+    }
+
+    // 1c. Pay health cost
+    if (healthCost > 0) {
+      const newHealth = Math.max(0, playerState.health.value - healthCost);
+      if (playerState.health.set) playerState.health.set(newHealth);
+      gameLog.add(`❤️ Slot cost: −${healthCost} health`, 'warn');
+      if (checkGameOver('health', newHealth)) return;
+    }
+
+    // 1d. Pay sanity cost
+    if (sanityCost > 0) {
+      const newSanity = Math.max(0, playerState.sanity.value - sanityCost);
+      if (playerState.sanity.set) playerState.sanity.set(newSanity);
+      gameLog.add(`🧠 Slot cost: −${sanityCost} sanity`, 'warn');
+      if (checkGameOver('sanity', newSanity)) return;
     }
 
     // 2. Lock selection for this round
@@ -3275,7 +3284,7 @@
     wrap.className = 'cost-pip';
     const icon = document.createElement('span');
     icon.className = `pip-icon pip-${type}`;
-    icon.textContent = type === 'food' ? '🌾' : type === 'mutation' ? '🧬' : '☣';
+    icon.textContent = type === 'food' ? '🌾' : type === 'mutation' ? '🧬' : type === 'health' ? '❤️' : type === 'sanity' ? '🧠' : '☣';
     const cnt = document.createElement('span');
     cnt.className = 'pip-count';
     const isReduced = effectiveCount != null && effectiveCount !== count;
@@ -3311,30 +3320,28 @@
       costEl.appendChild(or);
       const altWrap = document.createElement('span');
       altWrap.className = 'cost-option-group';
-      if (slotDef.alt.food > 0) altWrap.appendChild(buildCostPip('food', slotDef.alt.food));
-      if (slotDef.alt.threat > 0) {
-        if (slotDef.alt.food > 0) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; altWrap.appendChild(sep); }
-        altWrap.appendChild(buildCostPip('threat', slotDef.alt.threat));
-      }
-      if (slotDef.alt.mutation > 0) {
-        if (slotDef.alt.food > 0 || slotDef.alt.threat > 0) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; altWrap.appendChild(sep); }
-        altWrap.appendChild(buildCostPip('mutation', slotDef.alt.mutation));
-      }
+      let hadAlt = false;
+      const addAltPip = (type) => {
+        if ((slotDef.alt[type] ?? 0) > 0) {
+          if (hadAlt) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; altWrap.appendChild(sep); }
+          altWrap.appendChild(buildCostPip(type, slotDef.alt[type]));
+          hadAlt = true;
+        }
+      };
+      addAltPip('food'); addAltPip('health'); addAltPip('sanity'); addAltPip('threat'); addAltPip('mutation');
       costEl.appendChild(altWrap);
     } else {
       // Compute effective (post-discount) costs for display
       const eff = getEffectiveCosts(index);
-      if (slotDef.food > 0)   costEl.appendChild(buildCostPip('food', slotDef.food, eff.food));
-      if (slotDef.food > 0 && (slotDef.threat > 0 || slotDef.mutation > 0)) {
-        const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+';
-        costEl.appendChild(sep);
-      }
-      if (slotDef.threat > 0) costEl.appendChild(buildCostPip('threat', slotDef.threat, eff.threat));
-      if (slotDef.threat > 0 && slotDef.mutation > 0) {
-        const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+';
-        costEl.appendChild(sep);
-      }
-      if (slotDef.mutation > 0) costEl.appendChild(buildCostPip('mutation', slotDef.mutation, eff.mutation));
+      let hadPip = false;
+      const addPip = (type) => {
+        if (slotDef[type] > 0) {
+          if (hadPip) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; costEl.appendChild(sep); }
+          costEl.appendChild(buildCostPip(type, slotDef[type], eff[type]));
+          hadPip = true;
+        }
+      };
+      addPip('food'); addPip('health'); addPip('sanity'); addPip('threat'); addPip('mutation');
       // Area Map discount badge for slots 2 & 3 (index 1 & 2)
       if (index === 1 || index === 2) {
         const mapTag = document.createElement('span');
@@ -3349,13 +3356,8 @@
     return costEl;
   }
 
-  const SLOT_ENVIRONMENTS = [
-    { label: 'Exposed', icon: '☀️' },
-    { label: 'Ruin',    icon: '🧱' },
-    { label: 'Water',   icon: '💧' },
-    { label: 'Dark',    icon: '🌑' },
-    { label: 'Nest',    icon: '🕸️' },
-  ];
+  // Populated from gather-track.json by loadGatherTrack()
+  let SLOT_ENVIRONMENTS = [];
 
   function buildSlot(slotDef, index) {
     const col = document.createElement('div');
@@ -3431,7 +3433,7 @@
   }
 
   const slotsRow = document.getElementById('slots-row');
-  rebuildSlotsRow();
+  // rebuildSlotsRow() is called in startGame() after loadGatherTrack() populates the data
 
 
   let sprawlPool = [];  // 12 Sprawl cards, drawn from during draft
@@ -3668,11 +3670,12 @@
 
   /* ── Init game from sessionStorage (set by index.html difficulty selection) ── */
   const _session = {
-    deal:     parseInt(sessionStorage.getItem('deal')     ?? '35', 10),
-    food:     parseInt(sessionStorage.getItem('food')     ?? '7',  10),
-    health:   parseInt(sessionStorage.getItem('health')   ?? '7',  10),
-    sanity:   parseInt(sessionStorage.getItem('sanity')   ?? '7',  10),
-    mutation: parseInt(sessionStorage.getItem('mutation') ?? '1',  10),
+    difficulty: sessionStorage.getItem('difficulty') ?? 'resolute',
+    deal:       parseInt(sessionStorage.getItem('deal')     ?? '35', 10),
+    food:       parseInt(sessionStorage.getItem('food')     ?? '7',  10),
+    health:     parseInt(sessionStorage.getItem('health')   ?? '7',  10),
+    sanity:     parseInt(sessionStorage.getItem('sanity')   ?? '7',  10),
+    mutation:   parseInt(sessionStorage.getItem('mutation') ?? '1',  10),
   };
 
   /* ── Character selection ── */
@@ -3995,16 +3998,19 @@
   const tracksContainer = document.getElementById('tracks-container');
   TRACKS.forEach(t => tracksContainer.appendChild(buildTrack(t)));
 
-  loadThreatDeck();
-  loadMutantDeck();
-  const _deckReady = loadDeck(0); // start fetch immediately, in parallel with other decks
-
   // Show chrome immediately
   document.getElementById('restart-btn').style.display = 'block';
   document.getElementById('rules-btn-game').style.display = 'flex';
 
   /* ── Start game sequence on page load ── */
   (async function startGame() {
+
+    await loadGatherTrack();
+    rebuildSlotsRow();
+
+    loadThreatDeck();
+    loadMutantDeck();
+    const _deckReady = loadDeck(0); // start fetch immediately, in parallel
 
     await _deckReady; // await the already-in-flight fetch (usually already done by now)
     // Character-based starting gear — skip the random gear dialog

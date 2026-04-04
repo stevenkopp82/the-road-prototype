@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -61,9 +61,9 @@
     <div class="sm-difficulty">
       <div class="sm-difficulty-label">How much do you have left to lose?</div>
       <div class="sm-difficulty-btns">
-        <button class="sm-diff-btn" data-deal="30" data-food="8" data-health="8" data-sanity="8" data-mutation="0"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
-        <button class="sm-diff-btn" data-deal="35" data-food="7" data-health="7" data-sanity="7" data-mutation="1"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
-        <button class="sm-diff-btn sm-diff-hard" data-deal="40" data-food="6" data-health="6" data-sanity="6" data-mutation="2"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
+        <button class="sm-diff-btn" data-difficulty="cautious"  data-deal="30" data-food="8" data-health="8" data-sanity="8" data-mutation="0"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
+        <button class="sm-diff-btn" data-difficulty="resolute"  data-deal="30" data-food="7" data-health="7" data-sanity="7" data-mutation="1"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
+        <button class="sm-diff-btn sm-diff-hard" data-difficulty="desperate" data-deal="30" data-food="6" data-health="6" data-sanity="6" data-mutation="2"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
       </div>
     </div>
     <div class="sm-links">
@@ -95,12 +95,13 @@
         setTimeout(() => charEl.classList.remove('sm-character-required'), 600);
         return;
       }
-      sessionStorage.setItem('character', selectedChar);
-      sessionStorage.setItem('deal',     btn.dataset.deal);
-      sessionStorage.setItem('food',     btn.dataset.food);
-      sessionStorage.setItem('health',   btn.dataset.health);
-      sessionStorage.setItem('sanity',   btn.dataset.sanity);
-      sessionStorage.setItem('mutation', btn.dataset.mutation);
+      sessionStorage.setItem('character',  selectedChar);
+      sessionStorage.setItem('difficulty', btn.dataset.difficulty);
+      sessionStorage.setItem('deal',       btn.dataset.deal);
+      sessionStorage.setItem('food',       btn.dataset.food);
+      sessionStorage.setItem('health',     btn.dataset.health);
+      sessionStorage.setItem('sanity',     btn.dataset.sanity);
+      sessionStorage.setItem('mutation',   btn.dataset.mutation);
       window.location.href = 'game.html';
     });
   });

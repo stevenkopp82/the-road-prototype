@@ -1,0 +1,82 @@
+{
+  "drawSlots": 5,
+  "separatorsAfter": [0, 2],
+  "environments": [
+    { "label": "Exposed", "icon": "☀️" },
+    { "label": "Ruin",    "icon": "🧱" },
+    { "label": "Water",   "icon": "💧" },
+    { "label": "Dark",    "icon": "🌑" },
+    { "label": "Nest",    "icon": "🕸️" }
+  ],
+  "difficulties": {
+    "cautious": {
+      "road": [
+        { "food": 2, "threat": 0, "alt": { "food": 0, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "threat": 2 },
+        { "food": 1, "health": 1 }
+      ],
+      "sprawl": [
+        { "food": 2, "threat": 0, "alt": { "food": 1, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 2, "threat": 1 },
+        { "food": 1, "threat": 2 },
+        { "food": 1, "threat": 3 }
+      ],
+      "hive": [
+        { "food": 1, "threat": 1 },
+        { "food": 2, "threat": 1 },
+        { "food": 2, "threat": 2 },
+        { "food": 2, "threat": 2 },
+        { "food": 2, "threat": 3 }
+      ]
+    },
+    "resolute": {
+      "road": [
+        { "food": 2, "threat": 0, "alt": { "food": 0, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "threat": 2 },
+        { "food": 1, "health": 1, "threat": 2 }
+      ],
+      "sprawl": [
+        { "food": 2, "threat": 0, "alt": { "food": 1, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 2, "threat": 1 },
+        { "food": 1, "threat": 2 },
+        { "food": 1, "sanity": 1, "threat": 3 }
+      ],
+      "hive": [
+        { "food": 1, "threat": 1 },
+        { "food": 2, "threat": 1 },
+        { "food": 2, "threat": 2 },
+        { "food": 2, "threat": 2 },
+        { "food": 2, "mutation": 1, "threat": 3 }
+      ]
+    },
+    "desperate": {
+      "road": [
+        { "food": 2, "threat": 0, "alt": { "food": 0, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "threat": 1 },
+        { "food": 1, "health": 1, "threat": 2 },
+        { "food": 1, "health": 1, "threat": 2 }
+      ],
+      "sprawl": [
+        { "food": 2, "threat": 0, "alt": { "food": 1, "threat": 1 } },
+        { "food": 1, "threat": 1 },
+        { "food": 2, "threat": 1 },
+        { "food": 1, "sanity": 1, "threat": 2 },
+        { "food": 1, "sanity": 1, "threat": 3 }
+      ],
+      "hive": [
+        { "food": 1, "threat": 1, "alt": { "food": 2, "sanity": 1 } },
+        { "food": 2, "threat": 1 },
+        { "food": 2, "threat": 2 },
+        { "food": 2, "mutation": 1, "threat": 2 },
+        { "food": 2, "mutation": 1, "threat": 3 }
+      ]
+    }
+  }
+}
