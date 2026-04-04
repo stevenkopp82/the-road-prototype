@@ -15,7 +15,7 @@
         { "food": 1, "threat": 1 },
         { "food": 1, "threat": 1 },
         { "food": 1, "threat": 2 },
-        { "food": 1, "health": 1 }
+        { "food": 1, "threat": 2 }
       ],
       "sprawl": [
         { "food": 2, "threat": 0, "alt": { "food": 1, "threat": 1 } },
