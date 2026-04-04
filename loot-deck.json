@@ -332,8 +332,8 @@
       "name": "Torch",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Dark (min 1)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3], "amount": -1, "min": 1 },
+      "text": "Passive: −1 threat in Dark (min 0)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3], "amount": -1, "min": 0 },
       "value": 6,
       "icon": "SVGs/primitive-torch.svg"
     },
@@ -426,8 +426,8 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Exposed (min 1)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [0], "amount": -1, "min": 1 },
+      "text": "Passive: −1 threat in Exposed (min 0)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [0], "amount": -1, "min": 0 },
       "value": 10,
       "icon": "SVGs/binoculars.svg"
     },
@@ -446,8 +446,8 @@
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Ruin (min 1)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [1], "amount": -1, "min": 1 },
+      "text": "Passive: −1 threat in Ruin (min 0)",
+      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [1], "amount": -1, "min": 0 },
       "value": 10,
       "icon": "SVGs/compass.svg"
     },
