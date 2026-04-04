@@ -884,7 +884,7 @@
         "sanity": 3
       },
       "value": 6,
-      "icon": "❄️"
+      "icon": "SVGs/parka.svg"
     },
     {
       "name": "ballistic vest",
@@ -1019,15 +1019,15 @@
       "icon": "SVGs/medical-drip.svg"
     },
     {
-      "name": "Protein vat",
+      "name": "Vending machine",
       "location": "hive",
       "type": "gather",
       "effects": {
         "food": 6,
-        "mutation": 1
+        "health": -1
       },
       "value": 5,
-      "icon": "🧫"
+      "icon": "SVGs/vending-machine.svg"
     },
     {
       "name": "Neural patch",
@@ -1035,10 +1035,11 @@
       "type": "gather",
       "effects": {
         "sanity": 5,
-        "mutation": 2
+        "mutation": 1,
+        "health": -1
       },
       "value": 5,
-      "icon": "🧠"
+      "icon": "SVGs/brain.svg"
     },
     {
       "name": "Bone broth",
