@@ -161,7 +161,7 @@
       "location": "road",
       "type": "item",
       "text": "Passive: +1 food when gathering a card in Water",
-      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "food", "slots": [2], "effect": { "food": -1 } },
+      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "food", "slots": [2], "effect": { "food": 1 } },
       "value": 4,
       "icon": "SVGs/fishing-pole.svg"
     },

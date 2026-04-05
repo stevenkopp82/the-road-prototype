@@ -1092,6 +1092,17 @@
 
     .legend-pip { font-size: 0.85rem; line-height: 1; }
 
+    .footer-feedback {
+      font-family: 'Spectral', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-dim);
+      text-decoration: none;
+      opacity: 0.65;
+      transition: opacity 0.15s;
+    }
+    .footer-feedback:hover { opacity: 1; color: var(--gold); }
+
     /* ═══════════════════════════════════════════════
        PLAYER BOARD STYLES
     ═══════════════════════════════════════════════ */
