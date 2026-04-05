@@ -986,6 +986,22 @@
     .magnifier-inner .card-text        { font-size: 1rem; }
     .magnifier-inner .card-value       { font-size: 0.9rem; opacity: 0.5; }
 
+    .magnifier-bonuses {
+      margin: 0.6rem 0.75rem 0.25rem;
+      border-top: 1px solid rgba(180,140,60,0.3);
+      padding-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .magnifier-bonus-row {
+      font-family: 'Spectral', serif;
+      font-size: 0.85rem;
+      color: var(--gold-dim);
+      text-align: center;
+      opacity: 0.9;
+    }
+
     /* ── Card selection states ── */
     .loot-zone.has-card {
       background: #100e0b;
@@ -1259,6 +1275,18 @@
     .card-icon {
       font-size: 1.1rem; opacity: 0.7; line-height: 1;
       position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+    }
+
+    .character-ability {
+      margin-top: 0.8rem;
+      font-family: 'Spectral', serif;
+      font-size: 0.72rem;
+      color: var(--gold-dim);
+      text-align: center;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(180,140,60,0.25);
+      border-radius: 4px;
+      padding: 0.35rem 0.6rem;
     }
 
     .footer-note {
