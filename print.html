@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Road — Print Cards</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Arial Narrow', Arial, sans-serif;
+      background: #555;
+    }
+
+    /* ── On-screen controls ── */
+    .controls {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 10px 20px;
+      background: #222;
+      color: #eee;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+    }
+    .controls strong { font-size: 15px; color: white; }
+    .controls button {
+      padding: 6px 18px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #b06010;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .controls button:hover { background: #c47820; }
+    .controls .hint { color: #aaa; font-size: 11px; }
+
+    /* ── Sheet (one page) ── */
+    .sheet {
+      width: 8.5in;
+      height: 11in;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      background: white;
+    }
+
+    @media screen {
+      .sheet {
+        margin: 20px auto;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.5);
+      }
+    }
+
+    /* ── Individual card ── */
+    .card {
+      display: flex;
+      flex-direction: column;
+      border: 0.5pt solid #999;
+      overflow: hidden;
+      position: relative;
+      background: white;
+    }
+    .card-blank { border: 0.5pt dashed #ddd; }
+
+    /* Location accent — left edge stripe */
+    .loc-road,    .loc-the-road    { border-left: 3pt solid #9a7030; }
+    .loc-sprawl,  .loc-the-sprawl  { border-left: 3pt solid #4a7a9a; }
+    .loc-hive,    .loc-the-hive    { border-left: 3pt solid #8a3060; }
+
+    /* ── Card header band ── */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5pt 5pt;
+      font-size: 6.5pt;
+      font-weight: bold;
+      letter-spacing: 0.4pt;
+      text-transform: uppercase;
+      color: white;
+      flex-shrink: 0;
+    }
+    .type-gather  .card-header { background: #3a6a2e; }
+    .type-weapon  .card-header { background: #8a1c1c; }
+    .type-item    .card-header { background: #1a4878; }
+    .type-armor   .card-header { background: #484848; }
+    .type-break   .card-header { background: #4a7a2e; }
+    .type-setback .card-header { background: #a85c10; }
+    .type-monster .card-header { background: #8a1c1c; }
+    .type-mutant  .card-header { background: #581a88; }
+
+    /* ── Icon area ── */
+    .card-icon {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5pt;
+      min-height: 0;
+    }
+    .card-icon img {
+      width: 0.8in;
+      height: 0.8in;
+      object-fit: contain;
+      display: block;
+    }
+    .card-icon .emoji-icon { font-size: 26pt; line-height: 1; }
+
+    /* ── Name ── */
+    .card-name {
+      font-size: 8pt;
+      font-weight: bold;
+      text-align: center;
+      padding: 3pt 4pt 2pt;
+      border-top: 0.5pt solid #e0e0e0;
+      line-height: 1.2;
+      text-transform: capitalize;
+      flex-shrink: 0;
+    }
+
+    /* ── Body (stats / text) ── */
+    .card-body {
+      padding: 2pt 5pt 5pt;
+      font-size: 6.5pt;
+      text-align: center;
+      color: #222;
+      flex-shrink: 0;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2.5pt;
+      margin-top: 2pt;
+    }
+    .stat-chip {
+      border-radius: 2pt;
+      padding: 1pt 3.5pt;
+      font-size: 6.5pt;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .stat-pos  { background: #dff0d8; color: #1a561a; }
+    .stat-neg  { background: #fce0d8; color: #8a1818; }
+    .stat-mut  { background: #fcecd0; color: #7a3800; }
+
+    .weapon-line {
+      display: flex;
+      justify-content: center;
+      gap: 8pt;
+      font-size: 8pt;
+      font-weight: bold;
+      margin-bottom: 1pt;
+    }
+    .str-val   { color: #8a1c1c; }
+    .uses-val  { color: #444; }
+
+    .sub-text {
+      font-size: 6pt;
+      color: #555;
+      margin-top: 1.5pt;
+      font-style: italic;
+    }
+    .item-text {
+      font-size: 6.5pt;
+      line-height: 1.35;
+      color: #222;
+    }
+    .armor-slot-label {
+      font-size: 6pt;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.5pt;
+      margin-bottom: 2pt;
+    }
+    .break-label {
+      font-size: 7pt;
+      font-weight: bold;
+      color: #3a6a2e;
+      letter-spacing: 0.5pt;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { background: white; }
+      .controls { display: none; }
+      .sheet {
+        page-break-after: always;
+        margin: 0;
+        box-shadow: none;
+      }
+      .sheet:last-child { page-break-after: avoid; }
+    }
+
+    @page { size: letter; margin: 0; }
+  </style>
+</head>
+<body>
+
+<div class="controls">
+  <strong>The Road — Print Cards</strong>
+  <button onclick="window.print()">&#128438; Print / Save PDF</button>
+  <span class="hint">9 cards per sheet (3×3) &middot; cut along borders &middot; requires local server</span>
+</div>
+
+<div id="root"></div>
+
+<script>
+const STAT_LABEL = { food: 'Food', health: 'HP', sanity: 'SAN', mutation: 'MUT' };
+
+function statChip(key, val) {
+  const label = STAT_LABEL[key] || key;
+  const sign  = val > 0 ? '+' : '';
+  let cls = key === 'mutation' ? 'stat-mut' : (val > 0 ? 'stat-pos' : 'stat-neg');
+  return `<span class="stat-chip ${cls}">${label} ${sign}${val}</span>`;
+}
+
+function statsRow(obj) {
+  if (!obj || !Object.keys(obj).length) return '';
+  return `<div class="stat-row">${Object.entries(obj).map(([k,v]) => statChip(k,v)).join('')}</div>`;
+}
+
+function iconHTML(src) {
+  if (!src) return '<span class="emoji-icon">?</span>';
+  if (src.startsWith('SVGs/')) return `<img src="${src}" alt="" loading="eager">`;
+  return `<span class="emoji-icon">${src}</span>`;
+}
+
+function locClass(loc) {
+  return 'loc-' + (loc || '').toLowerCase().replace(/\s+/g, '-');
+}
+function locLabel(loc) {
+  return (loc || '').replace(/^the\s+/i, '').toUpperCase();
+}
+function cap(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+}
+
+/* ── Loot card ── */
+function lootCard(c) {
+  let body = '';
+
+  if (c.type === 'weapon') {
+    const eb = c.env_bonuses?.[0];
+    const envStr = eb ? ` · +${eb.bonus} in ${cap(eb.env)}` : '';
+    body = `
+      <div class="weapon-line">
+        <span class="str-val">STR ${c.strength}</span>
+        <span class="uses-val">${c.uses} uses</span>
+      </div>
+      <div class="sub-text">${cap(c.weapon_class || '')}${envStr}</div>
+      ${c.effects ? statsRow(c.effects) : ''}
+    `;
+  } else if (c.type === 'item') {
+    body = `<div class="item-text">${c.text || ''}</div>`;
+    if (c.uses) body += `<div class="sub-text">${c.uses} uses</div>`;
+  } else if (c.type === 'armor') {
+    body = `<div class="armor-slot-label">Slot: ${cap(c.armor_slot || '')}</div>${statsRow(c.absorb)}`;
+  } else {
+    body = statsRow(c.effects);
+  }
+
+  return `
+    <div class="card type-${c.type} ${locClass(c.location)}">
+      <div class="card-header"><span>${c.type.toUpperCase()}</span><span>${locLabel(c.location)}</span></div>
+      <div class="card-icon">${iconHTML(c.icon)}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-body">${body}</div>
+    </div>`;
+}
+
+/* ── Threat card ── */
+function threatCard(c) {
+  let body = '';
+
+  if (c.type === 'break') {
+    body = `<div class="break-label">REST &amp; RECOVER</div>`;
+  } else if (c.type === 'setback') {
+    body = statsRow(c.effects);
+  } else {
+    body = `
+      <div class="weapon-line"><span class="str-val">STR ${c.strength}</span></div>
+      ${statsRow(c.damage)}`;
+  }
+
+  return `
+    <div class="card type-${c.type} ${locClass(c.location)}">
+      <div class="card-header"><span>${c.type.toUpperCase()}</span><span>${locLabel(c.location)}</span></div>
+      <div class="card-icon">${iconHTML(c.icon)}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-body">${body}</div>
+    </div>`;
+}
+
+/* ── Mutant card ── */
+function mutantCard(c) {
+  return `
+    <div class="card type-mutant">
+      <div class="card-header"><span>Mutant Ability</span></div>
+      <div class="card-icon">${iconHTML(c.icon)}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-body"><div class="item-text">${c.text || ''}</div></div>
+    </div>`;
+}
+
+/* ── Sheet builder ── */
+function toSheets(htmlArr) {
+  const BLANK = '<div class="card card-blank"></div>';
+  const sheets = [];
+  for (let i = 0; i < htmlArr.length; i += 9) {
+    const batch = htmlArr.slice(i, i + 9);
+    while (batch.length < 9) batch.push(BLANK);
+    sheets.push(`<div class="sheet">${batch.join('')}</div>`);
+  }
+  return sheets.join('');
+}
+
+/* ── Load & render ── */
+async function init() {
+  const root = document.getElementById('root');
+  try {
+    const [lr, tr, mr] = await Promise.all([
+      fetch('loot-deck.json'),
+      fetch('threat-deck.json'),
+      fetch('mutant-deck.json')
+    ]);
+    const loot   = (await lr.json()).loot_deck;
+    const threat = (await tr.json()).threat_deck;
+    const mutant = (await mr.json()).mutant_deck;
+
+    root.innerHTML =
+      toSheets(loot.map(lootCard)) +
+      toSheets(threat.map(threatCard)) +
+      toSheets(mutant.map(mutantCard));
+
+  } catch (err) {
+    root.innerHTML = `
+      <div style="padding:40px; color:#c00; background:white; margin:20px; font-size:14px;">
+        <strong>Failed to load card data</strong><br><br>
+        ${err.message}<br><br>
+        Run via local server: <code>python3 -m http.server</code>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
