@@ -1697,6 +1697,113 @@
       overflow: hidden;
       align-self: center;
     }
+    /* Monster battle widens the display to hold two panels */
+    .threat-card-display.battle-mode {
+      width: 100%;
+      min-height: 0;
+      padding: 8px;
+      gap: 6px;
+    }
+    .battle-layout {
+      display: flex;
+      gap: 8px;
+    }
+    .battle-panel {
+      flex: 1;
+      background: #0d0b08;
+      border: 1px solid rgba(180,140,60,0.2);
+      border-radius: 4px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .battle-panel-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      border-bottom: 1px solid rgba(180,140,60,0.15);
+      padding-bottom: 3px;
+      margin-bottom: 2px;
+    }
+    /* Player strength breakdown rows */
+    .battle-str-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .battle-str-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .bsr-label {
+      font-size: 0.45rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      white-space: nowrap;
+    }
+    .bsr-val {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--parchment);
+      white-space: nowrap;
+    }
+    .battle-str-row.str-base  .bsr-val { color: var(--parchment); }
+    .battle-str-row.str-weapon .bsr-val { color: #e8a840; }
+    .battle-str-row.str-mutant .bsr-val { color: var(--mutate-col); }
+    .battle-str-row.str-item   .bsr-val { color: #7dc466; }
+    .battle-str-row.str-bonus  .bsr-val { color: #7dc466; }
+    .battle-str-row.str-penalty .bsr-val { color: #e07070; }
+    .battle-str-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-top: 1px solid rgba(180,140,60,0.2);
+      padding-top: 3px;
+      margin-top: 2px;
+    }
+    .battle-str-total .battle-stat-value { font-size: 1.3rem; }
+    /* Monster panel */
+    .battle-panel-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+      text-align: center;
+      align-self: center;
+    }
+    .battle-monster-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--parchment);
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+    .battle-monster-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .battle-damage-val {
+      font-family: 'Spectral', serif;
+      font-size: 0.6rem;
+      color: #e07070;
+    }
+    /* Actions panel below two panels */
+    .battle-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
     .threat-card-type {
       font-size: 0.38rem;

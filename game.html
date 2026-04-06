@@ -2171,29 +2171,91 @@
         // Weapon use state — default to using weapon if available
         let usingWeapon = hasWeapon;
 
-        // Battle row
-        const battleRow = document.createElement('div');
-        battleRow.className = 'threat-battle-row';
+        // ── Two-panel battle layout ──────────────────────────────────────
+        display.classList.add('battle-mode');
 
-        const playerSide = document.createElement('div');
-        playerSide.className = 'battle-stat';
+        // Left panel: player strength breakdown
+        const playerPanel = document.createElement('div');
+        playerPanel.className = 'battle-panel battle-player-panel';
+        const playerTitle = document.createElement('div');
+        playerTitle.className = 'battle-panel-title';
+        playerTitle.textContent = 'Your Strength';
+        playerPanel.appendChild(playerTitle);
+        const strRows = document.createElement('div');
+        strRows.className = 'battle-str-rows';
+        playerPanel.appendChild(strRows);
+        const strTotal = document.createElement('div');
+        strTotal.className = 'battle-str-total';
+        playerPanel.appendChild(strTotal);
 
-        const vsEl = document.createElement('div');
-        vsEl.className = 'battle-vs';
-        vsEl.textContent = 'vs';
+        // Right panel: monster info
+        const monsterPanel = document.createElement('div');
+        monsterPanel.className = 'battle-panel battle-monster-panel';
+        const monsterPanelTitle = document.createElement('div');
+        monsterPanelTitle.className = 'battle-panel-title';
+        monsterPanelTitle.textContent = 'Monster';
+        monsterPanel.appendChild(monsterPanelTitle);
+        if (card.icon) monsterPanel.appendChild(createIconEl(card.icon, card.name, 'card-icon-img battle-panel-icon'));
+        const monsterNameEl = document.createElement('div');
+        monsterNameEl.className = 'battle-monster-name';
+        monsterNameEl.textContent = card.name;
+        monsterPanel.appendChild(monsterNameEl);
+        const monsterStrEl = document.createElement('div');
+        monsterStrEl.className = 'battle-monster-stat';
+        monsterStrEl.innerHTML = `<span class="bsr-label">STR</span><span class="battle-stat-value monster-str">${monsterStr}</span>`;
+        monsterPanel.appendChild(monsterStrEl);
+        if (card.damage) {
+          const dmgParts = Object.entries(card.damage)
+            .map(([k, v]) => `${EFFECT_META[k]?.icon ?? ''} ${v < 0 ? '' : '+'}${v}`).join(' ');
+          const dmgEl = document.createElement('div');
+          dmgEl.className = 'battle-monster-stat';
+          dmgEl.innerHTML = `<span class="bsr-label">Damage</span><span class="battle-damage-val">${dmgParts}</span>`;
+          monsterPanel.appendChild(dmgEl);
+        }
 
-        const monsterSide = document.createElement('div');
-        monsterSide.className = 'battle-stat';
-        monsterSide.innerHTML = `
-          <span class="battle-stat-label">${card.name} STR</span>
-          <span class="battle-stat-value monster-str">${monsterStr}</span>`;
+        const battleLayout = document.createElement('div');
+        battleLayout.className = 'battle-layout';
+        battleLayout.appendChild(playerPanel);
+        battleLayout.appendChild(monsterPanel);
+        display.appendChild(battleLayout);
 
-        battleRow.appendChild(playerSide);
-        battleRow.appendChild(vsEl);
-        battleRow.appendChild(monsterSide);
-        display.appendChild(battleRow);
+        // Helper: build a STR breakdown row
+        const makeBsrRow = (label, val, cls) => {
+          const row = document.createElement('div');
+          row.className = 'battle-str-row' + (cls ? ' ' + cls : '');
+          row.innerHTML = `<span class="bsr-label">${label}</span><span class="bsr-val">${typeof val === 'number' && val > 0 ? '+' : ''}${val}</span>`;
+          return row;
+        };
 
-        // Weapon toggle (only shown if weapon with uses available)
+        // Populate player panel (weapon-aware)
+        const updatePlayerPanel = () => {
+          const usingMelee = usingWeapon && isMelee;
+          const extraArmBonus = getExtraArmBonus(usingMelee);
+          const sanityMod = getSanityStrModifier();
+          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
+          const activeEnvBonus = usingWeapon ? envBonus : 0;
+          const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
+                       + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
+          strRows.innerHTML = '';
+          strRows.appendChild(makeBsrRow('Base', baseStr, 'str-base'));
+          if (usingWeapon) strRows.appendChild(makeBsrRow(weapon.name, weaponStr, 'str-weapon'));
+          itemLabels.forEach(lbl => {
+            const m = lbl.match(/^([+-]?\d+)\s+(.+)$/);
+            if (m) strRows.appendChild(makeBsrRow(m[2], parseInt(m[1]), 'str-item'));
+          });
+          if (tuskBonus)     strRows.appendChild(makeBsrRow('Forehead Tusk', tuskBonus, 'str-mutant'));
+          if (hiveMindBonus) strRows.appendChild(makeBsrRow('Hive Mind', hiveMindBonus, 'str-mutant'));
+          if (extraArmBonus) strRows.appendChild(makeBsrRow('Extra Arm', extraArmBonus, 'str-mutant'));
+          if (adrenalineBonus) strRows.appendChild(makeBsrRow('Adrenaline', adrenalineBonus, 'str-item'));
+          if (sanityMod) strRows.appendChild(makeBsrRow('Sanity' + (sanityMod === 2 ? ' (frenzy)' : ''), sanityMod, sanityMod > 0 ? 'str-bonus' : 'str-penalty'));
+          if (activeEnvBonus) strRows.appendChild(makeBsrRow(SLOT_ENVIRONMENTS[slotIndex]?.label ?? 'Env', activeEnvBonus, 'str-bonus'));
+          strTotal.innerHTML = `<span class="bsr-label">Total</span><span class="battle-stat-value player-str">${effStr}</span>`;
+        };
+
+        // ── Actions panel (below two panels) ──────────────────────────────
+        const battleActions = document.createElement('div');
+        battleActions.className = 'battle-actions';
+
         if (hasWeapon) {
           const toggleRow = document.createElement('div');
           toggleRow.className = 'weapon-toggle-row';
@@ -2205,65 +2267,45 @@
           skipBtn.textContent = 'Fight bare-handed';
           toggleRow.appendChild(useBtn);
           toggleRow.appendChild(skipBtn);
-          display.appendChild(toggleRow);
-
-          const updatePlayerSide = () => {
-            const usingMelee = usingWeapon && isMelee;
-            const extraArmBonus = getExtraArmBonus(usingMelee);
-            const sanityMod = getSanityStrModifier();
-            const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
-            const activeEnvBonus = usingWeapon ? envBonus : 0;
-            const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                         + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
-            const weaponLabel    = usingWeapon     ? ` +${weaponStr} weapon`   : '';
-            const itemLabel      = itemLabels.length ? ' ' + itemLabels.join(' ') : '';
-            const tuskLabel      = tuskBonus        ? ` +${tuskBonus} tusk`    : '';
-            const hiveMindLabel  = hiveMindBonus    ? ` +3 hive mind`          : '';
-            const extraArmLabel  = extraArmBonus    ? ` +3 extra arm`          : '';
-            const adrenalineLabel= adrenalineBonus  ? ` +${adrenalineBonus} adrenaline` : '';
-            const sanityLabel    = sanityMod > 0    ? ` +${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? ` ${sanityMod} sanity` : '';
-            const envLabel       = activeEnvBonus   ? ` +${activeEnvBonus} ${SLOT_ENVIRONMENTS[slotIndex]?.label?.toLowerCase()}` : '';
-            playerSide.innerHTML = `
-              <span class="battle-stat-label">Your STR${weaponLabel}${itemLabel}${tuskLabel}${hiveMindLabel}${extraArmLabel}${adrenalineLabel}${sanityLabel}${envLabel}</span>
-              <span class="battle-stat-value player-str">${effStr}</span>`;
-          };
-
+          battleActions.appendChild(toggleRow);
           useBtn.addEventListener('click', () => {
             usingWeapon = true;
             useBtn.className  = 'weapon-toggle-btn active';
             skipBtn.className = 'weapon-toggle-btn inactive';
-            updatePlayerSide();
+            updatePlayerPanel();
             updateOutcome();
           });
           skipBtn.addEventListener('click', () => {
             usingWeapon = false;
             useBtn.className  = 'weapon-toggle-btn inactive';
             skipBtn.className = 'weapon-toggle-btn active';
-            updatePlayerSide();
+            updatePlayerPanel();
             updateOutcome();
           });
-          updatePlayerSide();
+          updatePlayerPanel();
         } else {
+          // No weapon: static bare-hand breakdown
           const sanityModBare = getSanityStrModifier();
           const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null);
           const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
-          const bareLabel = [
-            ...bareItemLabels,
-            tuskBonus        ? `+${tuskBonus} tusk`   : '',
-            hiveMindBonus    ? '+3 hive mind'          : '',
-            adrenalineBonus  ? `+${adrenalineBonus} adrenaline` : '',
-            sanityModBare > 0 ? `+${sanityModBare} sanity${sanityModBare===2?' (frenzy)':''}` : '',
-            sanityModBare < 0 ? `${sanityModBare} sanity` : '',
-          ].filter(Boolean).join(' ');
-          playerSide.innerHTML = `
-            <span class="battle-stat-label">Your STR${bareLabel ? ' ' + bareLabel : ''}</span>
-            <span class="battle-stat-value player-str">${bareStr}</span>`;
+          strRows.appendChild(makeBsrRow('Base', baseStr, 'str-base'));
+          bareItemLabels.forEach(lbl => {
+            const m = lbl.match(/^([+-]?\d+)\s+(.+)$/);
+            if (m) strRows.appendChild(makeBsrRow(m[2], parseInt(m[1]), 'str-item'));
+          });
+          if (tuskBonus)     strRows.appendChild(makeBsrRow('Forehead Tusk', tuskBonus, 'str-mutant'));
+          if (hiveMindBonus) strRows.appendChild(makeBsrRow('Hive Mind', hiveMindBonus, 'str-mutant'));
+          if (adrenalineBonus) strRows.appendChild(makeBsrRow('Adrenaline', adrenalineBonus, 'str-item'));
+          if (sanityModBare) strRows.appendChild(makeBsrRow('Sanity' + (sanityModBare === 2 ? ' (frenzy)' : ''), sanityModBare, sanityModBare > 0 ? 'str-bonus' : 'str-penalty'));
+          strTotal.innerHTML = `<span class="bsr-label">Total</span><span class="battle-stat-value player-str">${bareStr}</span>`;
         }
 
-        // Outcome display (updated when toggle changes)
+        // Outcome + body text live in actions panel
         const outcomeEl = document.createElement('div');
         outcomeEl.className = 'battle-outcome';
-        display.appendChild(outcomeEl);
+        battleActions.appendChild(outcomeEl);
+        battleActions.appendChild(bodyEl);
+        display.appendChild(battleActions);
 
         function updateOutcome() {
           const usingMelee = usingWeapon && isMelee;
@@ -2292,7 +2334,6 @@
             bodyEl.textContent = 'The creature bests you.';
             if (card.damage) effectLines = Object.entries(card.damage).map(([k,v]) => `${EFFECT_META[k]?.icon ?? ''} ${k} ${v > 0 ? '+' : ''}${v}`);
           }
-          // Show what damage will be applied (preview only, not applied yet)
           effectsEl.innerHTML = '';
           effectLines.forEach(line => {
             const p = document.createElement('div');
@@ -2422,39 +2463,51 @@
             const isAutoWin = roll === 6;
             const secondStr = roll; // dice roll replaces player strength
 
-            // Rebuild card display for round 2
+            // Rebuild display for round 2 — two-panel layout
             display.innerHTML = '';
-            const b2 = document.createElement('div');
-            b2.className = 'card-type-badge ttype-monster';
-            b2.textContent = 'monster — round 2';
-            display.appendChild(b2);
-            const n2 = document.createElement('div');
-            n2.className = 'card-name';
-            n2.textContent = card.name;
-            display.appendChild(n2);
-            if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
-            display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
 
-            const rollRow = document.createElement('div');
-            rollRow.className = 'threat-battle-row';
-            const rollSide = document.createElement('div');
-            rollSide.className = 'battle-stat';
-            rollSide.innerHTML = `<span class="battle-stat-label">🎲 Roll${isAutoWin ? ' — AUTO WIN' : ''}</span><span class="battle-stat-value player-str">${roll}</span>`;
-            const vs2 = document.createElement('div');
-            vs2.className = 'battle-vs';
-            vs2.textContent = 'vs';
-            const m2 = document.createElement('div');
-            m2.className = 'battle-stat';
-            m2.innerHTML = `<span class="battle-stat-label">${card.name} (weakened)</span><span class="battle-stat-value monster-str">${reducedMonsterStr}</span>`;
-            rollRow.appendChild(rollSide); rollRow.appendChild(vs2); rollRow.appendChild(m2);
-            display.appendChild(rollRow);
+            const r2PlayerPanel = document.createElement('div');
+            r2PlayerPanel.className = 'battle-panel battle-player-panel';
+            const r2Title = document.createElement('div');
+            r2Title.className = 'battle-panel-title';
+            r2Title.textContent = isAutoWin ? '🎲 Six! Auto Win' : '🎲 Round 2';
+            r2PlayerPanel.appendChild(r2Title);
+            const r2RollEl = document.createElement('div');
+            r2RollEl.className = 'battle-str-total';
+            r2RollEl.innerHTML = `<span class="bsr-label">Dice Roll</span><span class="battle-stat-value player-str">${roll}</span>`;
+            r2PlayerPanel.appendChild(r2RollEl);
+
+            const r2MonsterPanel = document.createElement('div');
+            r2MonsterPanel.className = 'battle-panel battle-monster-panel';
+            const r2MonTitle = document.createElement('div');
+            r2MonTitle.className = 'battle-panel-title';
+            r2MonTitle.textContent = 'Monster';
+            r2MonsterPanel.appendChild(r2MonTitle);
+            if (card.icon) r2MonsterPanel.appendChild(createIconEl(card.icon, card.name, 'card-icon-img battle-panel-icon'));
+            const r2NameEl = document.createElement('div');
+            r2NameEl.className = 'battle-monster-name';
+            r2NameEl.textContent = card.name;
+            r2MonsterPanel.appendChild(r2NameEl);
+            const r2StrEl = document.createElement('div');
+            r2StrEl.className = 'battle-monster-stat';
+            r2StrEl.innerHTML = `<span class="bsr-label">STR (wounded)</span><span class="battle-stat-value monster-str">${reducedMonsterStr}</span>`;
+            r2MonsterPanel.appendChild(r2StrEl);
+
+            const r2Layout = document.createElement('div');
+            r2Layout.className = 'battle-layout';
+            r2Layout.appendChild(r2PlayerPanel);
+            r2Layout.appendChild(r2MonsterPanel);
+            display.appendChild(r2Layout);
 
             const body2 = document.createElement('div');
             body2.className = 'threat-card-body';
-            display.appendChild(body2);
             const outcome2 = document.createElement('div');
             outcome2.className = 'battle-outcome';
-            display.appendChild(outcome2);
+            const r2Actions = document.createElement('div');
+            r2Actions.className = 'battle-actions';
+            r2Actions.appendChild(outcome2);
+            r2Actions.appendChild(body2);
+            display.appendChild(r2Actions);
             effectsEl.innerHTML = '';
 
             let secondLootLost;
@@ -2515,9 +2568,7 @@
           resolve({ lootLost: lootLostThisCard });
         };
         btn.addEventListener('click', origHandler);
-
-        display.appendChild(bodyEl);
-        // Skip the default handler below — we set ours above
+        // bodyEl is already in battleActions — skip the default append below
         return;
       }
 
