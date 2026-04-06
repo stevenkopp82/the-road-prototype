@@ -348,6 +348,29 @@
       background: linear-gradient(to right, rgba(200,150,42,0.5), rgba(200,150,42,0.5));
     }
 
+    .journey-segment {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 10px; /* align with journey-stop-dot vertically */
+      flex-shrink: 0;
+      padding: 0 3px;
+    }
+    .journey-turn-pip {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,150,42,0.3);
+      background: transparent;
+      flex-shrink: 0;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .journey-turn-pip.done {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 4px rgba(200,150,42,0.55);
+    }
+
     .divider {
       height: 1px;
       background: linear-gradient(to right, transparent, var(--gold-dim), transparent);

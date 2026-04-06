@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Road — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0e0c0a;
+      color: #c8b89a;
+      font-family: 'Spectral', serif;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      color: #d4a853;
+      text-align: center;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #7a6a55;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Summary bar ── */
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: #1a1612;
+      border: 1px solid #3a2e22;
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .stat-card .value {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: #d4a853;
+      line-height: 1;
+    }
+
+    .stat-card .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #7a6a55;
+      margin-top: 0.4rem;
+    }
+
+    /* ── Day sections ── */
+    .day-section {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      background: #141210;
+      border: 1px solid #2e2418;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1f1a14;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      gap: 1rem;
+    }
+
+    .day-header:hover { background: #261f17; }
+
+    .day-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      color: #c49a38;
+    }
+
+    .day-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .pill-total  { background: #2a2318; color: #c8b89a; border: 1px solid #3a2e22; }
+    .pill-win    { background: #1a2e1a; color: #6db86d; border: 1px solid #2e4a2e; }
+    .pill-loss   { background: #2e1a1a; color: #c46a6a; border: 1px solid #4a2e2e; }
+
+    .chevron { color: #7a6a55; font-size: 0.8rem; transition: transform 0.2s; }
+    .day-section.open .chevron { transform: rotate(180deg); }
+
+    /* ── Game rows table ── */
+    .games-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .games-table th {
+      text-align: left;
+      padding: 0.45rem 0.8rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7a6a55;
+      border-bottom: 1px solid #2e2418;
+      background: #18140f;
+    }
+
+    .games-table td {
+      padding: 0.45rem 0.8rem;
+      border-bottom: 1px solid #1e1a14;
+      vertical-align: middle;
+    }
+
+    .games-table tr:last-child td { border-bottom: none; }
+    .games-table tr:hover td { background: #1c1710; }
+
+    .outcome-win  { color: #6db86d; font-weight: 600; }
+    .outcome-loss { color: #c46a6a; font-weight: 600; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      background: #2a2318;
+      color: #a89070;
+      border: 1px solid #3a2e22;
+    }
+
+    /* ── Loading / error states ── */
+    #status {
+      text-align: center;
+      padding: 3rem;
+      color: #7a6a55;
+      font-style: italic;
+    }
+
+    #status.error { color: #c46a6a; }
+
+    /* ── Loss breakdown chart ── */
+    .loss-breakdown {
+      max-width: 900px;
+      margin: 0 auto 2.5rem;
+      background: #141210;
+      border: 1px solid #2e2418;
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+    }
+
+    .loss-breakdown h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #7a6a55;
+      margin-bottom: 1rem;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.8rem;
+    }
+
+    .bar-label { width: 140px; color: #c8b89a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .bar-track { flex: 1; background: #1f1a14; border-radius: 4px; height: 12px; overflow: hidden; }
+    .bar-fill  { height: 100%; background: #8b3a3a; border-radius: 4px; transition: width 0.6s ease; }
+    .bar-count { width: 28px; text-align: right; color: #7a6a55; font-size: 0.75rem; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<h1>The Road</h1>
+<p class="subtitle">Game Analytics Dashboard</p>
+
+<div id="status">Loading games…</div>
+
+<div id="dashboard" class="hidden">
+
+  <!-- ── Overall summary ── -->
+  <div class="summary">
+    <div class="stat-card"><div class="value" id="stat-total">—</div><div class="label">Total Games</div></div>
+    <div class="stat-card"><div class="value" id="stat-wins">—</div><div class="label">Wins</div></div>
+    <div class="stat-card"><div class="value" id="stat-losses">—</div><div class="label">Losses</div></div>
+    <div class="stat-card"><div class="value" id="stat-win-pct">—</div><div class="label">Win Rate</div></div>
+    <div class="stat-card"><div class="value" id="stat-avg-turns">—</div><div class="label">Avg Turns</div></div>
+  </div>
+
+  <!-- ── Loss breakdown ── -->
+  <div class="loss-breakdown" id="loss-breakdown">
+    <h2>Loss Reasons</h2>
+    <div id="loss-bars"></div>
+  </div>
+
+  <!-- ── Day-by-day list ── -->
+  <div id="days-container"></div>
+
+</div>
+
+<script>
+  // ── Init Firebase ──────────────────────────────────────────────────────────
+  let db;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  } catch (e) {
+    showError('Firebase init failed: ' + e.message);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'error';
+  }
+
+  // ── Fetch & render ─────────────────────────────────────────────────────────
+  async function load() {
+    if (!db) return;
+
+    let snapshot;
+    try {
+      snapshot = await db.collection('games').orderBy('startedAt', 'desc').get();
+    } catch (e) {
+      showError('Failed to load data: ' + e.message + ' — check Firestore rules allow reads.');
+      return;
+    }
+
+    const games = [];
+    snapshot.forEach(doc => games.push({ id: doc.id, ...doc.data() }));
+
+    if (games.length === 0) {
+      document.getElementById('status').textContent = 'No games recorded yet.';
+      return;
+    }
+
+    document.getElementById('status').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+
+    renderSummary(games);
+    renderLossBreakdown(games);
+    renderDays(games);
+  }
+
+  // ── Summary stats ──────────────────────────────────────────────────────────
+  function renderSummary(games) {
+    const completed = games.filter(g => g.outcome);
+    const wins   = completed.filter(g => g.outcome === 'win').length;
+    const losses = completed.filter(g => g.outcome === 'loss').length;
+    const total  = completed.length;
+    const winPct = total ? Math.round((wins / total) * 100) : 0;
+    const turnsArr = completed.filter(g => g.turns).map(g => g.turns);
+    const avgTurns = turnsArr.length ? Math.round(turnsArr.reduce((a, b) => a + b, 0) / turnsArr.length) : '—';
+
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-wins').textContent    = wins;
+    document.getElementById('stat-losses').textContent  = losses;
+    document.getElementById('stat-win-pct').textContent = winPct + '%';
+    document.getElementById('stat-avg-turns').textContent = avgTurns;
+  }
+
+  // ── Loss breakdown bars ────────────────────────────────────────────────────
+  function renderLossBreakdown(games) {
+    const losses = games.filter(g => g.outcome === 'loss' && g.lossReason);
+    if (losses.length === 0) {
+      document.getElementById('loss-breakdown').classList.add('hidden');
+      return;
+    }
+
+    const counts = {};
+    losses.forEach(g => { counts[g.lossReason] = (counts[g.lossReason] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const max = sorted[0][1];
+
+    const container = document.getElementById('loss-bars');
+    container.innerHTML = '';
+    sorted.forEach(([reason, count]) => {
+      const pct = Math.round((count / max) * 100);
+      container.insertAdjacentHTML('beforeend', `
+        <div class="bar-row">
+          <div class="bar-label" title="${esc(reason)}">${esc(reason)}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <div class="bar-count">${count}</div>
+        </div>
+      `);
+    });
+  }
+
+  // ── Day sections ───────────────────────────────────────────────────────────
+  function renderDays(games) {
+    // Group by local date string
+    const byDay = {};
+    games.forEach(g => {
+      const ts = g.startedAt ? (g.startedAt.toDate ? g.startedAt.toDate() : new Date(g.startedAt)) : null;
+      const key = ts ? ts.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown Date';
+      if (!byDay[key]) byDay[key] = [];
+      byDay[key].push({ ...g, _ts: ts });
+    });
+
+    const container = document.getElementById('days-container');
+    container.innerHTML = '';
+
+    Object.entries(byDay).forEach(([date, dayGames]) => {
+      const completed = dayGames.filter(g => g.outcome);
+      const wins   = completed.filter(g => g.outcome === 'win').length;
+      const losses = completed.filter(g => g.outcome === 'loss').length;
+
+      const section = document.createElement('div');
+      section.className = 'day-section';
+
+      section.innerHTML = `
+        <div class="day-header" role="button" tabindex="0" aria-expanded="false">
+          <span class="day-title">${esc(date)}</span>
+          <div class="day-pills">
+            <span class="pill pill-total">${dayGames.length} game${dayGames.length !== 1 ? 's' : ''}</span>
+            ${wins   ? `<span class="pill pill-win">${wins} win${wins !== 1 ? 's' : ''}</span>` : ''}
+            ${losses ? `<span class="pill pill-loss">${losses} loss${losses !== 1 ? 'es' : ''}</span>` : ''}
+          </div>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="day-body hidden">
+          ${buildTable(dayGames)}
+        </div>
+      `;
+
+      const header = section.querySelector('.day-header');
+      const body   = section.querySelector('.day-body');
+      const toggle = () => {
+        const open = section.classList.toggle('open');
+        body.classList.toggle('hidden', !open);
+        header.setAttribute('aria-expanded', String(open));
+      };
+      header.addEventListener('click', toggle);
+      header.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+      container.appendChild(section);
+    });
+  }
+
+  function buildTable(games) {
+    const rows = games.map(g => {
+      const time = g._ts ? g._ts.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
+      const outcome = g.outcome
+        ? `<span class="outcome-${g.outcome}">${g.outcome.toUpperCase()}</span>`
+        : '<span style="color:#7a6a55">in progress</span>';
+      const lossReason = g.lossReason ? `<span class="tag">${esc(g.lossReason)}</span>` : '';
+      const location   = g.location   ? `<span class="tag">${esc(g.location)}</span>`   : '';
+      return `
+        <tr>
+          <td>${time}</td>
+          <td>${esc(g.character || '—')}</td>
+          <td>${esc(g.difficulty || '—')}</td>
+          <td>${outcome}</td>
+          <td>${g.turns != null ? g.turns : '—'}</td>
+          <td>${location}</td>
+          <td>${lossReason}</td>
+        </tr>`;
+    }).join('');
+
+    return `
+      <table class="games-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Character</th>
+            <th>Difficulty</th>
+            <th>Outcome</th>
+            <th>Turns</th>
+            <th>Location</th>
+            <th>Loss Reason</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── Utility ────────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  load();
+</script>
+</body>
+</html>

@@ -536,7 +536,8 @@
     const drafted = await runDraftPhase(pool, locationName);
 
     // Build new deck: drafted cards + all cards from discard pile, shuffled together
-    drawPile   = shuffle([...discardPile, ...drafted]);
+    drawPile        = shuffle([...discardPile, ...drafted]);
+    passStartDeckSize = drawPile.length;
     discardPile = [];
     updateDeckCount();
 
@@ -655,9 +656,10 @@
   let fullDeck      = [];
   let drawPile      = [];
   let discardPile   = [];   // cards that have been played/passed through
-  let deckPass      = 0;    // 0=Road, 1=Sprawl, 2=Hive, 3+=Sanctuary
-  let gameDealCount = 30;   // set at difficulty selection; drives draft size
-  let deckLaps      = 0;    // how many times the full deck has been cycled
+  let deckPass          = 0;  // 0=Road, 1=Sprawl, 2=Hive, 3+=Sanctuary
+  let gameDealCount     = 30; // set at difficulty selection; drives draft size
+  let deckLaps          = 0;  // how many times the full deck has been cycled
+  let passStartDeckSize = 0;  // drawPile size at start of current location
   let lootZones     = [];
   let slotCards     = [];   // card data currently in each slot (null if empty)
   let cardSelected  = false; // has a card been selected this round?
@@ -695,11 +697,34 @@
     if (!container) return;
     container.innerHTML = '';
     const pass = Math.min(deckPass, 3);
+
+    // Progress pips for the active segment
+    const turnsTotal = passStartDeckSize > 0
+      ? Math.max(1, Math.round(passStartDeckSize / DRAW_SLOTS))
+      : Math.round(gameDealCount / DRAW_SLOTS);
+    const turnsDone = passStartDeckSize > 0
+      ? Math.min(turnsTotal, Math.floor((passStartDeckSize - drawPile.length) / DRAW_SLOTS))
+      : 0;
+
     LOCATION_DEFS.forEach((loc, i) => {
       if (i > 0) {
-        const line = document.createElement('div');
-        line.className = 'journey-line' + (i <= pass ? ' visited' : '');
-        container.appendChild(line);
+        const segIndex = i - 1; // segment between loc[i-1] and loc[i]
+        if (segIndex === pass && pass < 3) {
+          // Active segment — show turn pips
+          const seg = document.createElement('div');
+          seg.className = 'journey-segment';
+          for (let t = 0; t < turnsTotal; t++) {
+            const pip = document.createElement('div');
+            pip.className = 'journey-turn-pip' + (t < turnsDone ? ' done' : '');
+            seg.appendChild(pip);
+          }
+          container.appendChild(seg);
+        } else {
+          // Completed or future segment — solid/dim line
+          const line = document.createElement('div');
+          line.className = 'journey-line' + (segIndex < pass ? ' visited' : '');
+          container.appendChild(line);
+        }
       }
       const stop = document.createElement('div');
       stop.className = 'journey-stop'
@@ -3398,7 +3423,8 @@
       }
 
       // Deal N road cards to draw pile; the rest are permanently set aside
-      drawPile = roadCards.slice(0, dealCount);
+      drawPile          = roadCards.slice(0, dealCount);
+      passStartDeckSize = drawPile.length;
 
       console.log(`✓ Deck: ${drawPile.length} road cards dealt, ${roadCards.length - drawPile.length} road set aside${excludeName ? ` (excluded: ${excludeName})` : ''}`);
       console.log(`✓ Sprawl pool: ${sprawlPool.length} | Hive pool: ${hivePool.length}`);
