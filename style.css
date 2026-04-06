@@ -1002,6 +1002,51 @@
       opacity: 0.9;
     }
 
+    .magnifier-cost {
+      margin: 0 0.25rem 0.25rem;
+      border-bottom: 1px solid rgba(180,140,60,0.3);
+      padding-bottom: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .magnifier-cost-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+    .magnifier-cost-pips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .magnifier-cost-pips .pip-icon { font-size: 1.3rem; }
+    .magnifier-cost-pips .pip-count { font-size: 1rem; }
+    .magnifier-cost-pips .cost-or { font-size: 0.7rem; padding: 0 4px; }
+    .magnifier-cost-free {
+      font-family: 'Spectral', serif;
+      font-size: 0.9rem;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      font-style: italic;
+    }
+    .magnifier-cost-mods {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+    }
+    .magnifier-cost-mod-row {
+      font-family: 'Spectral', serif;
+      font-size: 0.78rem;
+      color: #7dc466;
+      opacity: 0.9;
+    }
+
     /* ── Card selection states ── */
     .loot-zone.has-card {
       background: #100e0b;

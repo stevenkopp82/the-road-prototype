@@ -52,198 +52,6 @@
 <button class="rules-btn" id="rules-btn-game"  title="Rulebook">?</button>
 <button id="restart-btn">↩ Restart</button>
 
-<!-- ══════════════════════════════════════
-     RULEBOOK MODAL
-══════════════════════════════════════ -->
-<div id="rulebook-modal">
-  <div class="rb-box">
-    <button class="rb-close" id="rb-close">✕ Close</button>
-
-    <div class="rb-eyebrow">Official Rules</div>
-    <div class="rb-title">The Road</div>
-
-    <div class="rb-toc">
-      <a class="rb-toc-link" href="#rb-goal">Goal</a>
-      <a class="rb-toc-link" href="#rb-setup">Setup</a>
-      <a class="rb-toc-link" href="#rb-turn">Turn Order</a>
-      <a class="rb-toc-link" href="#rb-board">Player Board Effects</a>
-      <a class="rb-toc-link" href="#rb-locations">New Location</a>
-      <a class="rb-toc-link" href="#rb-endgame">Winning</a>
-      <a class="rb-toc-link" href="catalog.html" target="_blank">Card Catalog ↗</a>
-    </div>
-
-    <div class="rb-divider"></div>
-
-    <!-- GOAL -->
-    <div class="rb-section-title" id="rb-goal">Goal</div>
-    <div class="rb-body">
-      <p>You are a lonely traveler in a ruined world seeking out the shelter of the Sanctuary. Reach the Sanctuary alive, sane, and human to win.</p>
-    </div>
-
-    <div class="rb-divider"></div>
-
-    <!-- SETUP -->
-    <div class="rb-section-title" id="rb-setup">Setup</div>
-    <div class="rb-body">
-      <p>Set out the player board and the gather board and separate out the following decks:</p>
-      <ul>
-        <li><strong>Loot cards</strong> — split into three piles: The Road, The Sprawl, The Hive</li>
-        <li><strong>Threat cards</strong> — split into three piles: The Road, The Sprawl, The Hive</li>
-        <li><strong>Mutation cards</strong></li>
-      </ul>
-      <p>Select a character. If the character starts with a card, find it in The Road loot cards and place it next to your player board.</p>
-      <p>Shuffle and draw 30 cards from The Road loot cards to form your <strong>travel deck</strong>. Place it next to the gather board. Select a difficulty and set your starting markers on the four tracks (food, health, sanity, mutation). Food cannot start above 8.</p>
-    </div>
-    <table class="rb-table">
-      <tr><th>Difficulty</th><th>Food</th><th>Health</th><th>Sanity</th><th>Mutation</th></tr>
-      <tr><td>Cautious</td><td>8</td><td>8</td><td>8</td><td>0</td></tr>
-      <tr><td>Resolute</td><td>7</td><td>7</td><td>7</td><td>1</td></tr>
-      <tr><td>Desperate</td><td>6</td><td>6</td><td>6</td><td>2</td></tr>
-    </table>
-    <div class="rb-body">
-      <p>Place the cost overlay for The Road at the selected difficulty on the gather track. Draw 5 cards to begin.</p>
-    </div>
-
-    <div class="rb-divider"></div>
-
-    <!-- TURN ORDER -->
-    <div class="rb-section-title" id="rb-turn">Turn Order</div>
-    <div class="rb-body">
-      <p>Draw 5 cards from the travel deck and place them <strong>in ascending order of card value</strong> left to right on the gather board (weakest left, strongest right). Select 1 card to loot, then resolve in order:</p>
-    </div>
-
-    <div class="rb-subsection">1. Pay Costs</div>
-    <div class="rb-body">
-      <p>Pay the cost shown on the slot. Move the marker on the player board <strong>down</strong> by the indicated amount. If the marker reaches the bottom of any track, take the appropriate action immediately (see <em>Player Board Effects</em>).</p>
-    </div>
-
-    <div class="rb-subsection">2. Draw Threats</div>
-    <div class="rb-body">
-      <p>Draw the number of threat cards shown on the slot <strong>one at a time</strong>. There are three kinds:</p>
-    </div>
-    <table class="rb-table">
-      <tr><th>Type</th><th>Effect</th></tr>
-      <tr><td>☀ Break</td><td>You dodge danger — no effect.</td></tr>
-      <tr><td>⚡ Setback</td><td>Move health, sanity, or mutation markers down as indicated. Apply Player Board Effects if any track bottoms out.</td></tr>
-      <tr><td>💀 Monster</td><td>Enter a battle. See combat rules below.</td></tr>
-    </table>
-    <div class="rb-subsection">Monsters &amp; Battles</div>
-    <div class="rb-body">
-      <p>Calculate your <strong>Strength (STR)</strong>:</p>
-      <ol>
-        <li>Find your marker on the health track — the number to the right is your base STR.</li>
-        <li>Modify by sanity: look for the STR modifier on the sanity track.</li>
-        <li>Optionally add your equipped weapon's STR. Using it removes one use token. Weapons with no tokens cannot be used.</li>
-      </ol>
-    </div>
-    <table class="rb-table">
-      <tr><th>Outcome</th><th>Result</th></tr>
-      <tr><td>Your STR &gt; Monster STR</td><td>Win — monster discarded, loot secured, no damage.</td></tr>
-      <tr><td>Your STR = Monster STR</td><td>Tie — monster killed, loot secured, but take damage as shown on the monster card.</td></tr>
-      <tr><td>Your STR &lt; Monster STR</td><td>Lose — take damage immediately. You may attempt one <em>desperate lunge</em>.</td></tr>
-    </table>
-    <div class="rb-body">
-      <p><strong>Desperate lunge:</strong> Subtract your current STR from the monster's original STR to get the monster's remaining STR. Roll the die. Compare the die result alone (no player STR) against the monster's remaining STR using the same win/tie/lose rules. If you lose a second time, you cannot try again.</p>
-      <p>If you lose a battle, do <strong>not</strong> draw any more threat cards that turn.</p>
-      <p>All threat cards are discarded after resolution. If the threat deck for the current location is exhausted, reshuffle it.</p>
-    </div>
-
-    <div class="rb-subsection">3. Get the Loot</div>
-    <div class="rb-body">
-      <p>There are four types of loot card:</p>
-    </div>
-    <table class="rb-table">
-      <tr><th>Type</th><th>Effect</th></tr>
-      <tr><td><span class="rb-tag rb-tag-gather">Gather</span></td><td>Adjust player tracks as shown, then place the card out of play.</td></tr>
-      <tr><td><span class="rb-tag rb-tag-item">Item</span></td><td>Place in an inventory slot (max 3). If full, discard one to make room. Cards with uses get tokens.</td></tr>
-      <tr><td><span class="rb-tag rb-tag-ranged">Weapon</span></td><td>Place in the weapon slot (max 1). Add tokens for uses. Discards old weapon if replaced.</td></tr>
-      <tr><td><span class="rb-tag rb-tag-item" style="color:#7ab8e8;border-color:rgba(80,140,200,0.5);">Armor</span></td><td>Place in the matching slot (Head, Body, or Accessory). Add tokens per the absorb value. Armor absorbs incoming damage instead of your tracks. Destroyed when all tokens are spent.</td></tr>
-    </table>
-
-    <div class="rb-subsection">4. Cleanup</div>
-    <div class="rb-body">
-      <p>Place all unselected cards into the discard pile. If the travel deck is now empty, move to the new location (see <em>Entering a New Location</em>). Otherwise, begin your next turn.</p>
-    </div>
-
-    <div class="rb-divider"></div>
-
-    <!-- PLAYER BOARD EFFECTS -->
-    <div class="rb-section-title" id="rb-board">Player Board Effects</div>
-    <div class="rb-body">
-      <p>Perform the following actions immediately when they occur.</p>
-    </div>
-    <div class="rb-subsection">Starvation</div>
-    <div class="rb-body">
-      <p>If the food track is at 0 when a food cost must be paid (or would drop below 0), move <strong>health −1</strong> and <strong>sanity −1</strong>. You can still collect the card — starvation is the penalty, not a block.</p>
-    </div>
-    <div class="rb-subsection">Death by Injury</div>
-    <div class="rb-body">
-      <p>If health reaches 0, you immediately lose.</p>
-    </div>
-    <div class="rb-subsection">Madness</div>
-    <div class="rb-body">
-      <p>If sanity reaches 0, you immediately lose.</p>
-    </div>
-    <div class="rb-subsection">Mutation</div>
-    <div class="rb-body">
-      <p>If the mutation track moves onto a slot marked with a mutation icon (positions 4, 6, or 9), draw <strong>two</strong> mutation cards and choose one to keep. Mutation cards grant permanent bonuses. You may hold a maximum of three mutation cards. If the mutation track reaches 10, you immediately lose.</p>
-    </div>
-    <div class="rb-callout"><div class="rb-body">⚠ Sanity 1 triggers frenzy (+2 STR) — powerful, but one more Sanity hit ends the run. Armor absorbing sanity damage is critical at this threshold.</div></div>
-    <div class="rb-subsection">Derived Stats Reference</div>
-    <table class="rb-table">
-      <tr><th>Health</th><th>Base STR</th></tr>
-      <tr><td>10</td><td>3</td></tr>
-      <tr><td>7–9</td><td>2</td></tr>
-      <tr><td>3–6</td><td>1</td></tr>
-      <tr><td>1–2</td><td>0</td></tr>
-    </table>
-    <table class="rb-table">
-      <tr><th>Sanity</th><th>STR Modifier</th></tr>
-      <tr><td>8–10</td><td>+1</td></tr>
-      <tr><td>3–7</td><td>0</td></tr>
-      <tr><td>2</td><td>−1</td></tr>
-      <tr><td>1</td><td>+2 (frenzy)</td></tr>
-    </table>
-
-    <div class="rb-divider"></div>
-
-    <!-- ENTERING A NEW LOCATION -->
-    <div class="rb-section-title" id="rb-locations">Entering a New Location</div>
-    <div class="rb-body">
-      <p>When you reach the end of The Road or The Sprawl (travel deck empty), perform the following:</p>
-      <ol>
-        <li>Draw 9 cards from the next location's deck (The Sprawl, then The Hive).</li>
-        <li>From those 9 cards, select 6 to keep. Place the remaining 3 out of play.</li>
-        <li>Add your 6 picks to your full discard pile and shuffle together. This is your new 30-card travel deck.</li>
-      </ol>
-      <p>The cost overlay also updates to the new location and difficulty.</p>
-    </div>
-
-    <div class="rb-divider"></div>
-
-    <!-- WINNING -->
-    <div class="rb-section-title" id="rb-endgame">Winning</div>
-    <div class="rb-body">
-      <p>You win when you are in The Hive and can no longer draw cards from the travel deck — you have reached the Sanctuary.</p>
-    </div>
-    <div class="rb-subsection">Losing Conditions</div>
-    <table class="rb-table">
-      <tr><th>Condition</th><th>Result</th></tr>
-      <tr><td>Health reaches 0</td><td>You Have Fallen 🩸</td></tr>
-      <tr><td>Sanity reaches 0</td><td>Lost to Madness 🌑</td></tr>
-      <tr><td>Mutation reaches 10</td><td>The Change is Complete 🧬</td></tr>
-    </table>
-
-    <div class="rb-divider"></div>
-
-    <!-- CARDS -->
-    <div class="rb-section-title" id="rb-cards">Cards</div>
-    <div class="rb-body">
-      <p>All cards can be found in the <a href="catalog.html" target="_blank" style="color:var(--accent,#c8a96e);">Card Catalog</a>. Keep close track of how cards impact strength, card cost, and other bonuses.</p>
-    </div>
-  </div>
-</div>
-</div>
 
 <div id="you-win">
   <div class="you-win-box">
@@ -670,21 +478,10 @@
   document.getElementById('go-restart').addEventListener('click', () => { window.location.href = 'index.html'; });
   document.getElementById('restart-btn').addEventListener('click', () => { window.location.href = 'index.html'; });
 
-  /* ── Rulebook modal ─────────────────────────────────────────────── */
-  function openRulebook() {
-    document.getElementById('rulebook-modal').classList.add('open');
-  }
-  function closeRulebook() {
-    document.getElementById('rulebook-modal').classList.remove('open');
-  }
-  document.getElementById('rules-btn-game').addEventListener('click', openRulebook);
-  document.getElementById('rb-close').addEventListener('click', closeRulebook);
-  // Close on backdrop click
-  document.getElementById('rulebook-modal').addEventListener('click', e => {
-    if (e.target === document.getElementById('rulebook-modal')) closeRulebook();
+  /* ── Rulebook ─────────────────────────────────────────────── */
+  document.getElementById('rules-btn-game').addEventListener('click', () => {
+    window.open('rules.html', '_blank');
   });
-  // Open rulebook immediately if ?rules=1 was passed (from welcome screen "Read the Rules" link)
-  if (new URLSearchParams(window.location.search).get('rules') === '1') openRulebook();
 
   /* ── You Win ── */
   const LOCATIONS = [
@@ -967,11 +764,103 @@
     return lines;
   }
 
+  function buildMagnifierCostSection(slotIndex) {
+    const slotDef = getSlots()[slotIndex];
+    const wrap = document.createElement('div');
+    wrap.className = 'magnifier-cost';
+
+    const label = document.createElement('div');
+    label.className = 'magnifier-cost-label';
+    label.textContent = `Slot ${slotIndex + 1} Cost`;
+    wrap.appendChild(label);
+
+    const pipsRow = document.createElement('div');
+    pipsRow.className = 'magnifier-cost-pips';
+
+    if (slotDef.alt) {
+      // Two-option slot
+      const primaryWrap = document.createElement('span');
+      primaryWrap.className = 'cost-option-group';
+      if ((slotDef.food ?? 0) > 0) primaryWrap.appendChild(buildCostPip('food', slotDef.food));
+      if ((slotDef.threat ?? 0) > 0) {
+        const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+';
+        primaryWrap.appendChild(sep);
+        primaryWrap.appendChild(buildCostPip('threat', slotDef.threat));
+      }
+      pipsRow.appendChild(primaryWrap);
+      const or = document.createElement('span');
+      or.className = 'cost-or';
+      or.textContent = 'OR';
+      pipsRow.appendChild(or);
+      const altWrap = document.createElement('span');
+      altWrap.className = 'cost-option-group';
+      let hadAlt = false;
+      ['food','health','sanity','threat','mutation'].forEach(type => {
+        if ((slotDef.alt[type] ?? 0) > 0) {
+          if (hadAlt) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; altWrap.appendChild(sep); }
+          altWrap.appendChild(buildCostPip(type, slotDef.alt[type]));
+          hadAlt = true;
+        }
+      });
+      pipsRow.appendChild(altWrap);
+    } else {
+      const eff = getEffectiveCosts(slotIndex);
+      let had = false;
+      ['food','health','sanity','threat','mutation'].forEach(type => {
+        if ((slotDef[type] ?? 0) > 0) {
+          if (had) { const sep = document.createElement('span'); sep.className = 'cost-sep'; sep.textContent = '+'; pipsRow.appendChild(sep); }
+          pipsRow.appendChild(buildCostPip(type, slotDef[type], eff[type]));
+          had = true;
+        }
+      });
+      if (!had) {
+        const free = document.createElement('span');
+        free.className = 'magnifier-cost-free';
+        free.textContent = 'Free';
+        pipsRow.appendChild(free);
+      }
+    }
+    wrap.appendChild(pipsRow);
+
+    // Active modifier rows
+    const mods = [];
+    for (const card of itemSlots) {
+      if (!card?.mechanism || card.mechanism.type !== 'cost_modifier') continue;
+      const m = card.mechanism;
+      if (!m.slots.includes(slotIndex)) continue;
+      const sign = m.amount > 0 ? '+' : '';
+      const costIcon = m.cost === 'food' ? '🌾' : m.cost === 'health' ? '❤️' : m.cost === 'sanity' ? '🧠' : m.cost === 'threat' ? '☣' : '🧬';
+      mods.push(`${sign}${m.amount} ${costIcon} from ${card.name}`);
+    }
+    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
+      mods.push('−1 ☣ from Future Flicker');
+    }
+    if (mods.length > 0) {
+      const modsEl = document.createElement('div');
+      modsEl.className = 'magnifier-cost-mods';
+      mods.forEach(line => {
+        const row = document.createElement('div');
+        row.className = 'magnifier-cost-mod-row';
+        row.textContent = line;
+        modsEl.appendChild(row);
+      });
+      wrap.appendChild(modsEl);
+    }
+
+    return wrap;
+  }
+
   function showMagnifier(card, anchorEl, slotIndex) {
     clearTimeout(magnifyTimer);
     magnifyTimer = setTimeout(() => {
-      // Build a full-size card clone inside the magnifier
       magnifierIn.innerHTML = '';
+
+      // Slot cost (above card) — only when hovering gather track slots
+      if (slotIndex != null) {
+        magnifierIn.appendChild(buildMagnifierCostSection(slotIndex));
+      }
+
+      // Full-size card
       magnifierIn.appendChild(renderCard(card));
 
       // Gather bonuses (character passives + item passive_event triggers)
