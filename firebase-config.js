@@ -3,6 +3,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyA3p-Nyx3ORsScixPcAaRfN12YkAGbqMCM",
   authDomain: "theroad-d7c80.firebaseapp.com",
+  databaseURL: "https://theroad-d7c80-default-rtdb.firebaseio.com",
   projectId: "theroad-d7c80",
   storageBucket: "theroad-d7c80.firebasestorage.app",
   messagingSenderId: "648998274729",

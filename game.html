@@ -10,13 +10,16 @@
   <!-- Firebase (compat SDK — no build tools required) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <script src="db.js"></script>
   <script>
     // Analytics — wraps Firestore writes so errors never break the game
     let _db = null;
     let _gameDocRef = null;
     try {
-      firebase.initializeApp(firebaseConfig);
+      // db.js may have already initialized the Firebase app; reuse it if so
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       _db = firebase.firestore();
     } catch(e) { console.warn('[Analytics] Firebase init failed:', e); }
 
