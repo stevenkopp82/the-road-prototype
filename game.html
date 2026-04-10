@@ -166,6 +166,16 @@
       <div class="legend-item"><span class="legend-pip">☣</span> Threats</div>
       <div class="legend-item"><span class="legend-pip">📦</span> Loot card</div>
     </div>
+
+    <!-- Multiplayer: shown when it's another player's turn -->
+    <div id="mp-turn-overlay" class="mp-turn-overlay mp-hidden">
+      <div class="mp-turn-content">
+        <span class="mp-turn-icon">⏳</span>
+        <div class="mp-turn-label">Waiting for</div>
+        <div class="mp-turn-name" id="mp-turn-name">another player</div>
+        <div class="mp-turn-sub">to choose a card...</div>
+      </div>
+    </div>
   </div>
 
   <!-- Items panel — below gather board -->
@@ -179,6 +189,9 @@
     <div id="mutant-tags-container"></div>
   </div>
   </div>
+
+  <!-- Multiplayer ally stats sidebar -->
+  <div id="mp-ally-sidebar"></div>
 
   <!-- ══════════════════════════════════════
        DISCARD PILE VIEWER
@@ -460,6 +473,8 @@
   function triggerGameOver(reason) {
     if (gameOver) return;
     gameOver = true;
+    // In co-op, broadcast the elimination to all clients
+    if (isMultiplayer) mpTriggerGameOver(reason);
     const goLabels = { health: '💀 You Have Fallen', sanity: '🌑 Lost to Madness', mutation: '🧬 The Change is Complete' };
     gameLog.add(goLabels[reason] ?? '💀 Game Over', 'warn');
     const locationNames = ['The Road', 'The Sprawl', 'The Hive'];
@@ -3218,28 +3233,36 @@
     gameLog.add(costLine, 'dim');
     showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
 
-    // 6. Discard remaining board cards
+    // 6. Wait so the player can read the result
     await new Promise(r => setTimeout(r, 1800));
-    clearLootZones();
-    await new Promise(r => setTimeout(r, 400));
 
-    // 7. Auto-redraw
-
-    if (drawPile.length === 0) {
-      updateDeckCount();
-      cardSelected = false;
-      await onDeckExhausted();
+    if (isMultiplayer) {
+      // Co-op: mark the chosen slot as taken; other slots stay for remaining players.
+      // mpAfterPick handles advancing turn order and dealing a new board when all have picked.
+      mpMarkSlotClaimed(slotIndex);
+      await mpAfterPick(slotIndex);
     } else {
-      const count = Math.min(drawPile.length, DRAW_SLOTS);
-      const slotsRowEl = document.getElementById('slots-row');
-      slotsRowEl.classList.add('redrawing');
-      await new Promise(r => setTimeout(r, 250));
-      const drawn = drawPile.splice(0, count);
-      placeCards(drawn);
-      updateDeckCount();
-      cardSelected = false;
-      updateItemBars();
-      slotsRowEl.classList.remove('redrawing');
+      // Solo: discard remaining board cards, then redraw immediately.
+      clearLootZones();
+      await new Promise(r => setTimeout(r, 400));
+
+      // 7. Auto-redraw
+      if (drawPile.length === 0) {
+        updateDeckCount();
+        cardSelected = false;
+        await onDeckExhausted();
+      } else {
+        const count = Math.min(drawPile.length, DRAW_SLOTS);
+        const slotsRowEl = document.getElementById('slots-row');
+        slotsRowEl.classList.add('redrawing');
+        await new Promise(r => setTimeout(r, 250));
+        const drawn = drawPile.splice(0, count);
+        placeCards(drawn);
+        updateDeckCount();
+        cardSelected = false;
+        updateItemBars();
+        slotsRowEl.classList.remove('redrawing');
+      }
     }
   }
 
@@ -4021,6 +4044,326 @@
   document.getElementById('restart-btn').style.display = 'block';
   document.getElementById('rules-btn-game').style.display = 'flex';
 
+  /* ══════════════════════════════════════════════════════════════
+     MULTIPLAYER MODULE
+     All code in this block is gated on isMultiplayer === true.
+     Solo paths are never touched.
+  ══════════════════════════════════════════════════════════════ */
+
+  const isMultiplayer = sessionStorage.getItem('multiplayer') === 'true';
+  const mpGameCode    = sessionStorage.getItem('gameCode');
+  const mpPlayerId    = sessionStorage.getItem('playerId');
+
+  let mpIsHost    = false;   // true if this client created the game
+  let mpMyName    = '';      // display name from Firebase
+  let mpRound     = null;    // latest round snapshot from Firebase
+  let mpAllPlayers = {};     // all players snapshot from Firebase
+
+  // Unsubscribe handles — cleaned up on game over / page unload
+  let _mpUnsubRound = null, _mpUnsubShared = null,
+      _mpUnsubPlayers = null, _mpUnsubMeta = null;
+
+  // ── Overlay helpers ─────────────────────────────────────────────────
+  function mpShowWaiting(name) {
+    document.getElementById('mp-turn-name').textContent = name || 'another player';
+    document.getElementById('mp-turn-overlay').classList.remove('mp-hidden');
+  }
+  function mpHideWaiting() {
+    document.getElementById('mp-turn-overlay').classList.add('mp-hidden');
+  }
+
+  // ── Visual: gray out a slot that was just claimed without clearing others ──
+  function mpMarkSlotClaimed(slotIndex) {
+    const zone = lootZones[slotIndex];
+    if (!zone) return;
+    slotCards[slotIndex] = null;
+    zone.innerHTML = '';
+    zone.classList.remove('has-card', 'locked');
+    zone.classList.add('slot-disabled');
+    const icon = document.createElement('span');
+    icon.className = 'loot-icon';
+    icon.textContent = '✓';
+    zone.appendChild(icon);
+    const lbl = document.createElement('div');
+    lbl.className = 'loot-label';
+    lbl.textContent = 'taken';
+    zone.appendChild(lbl);
+  }
+
+  // ── Render a sparse slotCards array (some slots may be null/claimed) ──
+  function mpApplySlotCards(stateSlotCards) {
+    if (!stateSlotCards) return;
+    const arr = Array.isArray(stateSlotCards)
+      ? stateSlotCards
+      : Object.values(stateSlotCards); // Firebase can return objects for arrays
+    slotCards = Array(DRAW_SLOTS).fill(null);
+    lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
+      const card = arr[i] ?? null;
+      zone.innerHTML = '';
+      zone.classList.remove('has-card', 'locked', 'slot-disabled');
+      if (!card) {
+        zone.classList.add('slot-disabled');
+        const icon = document.createElement('span');
+        icon.className = 'loot-icon';
+        icon.textContent = '📦';
+        zone.appendChild(icon);
+      } else {
+        slotCards[i] = card;
+        zone.classList.add('has-card');
+        zone.appendChild(renderCard(card));
+        zone.addEventListener('mouseenter', () => {
+          if (!zone.classList.contains('locked')) showMagnifier(card, zone, i);
+        });
+        zone.addEventListener('mouseleave', hideMagnifier);
+      }
+    });
+  }
+
+  // ── Sync this player's stats to Firebase ──
+  function mpWriteMyState() {
+    if (!isMultiplayer) return Promise.resolve();
+    return dbUpdate(playerPath(mpGameCode, mpPlayerId), {
+      food:     playerState.food.value,
+      health:   playerState.health.value,
+      sanity:   playerState.sanity.value,
+      mutation: playerState.mutation.value,
+    });
+  }
+
+  // ── Write shared board / deck state to Firebase (active player writes this) ──
+  function mpWriteSharedState(currentSlotCards) {
+    if (!isMultiplayer) return Promise.resolve();
+    // Ensure no undefined in arrays (Firebase rejects undefined)
+    const safeSlots = (currentSlotCards || slotCards).map(c => c ?? null);
+    return dbSet(sharedStatePath(mpGameCode), {
+      slotCards:       safeSlots,
+      drawPile:        drawPile,
+      discardPile:     discardPile,
+      injuredMonsters: injuredMonsters,
+      deckPass:        deckPass,
+    });
+  }
+
+  // ── Ally sidebar ──────────────────────────────────────────────────────
+  function mpRenderAllySidebar(players) {
+    const el = document.getElementById('mp-ally-sidebar');
+    if (!el) return;
+    el.innerHTML = '';
+    const others = Object.entries(players).filter(([id]) => id !== mpPlayerId);
+    others.forEach(([id, p]) => {
+      const card = document.createElement('div');
+      card.className = 'mp-ally-card' + (id === mpRound?.activePlayerId ? ' mp-ally-active' : '');
+      card.innerHTML =
+        `<div class="mp-ally-name">${p.name ?? 'Ally'}</div>` +
+        `<div class="mp-ally-stats">` +
+        `<span>🌾 ${p.food ?? '?'}</span>` +
+        `<span>🩸 ${p.health ?? '?'}</span>` +
+        `<span>🕯️ ${p.sanity ?? '?'}</span>` +
+        `<span>🧬 ${p.mutation ?? '?'}</span>` +
+        `</div>`;
+      el.appendChild(card);
+    });
+    el.style.display = others.length > 0 ? 'flex' : 'none';
+  }
+
+  // ── Broadcast game over to all clients ──────────────────────────────
+  function mpTriggerGameOver(reason) {
+    if (!isMultiplayer) return;
+    dbUpdate(metaPath(mpGameCode), {
+      status:         'gameover',
+      gameOverReason: reason,
+      eliminatedName: mpMyName || 'A survivor',
+    }).catch(() => {});
+  }
+
+  // ── Called when the active player finishes their pick ───────────────
+  async function mpAfterPick(slotIndex) {
+    if (!isMultiplayer || !mpRound) return;
+
+    // 1. Sync personal stats and mark this player done
+    await Promise.all([
+      mpWriteMyState(),
+      dbUpdate(playerPath(mpGameCode, mpPlayerId), {
+        hasPickedThisRound:  true,
+        slotPickedThisRound: slotIndex,
+      }),
+    ]);
+
+    // 2. Update claimed slots list and persist current board state
+    const claimedSlots = [...(mpRound.claimedSlots || []), slotIndex];
+    await Promise.all([
+      dbUpdate(roundPath(mpGameCode), { claimedSlots }),
+      mpWriteSharedState([...slotCards]),
+    ]);
+
+    // 3. Read all player states to decide what happens next
+    const allPlayers = await dbGet(playersPath(mpGameCode));
+    if (!allPlayers) return;
+
+    // Treat our own write as committed (Firebase may not reflect it yet)
+    if (allPlayers[mpPlayerId]) allPlayers[mpPlayerId].hasPickedThisRound = true;
+
+    const playerIds = Object.keys(allPlayers);
+    const allPicked = playerIds.every(id => allPlayers[id]?.hasPickedThisRound === true);
+
+    if (allPicked) {
+      await mpStartNewRound(playerIds, mpRound.turnOrder || playerIds);
+    } else {
+      // Advance to the next unpicked player in turn order
+      const order  = mpRound.turnOrder || playerIds;
+      const myIdx  = order.indexOf(mpPlayerId);
+      let nextIdx  = (myIdx + 1) % order.length;
+      const start  = nextIdx;
+      while (allPlayers[order[nextIdx]]?.hasPickedThisRound === true) {
+        nextIdx = (nextIdx + 1) % order.length;
+        if (nextIdx === start) break; // safety fallback
+      }
+      await dbUpdate(roundPath(mpGameCode), { activePlayerId: order[nextIdx] });
+    }
+  }
+
+  // ── End of round: clear board, deal new cards, rotate order ─────────
+  async function mpStartNewRound(playerIds, turnOrder) {
+    // Discard remaining cards from slots that weren't picked
+    clearLootZones();
+
+    if (drawPile.length === 0) {
+      // Let onDeckExhausted handle this on the client who triggered it
+      cardSelected = false;
+      await onDeckExhausted();
+      return;
+    }
+
+    // Deal a new board
+    const slotsRowEl = document.getElementById('slots-row');
+    slotsRowEl.classList.add('redrawing');
+    await new Promise(r => setTimeout(r, 250));
+    const drawn = drawPile.splice(0, Math.min(drawPile.length, DRAW_SLOTS));
+    placeCards(drawn);
+    updateDeckCount();
+    cardSelected = false;
+    updateItemBars();
+    slotsRowEl.classList.remove('redrawing');
+
+    // Rotate turn order: move first element to end
+    const newOrder = [...turnOrder.slice(1), turnOrder[0]];
+
+    // Reset hasPickedThisRound for all players
+    const resetUpdates = {};
+    playerIds.forEach(id => {
+      resetUpdates[`${id}/hasPickedThisRound`]  = false;
+      resetUpdates[`${id}/slotPickedThisRound`] = null;
+    });
+    await dbUpdate(playersPath(mpGameCode), resetUpdates);
+
+    // Persist the new shared state and advance the round
+    await mpWriteSharedState([...slotCards]);
+    await dbUpdate(roundPath(mpGameCode), {
+      number:         (mpRound?.number || 1) + 1,
+      turnOrder:      newOrder,
+      activePlayerId: newOrder[0],
+      claimedSlots:   [],
+      phase:          'picking',
+    });
+  }
+
+  // ── Firebase listeners ───────────────────────────────────────────────
+  function mpInitListeners() {
+    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
+
+    // 1. Round: whose turn, phase, claimed slots
+    _mpUnsubRound = dbListen(roundPath(mpGameCode), round => {
+      if (!round) return;
+      mpRound = round;
+      const isMyTurn = round.activePlayerId === mpPlayerId;
+      if (isMyTurn) {
+        mpHideWaiting();
+        setAllSlotsLocked(false);
+        cardSelected = false;
+      } else {
+        const name = mpAllPlayers[round.activePlayerId]?.name ?? 'Another player';
+        mpShowWaiting(name);
+        setAllSlotsLocked(true);
+      }
+    });
+
+    // 2. Shared board: deck + visible cards — only update when it's NOT my turn
+    _mpUnsubShared = dbListen(sharedStatePath(mpGameCode), state => {
+      if (!state) return;
+      // If it's currently my turn I'm the source of truth — skip
+      if (mpRound?.activePlayerId === mpPlayerId) return;
+
+      drawPile        = Array.isArray(state.drawPile)        ? state.drawPile        : Object.values(state.drawPile        || {});
+      discardPile     = Array.isArray(state.discardPile)     ? state.discardPile     : Object.values(state.discardPile     || {});
+      injuredMonsters = Array.isArray(state.injuredMonsters) ? state.injuredMonsters : Object.values(state.injuredMonsters || {});
+      if (typeof state.deckPass === 'number' && state.deckPass !== deckPass) {
+        deckPass = state.deckPass;
+        updateBoardLocation();
+        updateSlotCosts();
+      }
+      mpApplySlotCards(state.slotCards);
+      updateDeckCount();
+      cardSelected = false;
+      updateItemBars();
+    });
+
+    // 3. All players — for ally sidebar + waiting overlay name
+    _mpUnsubPlayers = dbListen(playersPath(mpGameCode), players => {
+      if (!players) return;
+      mpAllPlayers = players;
+      mpRenderAllySidebar(players);
+      if (mpRound && mpRound.activePlayerId !== mpPlayerId) {
+        const name = players[mpRound.activePlayerId]?.name ?? 'Another player';
+        document.getElementById('mp-turn-name').textContent = name;
+      }
+    });
+
+    // 4. Meta — game over broadcast
+    _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
+      if (!meta) return;
+      if (meta.status === 'gameover' && !gameOver) {
+        const reason = meta.gameOverReason ?? 'health';
+        const name   = meta.eliminatedName ?? 'A survivor';
+        gameLog.add(`💀 ${name} has fallen — the group cannot continue.`, 'warn');
+        // triggerGameOver will check gameOver flag and show the screen
+        if (!gameOver) triggerGameOver(reason);
+      }
+    });
+  }
+
+  // ── Multiplayer init: read Firebase state, override local, start listeners ──
+  async function mpInit() {
+    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
+
+    const [myData, shared] = await Promise.all([
+      dbGet(playerPath(mpGameCode, mpPlayerId)),
+      dbGet(sharedStatePath(mpGameCode)),
+    ]);
+
+    mpIsHost = myData?.isHost === true;
+    mpMyName = myData?.name ?? charDef.label;
+
+    if (mpIsHost) {
+      // Host is source of truth — write the locally-dealt board to Firebase
+      await mpWriteSharedState([...slotCards]);
+    } else if (shared) {
+      // Non-host: overwrite local state with Firebase's authoritative copy
+      drawPile        = Array.isArray(shared.drawPile)        ? shared.drawPile        : Object.values(shared.drawPile        || {});
+      discardPile     = Array.isArray(shared.discardPile)     ? shared.discardPile     : Object.values(shared.discardPile     || {});
+      injuredMonsters = Array.isArray(shared.injuredMonsters) ? shared.injuredMonsters : Object.values(shared.injuredMonsters || {});
+      if (typeof shared.deckPass === 'number' && shared.deckPass !== deckPass) {
+        deckPass = shared.deckPass;
+        updateBoardLocation();
+        updateSlotCosts();
+      }
+      mpApplySlotCards(shared.slotCards);
+      updateDeckCount();
+    }
+
+    mpInitListeners();
+    console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}`);
+  }
+
   /* ── Start game sequence on page load ── */
   (async function startGame() {
 
@@ -4054,6 +4397,11 @@
     const drawn = drawPile.splice(0, count);
     placeCards(drawn);
     updateDeckCount();
+
+    if (isMultiplayer) {
+      // mpInit detects host role, syncs state, and starts all Firebase listeners
+      await mpInit();
+    }
   })();
 </script>
 </body>

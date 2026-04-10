@@ -3470,6 +3470,98 @@
       letter-spacing: 0.04em;
     }
     /* ─────────────────────────────────────────
+       MULTIPLAYER — In-game UI
+    ───────────────────────────────────────── */
+    /* Waiting overlay — sits inside #gather-board (position:relative) */
+    .mp-turn-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,6,4,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+      border-radius: 4px;
+      pointer-events: all;
+    }
+    .mp-turn-overlay.mp-hidden { display: none; }
+    .mp-turn-content { text-align: center; padding: 1rem; }
+    .mp-turn-icon {
+      font-size: 2rem;
+      margin-bottom: 0.6rem;
+      display: block;
+      animation: mp-pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes mp-pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.08); }
+    }
+    .mp-turn-label {
+      font-family: 'Spectral', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.65;
+    }
+    .mp-turn-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(200,150,42,0.45);
+      margin: 0.35rem 0;
+    }
+    .mp-turn-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.5rem;
+      color: var(--gold-dim);
+      opacity: 0.45;
+      font-style: italic;
+    }
+    /* Ally sidebar */
+    #mp-ally-sidebar {
+      position: fixed;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 60;
+      pointer-events: none;
+    }
+    .mp-ally-card {
+      background: #100e0b;
+      border: 1px solid rgba(200,150,42,0.2);
+      border-radius: 4px;
+      padding: 0.5rem 0.7rem;
+      min-width: 110px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .mp-ally-active {
+      border-color: rgba(200,150,42,0.65) !important;
+      box-shadow: 0 0 10px rgba(200,150,42,0.2);
+    }
+    .mp-ally-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+    .mp-ally-stats {
+      font-family: 'Spectral', serif;
+      font-size: 0.52rem;
+      color: var(--parchment);
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      opacity: 0.85;
+    }
+
+    /* ─────────────────────────────────────────
        RULEBOOK MODAL
     ───────────────────────────────────────── */
     .rules-btn {
