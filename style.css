@@ -3203,6 +3203,263 @@
       background: rgba(200,150,42,0.1);
     }
 
+    /* ─────────────────────────────────────────
+       MULTIPLAYER — Start screen additions
+    ───────────────────────────────────────── */
+    .sm-diff-selected {
+      border-color: rgba(200,150,42,0.85) !important;
+      background: rgba(200,150,42,0.2) !important;
+      box-shadow: 0 0 12px rgba(200,150,42,0.35);
+    }
+    .sm-play-mode {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sm-play-mode.hidden { display: none; }
+    .sm-play-mode-label {
+      font-family: 'Spectral', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.7;
+    }
+    .sm-play-mode-btns {
+      display: flex;
+      gap: 0.6rem;
+      width: 100%;
+    }
+    .sm-play-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.65rem 0.5rem;
+      border: 1px solid rgba(200,150,42,0.35);
+      background: rgba(200,150,42,0.08);
+      color: var(--ink);
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .sm-play-btn:hover {
+      background: rgba(200,150,42,0.18);
+      border-color: rgba(200,150,42,0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(200,150,42,0.25);
+    }
+    .sm-play-btn:active { transform: scale(0.97); }
+    .sm-play-btn-name {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f0e8d8;
+    }
+    .sm-play-btn-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.48rem;
+      color: var(--gold-dim);
+      opacity: 0.7;
+      text-align: center;
+      line-height: 1.4;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* ─────────────────────────────────────────
+       MULTIPLAYER — Lobby overlay
+    ───────────────────────────────────────── */
+    .mp-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,6,4,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 2rem;
+      backdrop-filter: blur(2px);
+    }
+    .mp-overlay.hidden { display: none; }
+    .mp-box {
+      max-width: 420px;
+      width: 100%;
+      background: #100e0b;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 0 80px rgba(0,0,0,0.9), inset 0 0 60px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      text-align: center;
+    }
+    .mp-box.hidden { display: none; }
+    .mp-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .mp-code-block { width: 100%; }
+    .mp-code-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.65;
+      margin-bottom: 0.4rem;
+    }
+    .mp-code-value {
+      font-family: 'Cinzel', serif;
+      font-size: 2.6rem;
+      letter-spacing: 0.45em;
+      color: var(--gold);
+      text-shadow: 0 0 28px rgba(200,150,42,0.55);
+      line-height: 1;
+    }
+    .mp-code-hint {
+      font-family: 'Spectral', serif;
+      font-size: 0.5rem;
+      color: var(--gold-dim);
+      opacity: 0.5;
+      letter-spacing: 0.05em;
+      margin-top: 0.35rem;
+    }
+    .mp-players {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-height: 2.5rem;
+    }
+    .mp-player-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.7rem;
+      border: 1px solid rgba(200,150,42,0.18);
+      border-radius: 4px;
+      background: rgba(200,150,42,0.04);
+      font-family: 'Spectral', serif;
+      font-size: 0.62rem;
+      color: var(--parchment);
+      text-align: left;
+    }
+    .mp-player-char {
+      opacity: 0.5;
+      font-size: 0.5rem;
+      margin-left: 0.15rem;
+    }
+    .mp-player-host-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.36rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      border: 1px solid rgba(200,150,42,0.4);
+      border-radius: 3px;
+      padding: 0.1rem 0.3rem;
+      margin-left: auto;
+    }
+    .mp-player-you {
+      font-size: 0.42rem;
+      color: rgba(200,150,42,0.55);
+      font-style: italic;
+    }
+    .mp-status-msg {
+      font-family: 'Spectral', serif;
+      font-size: 0.58rem;
+      color: var(--gold-dim);
+      opacity: 0.6;
+      font-style: italic;
+    }
+    .mp-input-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      text-align: left;
+    }
+    .mp-input-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.4rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.7;
+    }
+    .mp-input {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(200,150,42,0.05);
+      border: 1px solid rgba(200,150,42,0.28);
+      border-radius: 4px;
+      padding: 0.55rem 0.7rem;
+      font-family: 'Spectral', serif;
+      font-size: 0.68rem;
+      color: var(--parchment);
+      outline: none;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mp-input:focus {
+      border-color: rgba(200,150,42,0.58);
+      box-shadow: 0 0 8px rgba(200,150,42,0.15);
+    }
+    .mp-input-code {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.4em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .mp-error {
+      font-family: 'Spectral', serif;
+      font-size: 0.55rem;
+      color: #e08080;
+      min-height: 0.8rem;
+      text-align: center;
+    }
+    .mp-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.75rem;
+      border: 1px solid rgba(200,150,42,0.5);
+      background: rgba(200,150,42,0.12);
+      color: var(--gold);
+      transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+    }
+    .mp-btn:hover:not(:disabled) {
+      background: rgba(200,150,42,0.22);
+      border-color: rgba(200,150,42,0.75);
+    }
+    .mp-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .mp-btn-ghost {
+      background: transparent;
+      border-color: rgba(200,150,42,0.18);
+      color: var(--gold-dim);
+      font-size: 0.5rem;
+      opacity: 0.7;
+    }
+    .mp-btn-ghost:hover:not(:disabled) {
+      background: rgba(200,150,42,0.06);
+      border-color: rgba(200,150,42,0.38);
+      opacity: 1;
+    }
+
     /* ── Draw button card count ── */
     .draw-btn-count {
       font-family: 'Spectral', serif;
