@@ -3636,6 +3636,265 @@
       opacity: 0.45;
       font-style: italic;
     }
+    /* ─────────────────────────────────────────
+       PHASE 5 — Draft waiting overlay
+    ───────────────────────────────────────── */
+    #mp-draft-waiting {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,6,4,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      backdrop-filter: blur(2px);
+    }
+    #mp-draft-waiting.hidden { display: none; }
+    .mp-draft-wait-box {
+      background: #100e0b;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 2.2rem 2rem;
+      max-width: 340px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    }
+    .mp-draft-wait-icon {
+      font-size: 1.8rem;
+      animation: mp-pulse 2.2s ease-in-out infinite;
+    }
+    .mp-draft-wait-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .mp-draft-wait-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.55rem;
+      color: var(--gold-dim);
+      opacity: 0.65;
+      line-height: 1.6;
+    }
+    .mp-draft-wait-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+    .mp-draft-wait-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
+      font-family: 'Spectral', serif;
+      font-size: 0.55rem;
+      color: var(--parchment);
+      background: rgba(200,150,42,0.04);
+    }
+    .mp-draft-wait-done { color: #6ab86a; }
+    .mp-draft-wait-pending { color: var(--gold-dim); opacity: 0.55; font-style: italic; }
+
+    /* ─────────────────────────────────────────
+       PHASE 4 — Food share modal
+    ───────────────────────────────────────── */
+    #mp-food-share-dialog {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,6,4,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      backdrop-filter: blur(2px);
+    }
+    #mp-food-share-dialog.hidden { display: none; }
+    .mp-food-box {
+      background: #100e0b;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 2rem 1.8rem;
+      max-width: 380px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    }
+    .mp-food-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .mp-food-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.58rem;
+      color: var(--gold-dim);
+      opacity: 0.7;
+      text-align: center;
+    }
+    .mp-food-pool {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+    .mp-food-rows { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
+    .mp-food-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid rgba(200,150,42,0.18);
+      border-radius: 4px;
+      background: rgba(200,150,42,0.04);
+    }
+    .mp-food-row-name {
+      font-family: 'Spectral', serif;
+      font-size: 0.62rem;
+      color: var(--parchment);
+    }
+    .mp-food-row-controls { display: flex; align-items: center; gap: 0.5rem; }
+    .mp-food-adj-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      width: 1.6rem; height: 1.6rem;
+      border-radius: 50%;
+      border: 1px solid rgba(200,150,42,0.4);
+      background: rgba(200,150,42,0.08);
+      color: var(--gold);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s;
+    }
+    .mp-food-adj-btn:hover:not(:disabled) { background: rgba(200,150,42,0.2); }
+    .mp-food-adj-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .mp-food-row-amount {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      color: var(--gold);
+      min-width: 1rem;
+      text-align: center;
+    }
+    .mp-food-confirm-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.7rem;
+      border: none;
+      background: linear-gradient(135deg, #c8962a, #8a620c);
+      color: var(--ink);
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .mp-food-confirm-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ─────────────────────────────────────────
+       PHASE 4 — Ally request banner
+    ───────────────────────────────────────── */
+    #mp-ally-request {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #100e0b;
+      border: 1px solid rgba(200,80,80,0.55);
+      border-radius: 6px;
+      padding: 1rem 1.4rem;
+      min-width: 280px;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 400;
+      box-shadow: 0 0 40px rgba(200,80,80,0.15);
+      animation: mp-ally-in 0.25s ease;
+    }
+    #mp-ally-request.hidden { display: none; }
+    @keyframes mp-ally-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .mp-ally-req-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #e05050;
+    }
+    .mp-ally-req-body {
+      font-family: 'Spectral', serif;
+      font-size: 0.58rem;
+      color: var(--parchment);
+      text-align: center;
+      opacity: 0.85;
+    }
+    .mp-ally-req-btns { display: flex; gap: 0.5rem; width: 100%; }
+    .mp-ally-ans-btn {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.55rem;
+      border: 1px solid rgba(200,80,80,0.5);
+      background: rgba(200,80,80,0.1);
+      color: #e08080;
+      transition: background 0.15s;
+    }
+    .mp-ally-ans-btn:hover { background: rgba(200,80,80,0.22); }
+    .mp-ally-ans-btn.btn-decline {
+      border-color: rgba(200,150,42,0.25);
+      background: transparent;
+      color: var(--gold-dim);
+      opacity: 0.6;
+    }
+    .mp-ally-ans-btn.btn-decline:hover { opacity: 1; background: rgba(200,150,42,0.06); }
+
+    /* ─────────────────────────────────────────
+       PHASE 4 — Requester waiting state
+    ───────────────────────────────────────── */
+    #mp-ally-waiting {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #100e0b;
+      border: 1px solid rgba(200,150,42,0.3);
+      border-radius: 6px;
+      padding: 0.7rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 400;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+    #mp-ally-waiting.hidden { display: none; }
+    .mp-ally-wait-icon { animation: mp-pulse 2s ease-in-out infinite; font-size: 0.9rem; }
+    .mp-ally-wait-text {
+      font-family: 'Spectral', serif;
+      font-size: 0.55rem;
+      color: var(--gold-dim);
+      opacity: 0.75;
+    }
+
     /* Ally sidebar */
     #mp-ally-sidebar {
       position: fixed;
