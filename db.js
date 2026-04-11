@@ -94,6 +94,8 @@ function playerPath(gameCode, playerId)   { return `games/${gameCode}/players/${
 function sharedStatePath(gameCode)        { return `games/${gameCode}/sharedState`; }
 function roundPath(gameCode)              { return `games/${gameCode}/round`; }
 function logPath(gameCode)                { return `games/${gameCode}/log`; }
+function shareRequestsPath(gameCode)      { return `games/${gameCode}/shareRequests`; }
+function shareRequestPath(gameCode, toId) { return `games/${gameCode}/shareRequests/${toId}`; }
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 

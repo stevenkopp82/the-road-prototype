@@ -230,6 +230,33 @@
     <span class="mp-ally-wait-text" id="mp-ally-wait-text">Calling for allies...</span>
   </div>
 
+  <!-- Phase 7: Share recipient picker (sender chooses which ally) -->
+  <div id="mp-share-picker" class="hidden">
+    <div class="mp-share-picker-box">
+      <div class="mp-share-picker-title">Share with Ally</div>
+      <div class="mp-share-picker-sub" id="mp-share-picker-sub"></div>
+      <div class="mp-share-picker-rows" id="mp-share-picker-rows"></div>
+      <button class="mp-share-picker-cancel" id="mp-share-picker-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Phase 7: Incoming share request banner (shown to recipient) -->
+  <div id="mp-share-request" class="hidden">
+    <div class="mp-share-req-title">📦 Ally Offer</div>
+    <div class="mp-share-req-body" id="mp-share-req-body"></div>
+    <div class="mp-share-req-btns">
+      <button class="mp-share-req-btn btn-accept" id="mp-share-req-accept">Accept</button>
+      <button class="mp-share-req-btn btn-decline-share" id="mp-share-req-decline">Decline</button>
+    </div>
+  </div>
+
+  <!-- Phase 7: Sender waiting bar (shown while awaiting ally response) -->
+  <div id="mp-share-waiting" class="hidden">
+    <span class="mp-share-wait-icon">📦</span>
+    <span class="mp-share-wait-text" id="mp-share-wait-text">Waiting for ally to respond…</span>
+    <button class="mp-share-wait-cancel" id="mp-share-wait-cancel">Cancel</button>
+  </div>
+
   <!-- ══════════════════════════════════════
        DISCARD PILE VIEWER
   ══════════════════════════════════════ -->
@@ -334,6 +361,8 @@
         <button class="replace-btn btn-keep" id="btn-keep">Keep Current</button>
         <button class="replace-btn btn-replace" id="btn-replace">Replace</button>
       </div>
+      <!-- Multiplayer only: shown when an ally has an empty slot -->
+      <button class="replace-btn btn-share hidden" id="btn-share">Share with Ally</button>
     </div>
   </div>
 
@@ -1526,6 +1555,7 @@
       if (!stillHas) applyCapacityMechanism(prev, false);
     }
     renderItemSlots();
+    mpSyncInventorySlots();
   }
 
   /* ── Find the first empty item slot index, or -1 ── */
@@ -1603,12 +1633,14 @@
     const existing = armorSlots[slotKey];
 
     if (existing) {
-      const replace = await promptReplace('armor', existing.card, card);
-      if (!replace) return { taken: false };
+      const result = await promptReplace('armor', existing.card, card, slotKey);
+      if (result === 'share') return { taken: false, share: true, shareCard: card };
+      if (!result) return { taken: false };
       // Trash the old armor permanently (no discard pile cycle)
     }
     armorSlots[slotKey] = { card, pips: { ...card.absorb } };
     refreshArmorSlot(slotKey);
+    mpSyncInventorySlots();
     return { taken: true };
   }
 
@@ -1668,6 +1700,7 @@
       icon.textContent = INV_ICONS[type];
       zone.appendChild(icon);
     }
+    mpSyncInventorySlots();
   }
 
 
@@ -1817,7 +1850,7 @@
   }
   let replaceResolve = null; // resolve fn for the pending promise
 
-  function promptReplace(type, currentCard, newCard) {
+  function promptReplace(type, currentCard, newCard, armorSlotKey) {
     return new Promise(resolve => {
       replaceResolve = resolve;
 
@@ -1828,6 +1861,15 @@
       document.getElementById('replace-current-stat').textContent = cardPreviewStat(currentCard, currentUses);
       document.getElementById('replace-new-name').textContent = newCard.name;
       document.getElementById('replace-new-stat').textContent = cardPreviewStat(newCard);
+
+      // Show share button only in multiplayer when an ally has an open slot
+      const shareBtn = document.getElementById('btn-share');
+      if (isMultiplayer) {
+        const eligible = mpGetEligibleShareAllies(type, armorSlotKey);
+        shareBtn.classList.toggle('hidden', eligible.length === 0);
+      } else {
+        shareBtn.classList.add('hidden');
+      }
 
       document.getElementById('replace-dialog').classList.add('open');
     });
@@ -1841,6 +1883,11 @@
   document.getElementById('btn-replace').addEventListener('click', () => {
     document.getElementById('replace-dialog').classList.remove('open');
     if (replaceResolve) { replaceResolve(true); replaceResolve = null; }
+  });
+
+  document.getElementById('btn-share').addEventListener('click', () => {
+    document.getElementById('replace-dialog').classList.remove('open');
+    if (replaceResolve) { replaceResolve('share'); replaceResolve = null; }
   });
 
   /* ── Discard picker: shown when all item slots are full ── */
@@ -3292,6 +3339,22 @@
         if (result.taken) {
           effectLines.push(`🛡️ ${card.name} equipped (${card.armor_slot})`);
           gearAcquired = true;
+        } else if (result.share) {
+          // Multiplayer: offer this armor to an ally
+          const armorSlotKey = card.armor_slot;
+          const eligible = mpGetEligibleShareAllies('armor', armorSlotKey);
+          const toPlayerId = await mpPromptShareRecipient(eligible, card);
+          if (toPlayerId) {
+            const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
+            const shareResult = await mpSendShareRequest(toPlayerId, toName, card, 'armor');
+            if (shareResult === 'accepted') {
+              effectLines.push(`📦 ${card.name} shared with ${toName}`);
+            } else {
+              effectLines.push(`🛡️ Kept existing ${armorSlotKey} armor`);
+            }
+          } else {
+            effectLines.push(`🛡️ Kept existing ${armorSlotKey} armor`);
+          }
         } else {
           // Not taken — trash it (don't cycle back via discardPile)
           effectLines.push(`🛡️ Kept existing ${card.armor_slot} armor`);
@@ -3311,17 +3374,33 @@
               effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
               gearAcquired = true;
             } else {
-              const discardIdx = await promptItemDiscard(card);
-              if (discardIdx >= 0) {
-                const displaced = itemSlots[discardIdx];
-                if (displaced?.mechanism?.type === 'capacity') applyCapacityMechanism(displaced, false);
-                setItemSlot(discardIdx, card);
-                applyCapacityMechanism(card, true);
-                effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
-                gearAcquired = true;
-              } else {
-                discardPile.push(card);
-                effectLines.push('🎒 Item not taken');
+              // All item slots full — check for share option first in multiplayer
+              const eligible = isMultiplayer ? mpGetEligibleShareAllies('item', null) : [];
+              let handled = false;
+              if (eligible.length > 0) {
+                const toPlayerId = await mpPromptShareRecipient(eligible, card);
+                if (toPlayerId) {
+                  const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
+                  const shareResult = await mpSendShareRequest(toPlayerId, toName, card, 'item');
+                  if (shareResult === 'accepted') {
+                    effectLines.push(`📦 ${card.name} shared with ${toName}`);
+                    handled = true;
+                  }
+                }
+              }
+              if (!handled) {
+                const discardIdx = await promptItemDiscard(card);
+                if (discardIdx >= 0) {
+                  const displaced = itemSlots[discardIdx];
+                  if (displaced?.mechanism?.type === 'capacity') applyCapacityMechanism(displaced, false);
+                  setItemSlot(discardIdx, card);
+                  applyCapacityMechanism(card, true);
+                  effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
+                  gearAcquired = true;
+                } else {
+                  discardPile.push(card);
+                  effectLines.push('🎒 Item not taken');
+                }
               }
             }
           }
@@ -3333,24 +3412,56 @@
             effectLines.push(`🎒 ${card.name} placed in item slot`);
             gearAcquired = true;
           } else {
-            const discardIdx = await promptItemDiscard(card);
-            if (discardIdx >= 0) {
-              // The bumped-out card goes out of play; new card goes to inventory
-              setItemSlot(discardIdx, card);
-              effectLines.push(`🎒 ${card.name} placed in item slot`);
-              gearAcquired = true;
-            } else {
-              // Player cancelled — card not taken → discard
-              discardPile.push(card);
-              effectLines.push('🎒 Item not taken');
+            // All item slots full — check for share option first in multiplayer
+            const eligible = isMultiplayer ? mpGetEligibleShareAllies('item', null) : [];
+            let handled = false;
+            if (eligible.length > 0) {
+              const toPlayerId = await mpPromptShareRecipient(eligible, card);
+              if (toPlayerId) {
+                const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
+                const shareResult = await mpSendShareRequest(toPlayerId, toName, card, 'item');
+                if (shareResult === 'accepted') {
+                  effectLines.push(`📦 ${card.name} shared with ${toName}`);
+                  handled = true;
+                }
+              }
+            }
+            if (!handled) {
+              const discardIdx = await promptItemDiscard(card);
+              if (discardIdx >= 0) {
+                // The bumped-out card goes out of play; new card goes to inventory
+                setItemSlot(discardIdx, card);
+                effectLines.push(`🎒 ${card.name} placed in item slot`);
+                gearAcquired = true;
+              } else {
+                // Player cancelled — card not taken → discard
+                discardPile.push(card);
+                effectLines.push('🎒 Item not taken');
+              }
             }
           }
         }
       } else {
         // Weapon or vehicle
         if (inventory[type]) {
-          const doReplace = await promptReplace(type, inventory[type], card);
-          if (doReplace) {
+          const replaceResult = await promptReplace(type, inventory[type], card);
+          if (replaceResult === 'share') {
+            const eligible = mpGetEligibleShareAllies(type, null);
+            const toPlayerId = await mpPromptShareRecipient(eligible, card);
+            if (toPlayerId) {
+              const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
+              const shareResult = await mpSendShareRequest(toPlayerId, toName, card, type);
+              if (shareResult === 'accepted') {
+                effectLines.push(`📦 ${card.name} shared with ${toName}`);
+              } else {
+                discardPile.push(card);
+                effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+              }
+            } else {
+              discardPile.push(card);
+              effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+            }
+          } else if (replaceResult) {
             // Old card goes out of play; new card goes to inventory
             setInventorySlot(type, card);
             effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
@@ -4592,6 +4703,157 @@
     return result;
   }
 
+  // ── Phase 7: Equipment Sharing ────────────────────────────────────────
+
+  /** Write this player's inventory vacancy flags to Firebase so allies can check for empty slots. */
+  function mpSyncInventorySlots() {
+    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
+    const invSlots = {
+      weapon:          inventory.weapon == null,
+      items:           itemSlots.filter(Boolean).length,
+      armorHead:       armorSlots.head == null,
+      armorBody:       armorSlots.body == null,
+      armorAccessory:  armorSlots.accessory == null,
+    };
+    dbUpdate(playerPath(mpGameCode, mpPlayerId), { invSlots }).catch(() => {});
+  }
+
+  /**
+   * Return allies who have an empty slot matching the given card type.
+   * type: 'weapon' | 'item' | 'armor'
+   * armorSlotKey: 'head' | 'body' | 'accessory' (only for armor type)
+   */
+  function mpGetEligibleShareAllies(type, armorSlotKey) {
+    return Object.entries(mpAllPlayers)
+      .filter(([id]) => id !== mpPlayerId)
+      .filter(([, p]) => {
+        const s = p.invSlots;
+        if (!s) return false;
+        if (type === 'weapon') return s.weapon === true;
+        if (type === 'item')   return s.items < 3;
+        if (type === 'armor') {
+          if (armorSlotKey === 'head')      return s.armorHead      === true;
+          if (armorSlotKey === 'body')      return s.armorBody      === true;
+          if (armorSlotKey === 'accessory') return s.armorAccessory === true;
+        }
+        return false;
+      })
+      .map(([id, p]) => ({ id, name: p.name ?? 'Ally' }));
+  }
+
+  /** Check whether this player's own inventory can receive a shared card. */
+  function mpCanReceiveCard(type, armorSlotKey) {
+    if (type === 'weapon') return inventory.weapon == null;
+    if (type === 'item')   return firstEmptyItemSlot() >= 0;
+    if (type === 'armor')  return armorSlots[armorSlotKey] == null;
+    return false;
+  }
+
+  /**
+   * Show the recipient picker modal and return the chosen playerId, or null if cancelled.
+   * eligible: array of { id, name }
+   */
+  function mpPromptShareRecipient(eligible, card) {
+    return new Promise(resolve => {
+      const dialog  = document.getElementById('mp-share-picker');
+      const subEl   = document.getElementById('mp-share-picker-sub');
+      const rowsEl  = document.getElementById('mp-share-picker-rows');
+      const cancelBtn = document.getElementById('mp-share-picker-cancel');
+
+      subEl.textContent = `Who should receive ${card.name} (${cardPreviewStat(card)})?`;
+      rowsEl.innerHTML  = '';
+
+      eligible.forEach(({ id, name }) => {
+        const btn = document.createElement('button');
+        btn.className   = 'mp-share-ally-btn';
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          dialog.classList.add('hidden');
+          cancelBtn.onclick = null;
+          resolve(id);
+        });
+        rowsEl.appendChild(btn);
+      });
+
+      cancelBtn.onclick = () => {
+        dialog.classList.add('hidden');
+        cancelBtn.onclick = null;
+        resolve(null);
+      };
+
+      dialog.classList.remove('hidden');
+    });
+  }
+
+  /**
+   * Write a share request to Firebase, show the waiting bar, and return
+   * 'accepted' | 'declined' | 'cancelled' when the recipient responds.
+   */
+  async function mpSendShareRequest(toPlayerId, toName, card, type) {
+    const path = `games/${mpGameCode}/shareRequests/${toPlayerId}`;
+
+    await dbSet(path, {
+      fromPlayerId: mpPlayerId,
+      fromName:     mpMyName,
+      card,
+      type,
+      status:    'pending',
+      expiresAt: Date.now() + 60000,
+    });
+
+    const waitEl   = document.getElementById('mp-share-waiting');
+    const waitText = document.getElementById('mp-share-wait-text');
+    const cancelBtn = document.getElementById('mp-share-wait-cancel');
+    waitText.textContent = `Waiting for ${toName} to respond…`;
+    waitEl.classList.remove('hidden');
+
+    const outcome = await new Promise(resolve => {
+      let done = false;
+
+      const finish = (result) => {
+        if (done) return;
+        done = true;
+        unsub();
+        clearTimeout(timer);
+        cancelBtn.onclick = null;
+        waitEl.classList.add('hidden');
+        resolve(result);
+      };
+
+      const unsub = dbListen(path, req => {
+        if (!req)                       return finish('declined');
+        if (req.status === 'accepted')  return finish('accepted');
+        if (req.status === 'declined')  return finish('declined');
+      });
+
+      const timer = setTimeout(() => finish('declined'), 60000);
+
+      cancelBtn.onclick = () => finish('cancelled');
+    });
+
+    await dbRemove(path);
+    return outcome;
+  }
+
+  /**
+   * Apply a card received from an ally directly into this player's inventory.
+   * Assumes the slot vacancy was already verified before the request was accepted.
+   */
+  async function mpApplySharedCard(card, type) {
+    if (type === 'weapon') {
+      setInventorySlot('weapon', card);
+    } else if (type === 'item') {
+      const idx = firstEmptyItemSlot();
+      if (idx >= 0) setItemSlot(idx, card);
+    } else if (type === 'armor') {
+      const slotKey = card.armor_slot;
+      armorSlots[slotKey] = { card, pips: { ...card.absorb } };
+      refreshArmorSlot(slotKey);
+      mpSyncInventorySlots();
+    }
+    await mpWriteMyState();
+  }
+
   // ── Broadcast game over to all clients ──────────────────────────────
   function mpTriggerGameOver(reason) {
     if (!isMultiplayer) return;
@@ -4792,7 +5054,51 @@
       };
     });
 
-    // 5. Remote game log — display other players' events in this client's log panel
+    // 5. Share requests — incoming equipment offer from an ally
+    dbListen(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, async req => {
+      const banner     = document.getElementById('mp-share-request');
+      const bodyEl     = document.getElementById('mp-share-req-body');
+      const acceptBtn  = document.getElementById('mp-share-req-accept');
+      const declineBtn = document.getElementById('mp-share-req-decline');
+
+      if (!req || req.status !== 'pending' || req.expiresAt < Date.now()) {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      const { card, type, fromName = 'Your ally' } = req;
+      const canAccept = mpCanReceiveCard(type, card.armor_slot);
+
+      bodyEl.textContent =
+        `${fromName} wants to share ${card.name} (${cardPreviewStat(card)}) with you.` +
+        (canAccept ? '' : ' (Your slot is full — cannot accept.)');
+
+      acceptBtn.disabled = !canAccept;
+      banner.classList.remove('hidden');
+
+      acceptBtn.onclick = async () => {
+        banner.classList.add('hidden');
+        acceptBtn.onclick  = null;
+        declineBtn.onclick = null;
+        if (!mpCanReceiveCard(type, card.armor_slot)) {
+          // Slot filled up between offer and accept — auto-decline
+          await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'declined' });
+          return;
+        }
+        await mpApplySharedCard(card, type);
+        await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'accepted' });
+        gameLog.add(`📦 Received ${card.name} from ${fromName}`, 'good');
+      };
+
+      declineBtn.onclick = async () => {
+        banner.classList.add('hidden');
+        acceptBtn.onclick  = null;
+        declineBtn.onclick = null;
+        await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'declined' });
+      };
+    });
+
+    // 6. Remote game log — display other players' events in this client's log panel
     dbListenChildAdded(logPath(mpGameCode), (_key, entry) => {
       if (!entry || entry.n === mpMyName) return; // skip own entries (already shown locally)
       if (!mpGameLog) return;
@@ -4805,7 +5111,7 @@
       mpGameLog.setReceiving(false);
     });
 
-    // 6. Meta — game over broadcast
+    // 7. Meta — game over broadcast
     _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
       if (!meta) return;
       if (meta.status === 'gameover' && !gameOver) {
@@ -4899,6 +5205,7 @@
     // Store the receiving flag and restore fns on the module scope so listener can access them
     mpGameLog = { setReceiving: v => { _mpLogReceiving = v; } };
 
+    mpSyncInventorySlots(); // publish initial vacancy state so allies can see our empty slots
     mpInitListeners();
     console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}, Reconnect: ${isReconnect}`);
   }
