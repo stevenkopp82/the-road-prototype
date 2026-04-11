@@ -18,25 +18,3 @@ Potential additional environments beyond the current five:
 
 **Trade-off:** Locked slots are simpler to teach and allow items/mutations to reference specific environments consistently. Shuffled slots require players to read the board each turn but add significant replayability. A hybrid (shuffle once per location, then lock for that leg) could balance both.
 
----
-
-## Character Selection
-
-Player selects a character at the start of the game. Each character has a passive benefit (or set of benefits) that shapes their playstyle for the entire run. Selected at the welcome screen alongside difficulty, stored in sessionStorage alongside other starting stats.
-
-### Suggested Characters and Mechanics
-
-| Character | Benefit |
-|-----------|---------|
-| **Soldier** | +1 base STR in all battles. Starts with the handgun. |
-| **Medic** | Gain +1 extra Health whenever a gather card heals you. Starts with +2 health. |
-| **Survivalist** | Gain +1 extra food whenever a food card heals you. Starts with the Backpack. |
-| **Psychologist** | Gain +1 extra Sanity whenver a gather card increases sanity. Starts with +2 sanity |
-| **Hunter** | Gain +2 whenever he wins a battle. Starts with the bow and arrow |
-
-### Implementation Notes
-- Eliminate the gear selection dialog, since some characters start with gear. If the character does not have starting gear, just don't equip and item/weapon
-- Character selection appears on `index.html` before difficulty.
-- The chosen character is saved to `sessionStorage` and read in `game.html` on load.
-- Most benefits are passive modifiers applied at known hook points (gather resolution, battle STR calc, cost modifiers) — no new architecture needed.
-- The Player Board should say Character Name instead of Player Board at the top

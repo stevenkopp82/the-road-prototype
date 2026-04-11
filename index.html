@@ -241,6 +241,7 @@
   let mpPlayerId     = null;
   let mpUnsubPlayers = null;
   let mpUnsubMeta    = null;
+  let mpIsHostLocal  = false;   // true when this client created the game
 
   // ── Step navigation ──────────────────────────────────────────────────────────
   function showStep(id) {
@@ -429,8 +430,9 @@
     const btn  = document.getElementById('btn-create-lobby');
     btn.disabled = true; btn.textContent = 'Creating...';
 
-    mpGameCode = generateGameCode();
-    mpPlayerId = generatePlayerId();
+    mpGameCode    = generateGameCode();
+    mpPlayerId    = generatePlayerId();
+    mpIsHostLocal = true;
 
     await dbSet(`games/${mpGameCode}/meta`, {
       hostId:  mpPlayerId,
@@ -558,6 +560,8 @@
         sessionStorage.setItem('multiplayer', 'true');
         sessionStorage.setItem('gameCode',    mpGameCode);
         sessionStorage.setItem('playerId',    mpPlayerId);
+        sessionStorage.setItem('mpIsHost',    mpIsHostLocal ? 'true' : 'false');
+        sessionStorage.setItem('mpFreshStart', 'true');
         window.location.href = 'game.html';
       }
     });

@@ -212,6 +212,72 @@ When the deck is exhausted (`onDeckExhausted()`):
 
 ---
 
+### Phase 7 — Equipment Sharing (2–3 hours)
+
+When a player picks a weapon, armor, or item card and their matching slot is already full, they currently face a binary choice: keep the current card or replace it. In co-op, a third option appears — share the incoming card with an ally who has an empty slot of the same type.
+
+#### Slot vacancy logic
+
+Each equipment type has its own slot structure:
+
+| Type | Full when… |
+|---|---|
+| Weapon | `inventory.weapon !== null` |
+| Item | All three `itemSlots` are non-null |
+| Armor | `armorSlots[card.armor_slot] !== null` (head, body, or accessory checked by slot key) |
+
+Before showing the share option, the host checks the `/games/{code}/players/` snapshot to find allies who have an empty slot of the appropriate type. If no ally has room, the share option is hidden.
+
+#### Firebase data structure addition
+
+```
+/games/{gameCode}/
+  shareRequests/
+    {requestId}/
+      fromPlayerId: "p1id"
+      toPlayerId:   "p2id"
+      card:         { ...full card object }
+      type:         "weapon" | "item" | "armor"
+      status:       "pending" | "accepted" | "declined"
+      expiresAt:    timestamp          ← so stale requests self-clear
+```
+
+#### Flow
+
+1. Player picks a card — their slot is full. `promptReplace()` is called.
+2. **New in multiplayer**: before showing the replace dialog, evaluate allies' inventories from the local Firebase snapshot.
+   - If one or more allies have an empty matching slot, add a **"Share with Ally"** button to the replace dialog alongside "Keep Current" and "Replace".
+   - If no ally has room, the dialog is unchanged from solo.
+3. Player clicks **"Share with Ally"**:
+   - Show a secondary picker listing eligible allies by name with their current stats.
+   - Player selects a recipient and confirms.
+   - Host writes a new record to `/games/{code}/shareRequests/{pushId}` with `status: "pending"` and a 60-second `expiresAt`.
+4. **Recipient side**: all clients `onValue`-listen to `shareRequests/`. When a request arrives addressed to `myPlayerId` with `status: "pending"`, show a non-blocking banner:
+   - *"[Sender] wants to share [Card Name] with you — Accept / Decline"*
+   - Include a card preview (name, type, key stat) so the recipient can make an informed decision.
+5. Recipient clicks **Accept**: client writes `status: "accepted"`. Host detects the change and writes the card directly to `/games/{code}/players/{recipientId}/` inventory field (weapon, items array, or armor slot). Host deletes the `shareRequest` record.
+6. Recipient clicks **Decline** (or the request expires): host detects `status: "declined"` or the expiry, deletes the record. The original player's replace dialog resumes — they choose Keep or Replace as in solo.
+7. While the share request is `pending`, the original player sees a spinner/overlay: *"Waiting for [Recipient] to respond…"* with a cancel option.
+
+#### Edge cases
+
+- **Recipient's slot fills up between offer and accept** (race condition): on accept, the host re-checks the slot before writing. If it's now full, the host declines automatically and notifies both players with a log message.
+- **Sender disconnects while pending**: the `expiresAt` timestamp lets any client's listener detect staleness and write `status: "declined"` to clean up.
+- **Multiple eligible allies**: the sender sees all of them and picks one. Only one request is created at a time.
+- **Item type has 3 slots**: the host checks whether the recipient has *any* empty item slot (not a specific index). The host picks the first empty index when writing the accepted item.
+- **Ally is an active ally responder** (has already committed to an ally battle): they still receive the share request; it's unrelated to the battle system.
+
+#### Code changes
+
+- `promptReplace(type, currentCard, newCard)` — add an optional third button that resolves the promise with a new value (e.g., `"share"`) instead of `true`/`false`. Gate the button behind `isMultiplayer` and an eligible-ally check.
+- New function `getEligibleShareAllies(cardType, armorSlotKey)` — reads the current local snapshot of all players' inventories, returns an array of `{ playerId, name }` for allies with an empty slot. Called before opening the replace dialog.
+- New function `sendShareRequest(toPlayerId, card)` — writes the `shareRequests` record to Firebase.
+- New Firebase listener for `shareRequests/` — fires on the recipient's client, shows the incoming banner, and writes the accept/decline status.
+- Host-side handler for `shareRequest/status` changes — validates the slot is still empty, writes the card to the recipient's Firebase inventory path, then deletes the request record.
+- Update the File Changes Summary and effort table below.
+
+---
+
 ## File Changes Summary
 
 | File | Change |
@@ -220,7 +286,7 @@ When the deck is exhausted (`onDeckExhausted()`):
 | `game.html` | Add Firebase listeners, multiplayer mode gate, ally/food-share UI |
 | `firebase-config.js` | New file — Firebase project config (do not commit to public repo) |
 | `db.js` | New file — thin wrappers around Firebase Realtime DB operations |
-| `style.css` | Waiting overlay, ally banner, multiplayer sidebar styles |
+| `style.css` | Waiting overlay, ally banner, multiplayer sidebar styles, share-request banner |
 
 Solo mode: **zero changes** to existing game logic paths. All multiplayer code runs only when `isMultiplayer === true`.
 
@@ -251,6 +317,7 @@ Solo mode: **zero changes** to existing game logic paths. All multiplayer code r
 | Co-op mechanics | 3–4 hrs |
 | Draft sync | 1–2 hrs |
 | Polish | 2–3 hrs |
-| **Total** | **~14–22 hrs** |
+| Equipment sharing | 2–3 hrs |
+| **Total** | **~16–25 hrs** |
 
 The state-lift phase is the riskiest — `game.html` has ~4,000 lines of tightly coupled state. The key to keeping it manageable is the `isMultiplayer` flag: never touch solo paths, only add parallel branches.

@@ -461,12 +461,13 @@
       });
 
       it('absorbs damage and returns remaining pips', () => {
+        const toughHelmet = { card: { name: 'Helmet' }, pips: { health: 3 } };
         const { absorbed, newArmorSlots } = armorAbsorbCalc(
           { health: -2 },
-          { head: helmet, body: null, accessory: null }
+          { head: toughHelmet, body: null, accessory: null }
         );
         expect(absorbed.health).toBe(2);
-        expect(newArmorSlots.head.pips.health).toBe(0);
+        expect(newArmorSlots.head.pips.health).toBe(1);
       });
 
       it('partially absorbs when damage exceeds pips', () => {

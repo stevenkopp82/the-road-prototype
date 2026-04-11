@@ -1325,9 +1325,7 @@
         zone.classList.add('has-card');
         zone.appendChild(renderCard(card));
 
-        zone.addEventListener('mouseenter', () => {
-          if (!zone.classList.contains('locked')) showMagnifier(card, zone, i);
-        });
+        zone.addEventListener('mouseenter', () => showMagnifier(card, zone, i));
         zone.addEventListener('mouseleave', hideMagnifier);
       }
     });
@@ -1376,9 +1374,7 @@
       } else {
         zone.classList.add('has-card');
         zone.appendChild(renderCard(card));
-        zone.addEventListener('mouseenter', () => {
-          if (!zone.classList.contains('locked')) showMagnifier(card, zone, i);
-        });
+        zone.addEventListener('mouseenter', () => showMagnifier(card, zone, i));
         zone.addEventListener('mouseleave', hideMagnifier);
       }
     });
@@ -4198,9 +4194,12 @@
      Solo paths are never touched.
   ══════════════════════════════════════════════════════════════ */
 
-  const isMultiplayer = sessionStorage.getItem('multiplayer') === 'true';
-  const mpGameCode    = sessionStorage.getItem('gameCode');
-  const mpPlayerId    = sessionStorage.getItem('playerId');
+  const isMultiplayer  = sessionStorage.getItem('multiplayer') === 'true';
+  const mpGameCode     = sessionStorage.getItem('gameCode');
+  const mpPlayerId     = sessionStorage.getItem('playerId');
+  // Consumed once: true when arriving directly from the lobby (not a browser refresh/reconnect)
+  const mpFreshStart   = sessionStorage.getItem('mpFreshStart') === 'true';
+  sessionStorage.removeItem('mpFreshStart');
 
   let mpIsHost    = false;   // true if this client created the game
   let mpMyName    = '';      // display name from Firebase
@@ -4259,9 +4258,7 @@
         slotCards[i] = card;
         zone.classList.add('has-card');
         zone.appendChild(renderCard(card));
-        zone.addEventListener('mouseenter', () => {
-          if (!zone.classList.contains('locked')) showMagnifier(card, zone, i);
-        });
+        zone.addEventListener('mouseenter', () => showMagnifier(card, zone, i));
         zone.addEventListener('mouseleave', hideMagnifier);
       }
     });
@@ -4834,8 +4831,9 @@
     mpIsHost = myData?.isHost === true;
     mpMyName = myData?.name ?? charDef.label;
 
-    // Detect reconnect: round already has an active player → game is in progress
-    const isReconnect = round?.activePlayerId != null;
+    // Detect reconnect: round already has an active player → game is in progress.
+    // mpFreshStart suppresses this when arriving directly from the lobby.
+    const isReconnect = !mpFreshStart && round?.activePlayerId != null;
 
     if (mpIsHost && !isReconnect) {
       // Fresh game: host is source of truth — write locally-dealt board to Firebase
@@ -4918,9 +4916,10 @@
     loadMutantDeck();
     const _deckReady = loadDeck(0); // start fetch immediately, in parallel
 
-    // For co-op: detect early if this is a mid-game reconnect (round already in progress)
+    // For co-op: detect early if this is a mid-game reconnect (round already in progress).
+    // mpFreshStart is true when arriving directly from the lobby — never a reconnect.
     let _isReconnect = false;
-    if (isMultiplayer && mpGameCode) {
+    if (isMultiplayer && mpGameCode && !mpFreshStart) {
       const _existingRound = await dbGet(roundPath(mpGameCode));
       _isReconnect = _existingRound?.activePlayerId != null;
     }
@@ -4944,9 +4943,14 @@
       }
       logGameStart(_session.difficulty, character);
       gameLog.newTurn('Game Start');
-      const count = Math.min(drawPile.length, DRAW_SLOTS);
-      const drawn = drawPile.splice(0, count);
-      placeCards(drawn);
+      // Non-host in multiplayer skips local card dealing — mpInit() will sync
+      // the host's board from Firebase, avoiding a first-round card mismatch.
+      const mpIsHostEarly = sessionStorage.getItem('mpIsHost') === 'true';
+      if (!isMultiplayer || mpIsHostEarly) {
+        const count = Math.min(drawPile.length, DRAW_SLOTS);
+        const drawn = drawPile.splice(0, count);
+        placeCards(drawn);
+      }
       updateDeckCount();
     } else {
       // Reconnect: load full deck data (needed for card lookups) but don't deal

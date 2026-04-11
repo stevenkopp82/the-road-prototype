@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Road — Card Snapshot Tests</title>
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #ccc;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 24px;
+      margin: 0;
+    }
+    h1 { color: #e0c070; margin: 0 0 4px; font-size: 20px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+
+    .suite { margin-bottom: 24px; }
+    .suite-name {
+      color: #88aaff;
+      font-size: 15px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+
+    .test { display: flex; align-items: baseline; gap: 8px; padding: 2px 0; }
+    .icon { width: 14px; flex-shrink: 0; }
+    .pass .icon { color: #4caf50; }
+    .fail .icon { color: #f44336; }
+    .desc { flex: 1; }
+    .fail .desc { color: #ff8a80; }
+    .detail {
+      color: #888;
+      font-size: 12px;
+      margin-left: 22px;
+      margin-bottom: 4px;
+    }
+    .fail .detail { color: #ff6e6e; }
+
+    #loading { color: #888; }
+    #summary {
+      margin-top: 24px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .summary-pass { background: #1b3a1f; color: #81c784; }
+    .summary-fail { background: #3a1b1b; color: #e57373; }
+  </style>
+</head>
+<body>
+  <h1>The Road — Card Snapshot Tests</h1>
+  <p class="subtitle">Open via <code>http://localhost:8000/test-cards.html</code></p>
+  <div id="loading">Loading JSON decks…</div>
+  <div id="output" style="display:none"></div>
+  <div id="summary"></div>
+
+  <script>
+    /* ── Tiny test harness ─────────────────────────────────────────── */
+    const suites = [];
+    let currentSuite = null;
+
+    function describe(name, fn) {
+      currentSuite = { name, tests: [] };
+      suites.push(currentSuite);
+      fn();
+      currentSuite = null;
+    }
+
+    // Passes an assertion function; throws Error with detail on failure.
+    function it(desc, fn) {
+      try {
+        fn();
+        currentSuite.tests.push({ desc, pass: true });
+      } catch (e) {
+        currentSuite.tests.push({ desc, pass: false, detail: e.message });
+      }
+    }
+
+    // Collect all offending card names, then throw once with the full list.
+    function assertAll(cards, predicate, message) {
+      const bad = cards.filter(c => !predicate(c));
+      if (bad.length > 0) {
+        const names = bad.map(c => c.name ?? '(unnamed)').join(', ');
+        throw new Error(`${bad.length} card(s): ${names}`);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       CONSTANTS (mirrors game values)
+    ══════════════════════════════════════════════════════════════════ */
+    const VALID_LOOT_LOCATIONS  = new Set(['road', 'sprawl', 'hive']);
+    const VALID_LOOT_TYPES      = new Set(['weapon', 'armor', 'item', 'gather']);
+    const VALID_WEAPON_CLASSES  = new Set(['melee', 'ranged']);
+    const VALID_ARMOR_SLOTS     = new Set(['head', 'body', 'accessory']);
+    const VALID_ABSORB_STATS    = new Set(['health', 'sanity', 'mutation']);
+    const VALID_THREAT_LOCS     = new Set(['The Road', 'The Sprawl', 'The Hive']);
+    const VALID_THREAT_TYPES    = new Set(['monster', 'setback', 'break']);
+
+    /* ══════════════════════════════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════════════════════════════ */
+    const nonEmptyStr = v => typeof v === 'string' && v.trim().length > 0;
+    const positiveInt = v => Number.isInteger(v) && v > 0;
+    const positiveNum = v => typeof v === 'number' && v > 0;
+    const nonEmptyObj = v => v !== null && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length > 0;
+
+    function cardsByLocation(cards, loc) {
+      return cards.filter(c => c.location === loc);
+    }
+    function cardsByType(cards, type) {
+      return cards.filter(c => c.type === type);
+    }
+    function maxBy(arr, fn) {
+      return arr.reduce((best, x) => Math.max(best, fn(x)), -Infinity);
+    }
+    function minBy(arr, fn) {
+      return arr.reduce((best, x) => Math.min(best, fn(x)), Infinity);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       TESTS
+    ══════════════════════════════════════════════════════════════════ */
+    function runTests(loot, threats, mutants) {
+
+      /* ────────────────────────────────────────────────────────────
+         LOOT DECK
+      ──────────────────────────────────────────────────────────── */
+
+      describe('loot-deck.json — deck size', () => {
+        it('contains 101 cards', () => {
+          if (loot.length !== 101) throw new Error(`expected 101, got ${loot.length}`);
+        });
+      });
+
+      describe('loot-deck.json — all cards: required fields', () => {
+        it('every card has a non-empty name', () => {
+          assertAll(loot, c => nonEmptyStr(c.name));
+        });
+
+        it('every card has a valid location (road | sprawl | hive)', () => {
+          assertAll(loot, c => VALID_LOOT_LOCATIONS.has(c.location));
+        });
+
+        it('every card has a valid type (weapon | armor | item | gather)', () => {
+          assertAll(loot, c => VALID_LOOT_TYPES.has(c.type));
+        });
+
+        it('every card has a positive numeric value', () => {
+          assertAll(loot, c => positiveNum(c.value));
+        });
+
+        it('every card has a non-empty icon', () => {
+          assertAll(loot, c => nonEmptyStr(c.icon));
+        });
+      });
+
+      describe('loot-deck.json — weapons', () => {
+        const weapons = cardsByType(loot, 'weapon');
+
+        it('all weapons have a positive integer strength', () => {
+          assertAll(weapons, c => positiveInt(c.strength));
+        });
+
+        it('all weapons have a positive integer uses', () => {
+          assertAll(weapons, c => positiveInt(c.uses));
+        });
+
+        it('all weapons have a valid weapon_class (melee | ranged)', () => {
+          assertAll(weapons, c => VALID_WEAPON_CLASSES.has(c.weapon_class));
+        });
+
+        it('weapons with env_bonuses have well-formed entries [{env, bonus}]', () => {
+          const bad = weapons.filter(c => {
+            if (!c.env_bonuses) return false; // optional field — skip if absent
+            if (!Array.isArray(c.env_bonuses) || c.env_bonuses.length === 0) return true;
+            return c.env_bonuses.some(e => !nonEmptyStr(e.env) || typeof e.bonus !== 'number');
+          });
+          if (bad.length > 0)
+            throw new Error(`malformed env_bonuses on: ${bad.map(c => c.name).join(', ')}`);
+        });
+
+        it('max weapon strength escalates: road ≤ sprawl ≤ hive', () => {
+          const maxStr = loc => maxBy(cardsByLocation(weapons, loc), c => c.strength);
+          const [road, sprawl, hive] = [maxStr('road'), maxStr('sprawl'), maxStr('hive')];
+          if (!(road <= sprawl && sprawl <= hive))
+            throw new Error(`road(${road}) → sprawl(${sprawl}) → hive(${hive}) does not escalate`);
+        });
+      });
+
+      describe('loot-deck.json — armor', () => {
+        const armor = cardsByType(loot, 'armor');
+
+        it('all armor has a valid armor_slot (head | body | accessory)', () => {
+          assertAll(armor, c => VALID_ARMOR_SLOTS.has(c.armor_slot));
+        });
+
+        it('all armor has a non-empty absorb object', () => {
+          assertAll(armor, c => nonEmptyObj(c.absorb));
+        });
+
+        it('all absorb stat keys are valid (health | sanity | mutation)', () => {
+          const bad = armor.filter(c =>
+            Object.keys(c.absorb).some(k => !VALID_ABSORB_STATS.has(k))
+          );
+          if (bad.length > 0)
+            throw new Error(`invalid absorb keys on: ${bad.map(c => c.name).join(', ')}`);
+        });
+
+        it('all absorb values are positive integers', () => {
+          const bad = armor.filter(c =>
+            Object.values(c.absorb).some(v => !positiveInt(v))
+          );
+          if (bad.length > 0)
+            throw new Error(`non-integer absorb values on: ${bad.map(c => c.name).join(', ')}`);
+        });
+      });
+
+      describe('loot-deck.json — items', () => {
+        const items = cardsByType(loot, 'item');
+
+        it('all items have non-empty text', () => {
+          assertAll(items, c => nonEmptyStr(c.text));
+        });
+
+        it('all items have a mechanism object with a type field', () => {
+          assertAll(items, c => nonEmptyObj(c.mechanism) && nonEmptyStr(c.mechanism.type));
+        });
+      });
+
+      describe('loot-deck.json — gather cards', () => {
+        const gather = cardsByType(loot, 'gather');
+
+        it('all gather cards have a non-empty effects object', () => {
+          assertAll(gather, c => nonEmptyObj(c.effects));
+        });
+
+        it('all gather effect values are numbers', () => {
+          const bad = gather.filter(c =>
+            Object.values(c.effects).some(v => typeof v !== 'number')
+          );
+          if (bad.length > 0)
+            throw new Error(`non-numeric effects on: ${bad.map(c => c.name).join(', ')}`);
+        });
+      });
+
+      /* ────────────────────────────────────────────────────────────
+         THREAT DECK
+      ──────────────────────────────────────────────────────────── */
+
+      describe('threat-deck.json — deck size', () => {
+        it('contains 36 cards', () => {
+          if (threats.length !== 36) throw new Error(`expected 36, got ${threats.length}`);
+        });
+      });
+
+      describe('threat-deck.json — all cards: required fields', () => {
+        it('every card has a non-empty name', () => {
+          assertAll(threats, c => nonEmptyStr(c.name));
+        });
+
+        it('every card has a valid location (The Road | The Sprawl | The Hive)', () => {
+          assertAll(threats, c => VALID_THREAT_LOCS.has(c.location));
+        });
+
+        it('every card has a valid type (monster | setback | break)', () => {
+          assertAll(threats, c => VALID_THREAT_TYPES.has(c.type));
+        });
+
+        it('every card has a non-empty icon', () => {
+          assertAll(threats, c => nonEmptyStr(c.icon));
+        });
+      });
+
+      describe('threat-deck.json — deck composition', () => {
+        it('exactly 12 cards per location', () => {
+          const counts = [...VALID_THREAT_LOCS].map(loc => ({
+            loc,
+            n: threats.filter(c => c.location === loc).length
+          }));
+          const bad = counts.filter(x => x.n !== 12);
+          if (bad.length > 0)
+            throw new Error(bad.map(x => `${x.loc}: ${x.n}`).join(', '));
+        });
+
+        it('exactly 4 monsters per location', () => {
+          const counts = [...VALID_THREAT_LOCS].map(loc => ({
+            loc,
+            n: threats.filter(c => c.location === loc && c.type === 'monster').length
+          }));
+          const bad = counts.filter(x => x.n !== 4);
+          if (bad.length > 0)
+            throw new Error(bad.map(x => `${x.loc}: ${x.n} monster(s)`).join(', '));
+        });
+      });
+
+      describe('threat-deck.json — monsters', () => {
+        const monsters = cardsByType(threats, 'monster');
+
+        it('all monsters have a positive integer strength', () => {
+          assertAll(monsters, c => positiveInt(c.strength));
+        });
+
+        it('all monsters have a non-empty damage object', () => {
+          assertAll(monsters, c => nonEmptyObj(c.damage));
+        });
+
+        it('max monster strength escalates: The Road ≤ The Sprawl ≤ The Hive', () => {
+          const maxStr = loc => maxBy(cardsByLocation(monsters, loc), c => c.strength);
+          const [road, sprawl, hive] = [maxStr('The Road'), maxStr('The Sprawl'), maxStr('The Hive')];
+          if (!(road <= sprawl && sprawl <= hive))
+            throw new Error(`road(${road}) → sprawl(${sprawl}) → hive(${hive}) does not escalate`);
+        });
+
+        it('min monster strength escalates: The Road ≤ The Sprawl ≤ The Hive', () => {
+          const minStr = loc => minBy(cardsByLocation(monsters, loc), c => c.strength);
+          const [road, sprawl, hive] = [minStr('The Road'), minStr('The Sprawl'), minStr('The Hive')];
+          if (!(road <= sprawl && sprawl <= hive))
+            throw new Error(`road(${road}) → sprawl(${sprawl}) → hive(${hive}) does not escalate`);
+        });
+      });
+
+      describe('threat-deck.json — setbacks', () => {
+        const setbacks = cardsByType(threats, 'setback');
+
+        it('all setbacks have a non-empty effects object', () => {
+          assertAll(setbacks, c => nonEmptyObj(c.effects));
+        });
+      });
+
+      /* ────────────────────────────────────────────────────────────
+         MUTANT DECK
+      ──────────────────────────────────────────────────────────── */
+
+      describe('mutant-deck.json — deck size', () => {
+        it('contains 9 cards', () => {
+          if (mutants.length !== 9) throw new Error(`expected 9, got ${mutants.length}`);
+        });
+      });
+
+      describe('mutant-deck.json — all cards: required fields', () => {
+        it('every card has a non-empty name', () => {
+          assertAll(mutants, c => nonEmptyStr(c.name));
+        });
+
+        it('every card has a non-empty effect key', () => {
+          assertAll(mutants, c => nonEmptyStr(c.effect));
+        });
+
+        it('every card has a non-empty icon', () => {
+          assertAll(mutants, c => nonEmptyStr(c.icon));
+        });
+
+        it('every card has a non-empty text', () => {
+          assertAll(mutants, c => nonEmptyStr(c.text));
+        });
+      });
+
+      describe('mutant-deck.json — uniqueness', () => {
+        it('all effect keys are unique (no duplicates)', () => {
+          const effects = mutants.map(c => c.effect);
+          const dupes = effects.filter((e, i) => effects.indexOf(e) !== i);
+          if (dupes.length > 0)
+            throw new Error(`duplicate effects: ${dupes.join(', ')}`);
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       LOAD JSON AND RUN
+    ══════════════════════════════════════════════════════════════════ */
+    Promise.all([
+      fetch('loot-deck.json').then(r => r.json()),
+      fetch('threat-deck.json').then(r => r.json()),
+      fetch('mutant-deck.json').then(r => r.json()),
+    ]).then(([lootRaw, threatRaw, mutantRaw]) => {
+      const loot    = lootRaw.loot_deck;
+      const threats = threatRaw.threat_deck;
+      const mutants = mutantRaw.mutant_deck;
+
+      runTests(loot, threats, mutants);
+      render();
+    }).catch(err => {
+      document.getElementById('loading').textContent = `Failed to load JSON: ${err.message}`;
+    });
+
+    /* ══════════════════════════════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════════════════════════════ */
+    function render() {
+      document.getElementById('loading').style.display = 'none';
+      const out = document.getElementById('output');
+      out.style.display = '';
+
+      let totalPass = 0, totalFail = 0;
+
+      for (const suite of suites) {
+        const div = document.createElement('div');
+        div.className = 'suite';
+
+        const title = document.createElement('div');
+        title.className = 'suite-name';
+        title.textContent = suite.name;
+        div.appendChild(title);
+
+        for (const t of suite.tests) {
+          const row = document.createElement('div');
+          row.className = `test ${t.pass ? 'pass' : 'fail'}`;
+
+          const icon = document.createElement('span');
+          icon.className = 'icon';
+          icon.textContent = t.pass ? '✓' : '✗';
+
+          const desc = document.createElement('span');
+          desc.className = 'desc';
+          desc.textContent = t.desc;
+
+          row.appendChild(icon);
+          row.appendChild(desc);
+          div.appendChild(row);
+
+          if (!t.pass && t.detail) {
+            const detail = document.createElement('div');
+            detail.className = 'detail';
+            detail.textContent = t.detail;
+            div.appendChild(detail);
+          }
+
+          t.pass ? totalPass++ : totalFail++;
+        }
+
+        out.appendChild(div);
+      }
+
+      const summary = document.getElementById('summary');
+      summary.className = totalFail === 0 ? 'summary-pass' : 'summary-fail';
+      summary.textContent = totalFail === 0
+        ? `All ${totalPass} tests passed`
+        : `${totalFail} failed, ${totalPass} passed (${totalPass + totalFail} total)`;
+    }
+  </script>
+</body>
+</html>

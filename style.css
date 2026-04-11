@@ -107,6 +107,7 @@
     /* ── Page layout ── */
     html {
       overflow-y: auto;
+      font-size: 20px;
     }
 
     /* ── Game log panel ── */

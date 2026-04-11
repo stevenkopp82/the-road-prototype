@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(python3 -c ':*)",
-      "Read(//c/Users/steve/the-road-prototype/**)"
+      "Read(//c/Users/steve/the-road-prototype/**)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('loot-deck.json'\\)\\); print\\(len\\(d\\), 'cards'\\); print\\('types:', set\\(c['type'] for c in d\\)\\); print\\('locations:', set\\(c.get\\('location','MISSING'\\) for c in d\\)\\); print\\('sample weapon:', next\\(c for c in d if c['type']=='weapon'\\)\\); print\\('sample armor:', next\\(c for c in d if c['type']=='armor'\\)\\); print\\('sample item:', next\\(c for c in d if c['type']=='item'\\)\\)\")",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('loot-deck.json'\\)\\); print\\(type\\(d\\)\\); print\\(list\\(d.keys\\(\\)\\)[:5] if isinstance\\(d,dict\\) else d[:3]\\)\")",
+      "Bash(python3 -u -c ':*)"
     ]
   }
 }
