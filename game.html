@@ -4795,7 +4795,20 @@
       };
     });
 
-    // 5. Meta — game over broadcast
+    // 5. Remote game log — display other players' events in this client's log panel
+    dbListenChildAdded(logPath(mpGameCode), (_key, entry) => {
+      if (!entry || entry.n === mpMyName) return; // skip own entries (already shown locally)
+      if (!mpGameLog) return;
+      mpGameLog.setReceiving(true);
+      if (entry.c === '_turn') {
+        gameLog.newTurn(`[${entry.n}] ${entry.t}`);
+      } else {
+        gameLog.add(`[${entry.n}] ${entry.t}`, entry.c || '');
+      }
+      mpGameLog.setReceiving(false);
+    });
+
+    // 6. Meta — game over broadcast
     _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
       if (!meta) return;
       if (meta.status === 'gameover' && !gameOver) {
@@ -4821,11 +4834,14 @@
     mpIsHost = myData?.isHost === true;
     mpMyName = myData?.name ?? charDef.label;
 
-    if (mpIsHost) {
-      // Host is source of truth — write the locally-dealt board to Firebase
+    // Detect reconnect: round already has an active player → game is in progress
+    const isReconnect = round?.activePlayerId != null;
+
+    if (mpIsHost && !isReconnect) {
+      // Fresh game: host is source of truth — write locally-dealt board to Firebase
       await mpWriteSharedState([...slotCards]);
     } else if (shared) {
-      // Non-host: overwrite local state with Firebase's authoritative copy
+      // Non-host on fresh game, OR any player reconnecting: read Firebase as source of truth
       drawPile        = Array.isArray(shared.drawPile)        ? shared.drawPile        : Object.values(shared.drawPile        || {});
       discardPile     = Array.isArray(shared.discardPile)     ? shared.discardPile     : Object.values(shared.discardPile     || {});
       injuredMonsters = Array.isArray(shared.injuredMonsters) ? shared.injuredMonsters : Object.values(shared.injuredMonsters || {});
@@ -4836,6 +4852,15 @@
       }
       mpApplySlotCards(shared.slotCards);
       updateDeckCount();
+    }
+
+    // On reconnect: restore this player's stats from Firebase
+    if (isReconnect && myData) {
+      if (myData.food     != null && playerState.food.set)     playerState.food.set(myData.food);
+      if (myData.health   != null && playerState.health.set)   playerState.health.set(myData.health);
+      if (myData.sanity   != null && playerState.sanity.set)   playerState.sanity.set(myData.sanity);
+      if (myData.mutation != null && playerState.mutation.set) playerState.mutation.set(myData.mutation);
+      gameLog.add(`🔄 Reconnected to game ${mpGameCode}`, 'gold');
     }
 
     // Apply turn lock immediately — before listeners fire — to close the first-turn race window
@@ -4850,14 +4875,38 @@
         setAllSlotsLocked(true);
         cardSelected = true;
         const allPlayers = await dbGet(playersPath(mpGameCode));
+        mpAllPlayers = allPlayers ?? {};
         const name = allPlayers?.[round.activePlayerId]?.name ?? 'Another player';
         mpShowWaiting(name);
       }
     }
 
+    // ── Game log sync: wrap gameLog so all events broadcast to Firebase ──
+    // Other players receive entries via the log listener in mpInitListeners().
+    let _mpLogReceiving = false;
+    const _origLogAdd      = gameLog.add;
+    const _origLogNewTurn  = gameLog.newTurn;
+    gameLog.add = (text, cls = '') => {
+      _origLogAdd(text, cls);
+      if (!_mpLogReceiving && !gameOver) {
+        dbPush(logPath(mpGameCode), { n: mpMyName, t: text, c: cls ?? '', ts: Date.now() });
+      }
+    };
+    gameLog.newTurn = (label) => {
+      _origLogNewTurn(label);
+      if (!_mpLogReceiving && !gameOver) {
+        dbPush(logPath(mpGameCode), { n: mpMyName, t: label, c: '_turn', ts: Date.now() });
+      }
+    };
+    // Store the receiving flag and restore fns on the module scope so listener can access them
+    mpGameLog = { setReceiving: v => { _mpLogReceiving = v; } };
+
     mpInitListeners();
-    console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}`);
+    console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}, Reconnect: ${isReconnect}`);
   }
+
+  // Holds log-sync helpers set up by mpInit (null until mpInit runs)
+  let mpGameLog = null;
 
   /* ── Start game sequence on page load ── */
   (async function startGame() {
@@ -4869,29 +4918,43 @@
     loadMutantDeck();
     const _deckReady = loadDeck(0); // start fetch immediately, in parallel
 
-    await _deckReady; // await the already-in-flight fetch (usually already done by now)
-    // Character-based starting gear — skip the random gear dialog
-    const gearName    = charDef.startGear;
-    const startingCard = gearName ? (fullDeck.find(c => c.name === gearName) ?? null) : null;
-    await loadDeck(gameDealCount, startingCard?.name ?? null);
-    if (startingCard) {
-      if (startingCard.type === 'weapon') {
-        setInventorySlot('weapon', startingCard);
-      } else {
-        setItemSlot(0, startingCard);
-        if (startingCard.mechanism?.type === 'capacity') applyCapacityMechanism(startingCard, true);
-        updateItemBars();
-      }
-      gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
+    // For co-op: detect early if this is a mid-game reconnect (round already in progress)
+    let _isReconnect = false;
+    if (isMultiplayer && mpGameCode) {
+      const _existingRound = await dbGet(roundPath(mpGameCode));
+      _isReconnect = _existingRound?.activePlayerId != null;
     }
-    logGameStart(_session.difficulty, character);
-    gameLog.newTurn('Game Start');
+
+    await _deckReady; // await the already-in-flight fetch (usually already done by now)
+
+    if (!_isReconnect) {
+      // Fresh game: apply character starting gear and deal initial cards
+      const gearName    = charDef.startGear;
+      const startingCard = gearName ? (fullDeck.find(c => c.name === gearName) ?? null) : null;
+      await loadDeck(gameDealCount, startingCard?.name ?? null);
+      if (startingCard) {
+        if (startingCard.type === 'weapon') {
+          setInventorySlot('weapon', startingCard);
+        } else {
+          setItemSlot(0, startingCard);
+          if (startingCard.mechanism?.type === 'capacity') applyCapacityMechanism(startingCard, true);
+          updateItemBars();
+        }
+        gameLog.add(`⚙ Starting gear: ${startingCard.name}`, 'gold');
+      }
+      logGameStart(_session.difficulty, character);
+      gameLog.newTurn('Game Start');
+      const count = Math.min(drawPile.length, DRAW_SLOTS);
+      const drawn = drawPile.splice(0, count);
+      placeCards(drawn);
+      updateDeckCount();
+    } else {
+      // Reconnect: load full deck data (needed for card lookups) but don't deal
+      await loadDeck(gameDealCount, null);
+    }
+
     document.getElementById('game-log').classList.add('log-visible');
     document.getElementById('log-toggle-btn').style.display = 'block';
-    const count = Math.min(drawPile.length, DRAW_SLOTS);
-    const drawn = drawPile.splice(0, count);
-    placeCards(drawn);
-    updateDeckCount();
 
     if (isMultiplayer) {
       // Lock everything immediately — before any Firebase reads — so there is
@@ -4899,7 +4962,7 @@
       // mpInit() will unlock slots if it turns out to be our turn.
       setAllSlotsLocked(true);
       cardSelected = true;
-      // mpInit detects host role, syncs state, and starts all Firebase listeners
+      // mpInit detects host role, reconnect state, syncs state, and starts all Firebase listeners
       await mpInit();
     }
   })();
