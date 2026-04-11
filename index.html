@@ -125,6 +125,7 @@
       <div class="mp-code-hint">Other players enter this code to join</div>
     </div>
     <div class="mp-players" id="mp-host-player-list"></div>
+    <div class="mp-status-msg" id="mp-host-status">Waiting for allies to join...</div>
     <button class="mp-btn" id="mp-btn-start-game" disabled>Start Game</button>
     <button class="mp-btn mp-btn-ghost" id="mp-btn-host-cancel">Cancel Game</button>
   </div>
@@ -299,8 +300,14 @@
       renderPlayerList(players, playerListId);
       if (isHost) {
         const count = Object.keys(players).length;
-        // Enable Start once at least 2 players are present (host + 1 ally)
-        document.getElementById('mp-btn-start-game').disabled = count < 2;
+        const startBtn = document.getElementById('mp-btn-start-game');
+        const statusEl = document.getElementById('mp-host-status');
+        startBtn.disabled = count < 1;
+        if (statusEl) {
+          statusEl.textContent = count === 1
+            ? 'Waiting for allies to join, or start solo to test.'
+            : `${count} players ready.`;
+        }
       }
     });
 
