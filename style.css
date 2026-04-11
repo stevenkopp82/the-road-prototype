@@ -1085,7 +1085,7 @@
     /* Selecting is locked after one pick per round */
     .loot-zone.has-card.locked {
       cursor: not-allowed;
-      opacity: 0.45;
+      opacity: 1;
     }
     .loot-zone.has-card.locked:hover {
       border-color: var(--border);
@@ -3460,6 +3460,118 @@
       opacity: 1;
     }
 
+    /* ─────────────────────────────────────────
+       START MENU — Step-based flow
+    ───────────────────────────────────────── */
+    .sm-step { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
+    .sm-step.hidden { display: none; }
+
+    .sm-step-nav {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      min-height: 1.4rem;
+    }
+    .sm-back-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.46rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      padding: 0.2rem 0;
+      transition: opacity 0.15s;
+    }
+    .sm-back-btn:hover { opacity: 1; }
+
+    .sm-step-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin-top: -0.4rem;
+    }
+    .sm-step-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.58rem;
+      color: var(--gold-dim);
+      opacity: 0.65;
+      text-align: center;
+      line-height: 1.6;
+      margin-top: -0.6rem;
+    }
+
+    /* Two big landing buttons */
+    .sm-landing-btns { display: flex; gap: 0.8rem; width: 100%; }
+    .sm-landing-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 1.1rem 0.8rem;
+      border: 1px solid rgba(200,150,42,0.4);
+      background: rgba(200,150,42,0.08);
+      color: var(--ink);
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .sm-landing-btn:hover {
+      background: rgba(200,150,42,0.18);
+      border-color: rgba(200,150,42,0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(200,150,42,0.25);
+    }
+    .sm-landing-btn:active { transform: scale(0.97); }
+    .sm-landing-btn-icon { font-size: 1.5rem; line-height: 1; }
+    .sm-landing-btn-name {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #f0e8d8;
+    }
+    .sm-landing-btn-sub {
+      font-family: 'Spectral', serif;
+      font-size: 0.48rem;
+      color: var(--gold-dim);
+      opacity: 0.7;
+      text-align: center;
+      line-height: 1.4;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* Primary action button (Continue / Create Lobby / Join) */
+    .sm-continue-btn {
+      width: 100%;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.75rem;
+      border: none;
+      background: linear-gradient(135deg, #c8962a, #8a620c);
+      color: var(--ink);
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 0 16px rgba(200,150,42,0.25);
+    }
+    .sm-continue-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 22px rgba(200,150,42,0.4);
+    }
+    .sm-continue-btn:active:not(:disabled) { transform: scale(0.97); }
+    .sm-continue-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
     /* ── Draw button card count ── */
     .draw-btn-count {
       font-family: 'Spectral', serif;
@@ -3473,48 +3585,53 @@
        MULTIPLAYER — In-game UI
     ───────────────────────────────────────── */
     /* Waiting overlay — sits inside #gather-board (position:relative) */
+    /* Waiting banner — sits above the board title, doesn't cover cards */
     .mp-turn-overlay {
       position: absolute;
-      inset: 0;
-      background: rgba(8,6,4,0.88);
+      top: 0; left: 0; right: 0;
+      background: rgba(12,9,5,0.92);
+      border-bottom: 1px solid rgba(200,150,42,0.18);
+      border-radius: 4px 4px 0 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 0.6rem;
+      padding: 0.55rem 1rem;
       z-index: 80;
-      border-radius: 4px;
-      pointer-events: all;
+      pointer-events: none;
     }
     .mp-turn-overlay.mp-hidden { display: none; }
-    .mp-turn-content { text-align: center; padding: 1rem; }
     .mp-turn-icon {
-      font-size: 2rem;
-      margin-bottom: 0.6rem;
-      display: block;
+      font-size: 0.9rem;
       animation: mp-pulse 2.2s ease-in-out infinite;
+      flex-shrink: 0;
     }
     @keyframes mp-pulse {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50%       { opacity: 1;   transform: scale(1.08); }
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1; }
+    }
+    .mp-turn-content {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      flex-wrap: wrap;
     }
     .mp-turn-label {
       font-family: 'Spectral', serif;
-      font-size: 0.55rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-size: 0.52rem;
+      letter-spacing: 0.06em;
       color: var(--gold-dim);
       opacity: 0.65;
     }
     .mp-turn-name {
       font-family: 'Cinzel', serif;
-      font-size: 1rem;
-      letter-spacing: 0.18em;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
       color: var(--gold);
-      text-shadow: 0 0 20px rgba(200,150,42,0.45);
-      margin: 0.35rem 0;
     }
     .mp-turn-sub {
       font-family: 'Spectral', serif;
-      font-size: 0.5rem;
+      font-size: 0.48rem;
       color: var(--gold-dim);
       opacity: 0.45;
       font-style: italic;

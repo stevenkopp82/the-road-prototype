@@ -169,11 +169,11 @@
 
     <!-- Multiplayer: shown when it's another player's turn -->
     <div id="mp-turn-overlay" class="mp-turn-overlay mp-hidden">
+      <span class="mp-turn-icon">⏳</span>
       <div class="mp-turn-content">
-        <span class="mp-turn-icon">⏳</span>
-        <div class="mp-turn-label">Waiting for</div>
-        <div class="mp-turn-name" id="mp-turn-name">another player</div>
-        <div class="mp-turn-sub">to choose a card...</div>
+        <span class="mp-turn-label">Waiting for</span>
+        <span class="mp-turn-name" id="mp-turn-name">another player</span>
+        <span class="mp-turn-sub">to pick...</span>
       </div>
     </div>
   </div>
@@ -4303,8 +4303,11 @@
       }
       mpApplySlotCards(state.slotCards);
       updateDeckCount();
-      cardSelected = false;
       updateItemBars();
+      // Re-lock after mpApplySlotCards (it strips the locked class during re-render)
+      const isMyTurn = mpRound?.activePlayerId === mpPlayerId;
+      setAllSlotsLocked(!isMyTurn);
+      cardSelected = !isMyTurn;
     });
 
     // 3. All players — for ally sidebar + waiting overlay name
@@ -4335,9 +4338,10 @@
   async function mpInit() {
     if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
 
-    const [myData, shared] = await Promise.all([
+    const [myData, shared, round] = await Promise.all([
       dbGet(playerPath(mpGameCode, mpPlayerId)),
       dbGet(sharedStatePath(mpGameCode)),
+      dbGet(roundPath(mpGameCode)),
     ]);
 
     mpIsHost = myData?.isHost === true;
@@ -4358,6 +4362,23 @@
       }
       mpApplySlotCards(shared.slotCards);
       updateDeckCount();
+    }
+
+    // Apply turn lock immediately — before listeners fire — to close the first-turn race window
+    if (round) {
+      mpRound = round;
+      const isMyTurn = round.activePlayerId === mpPlayerId;
+      if (isMyTurn) {
+        // Undo the pre-lock applied before mpInit() ran
+        setAllSlotsLocked(false);
+        cardSelected = false;
+      } else {
+        setAllSlotsLocked(true);
+        cardSelected = true;
+        const allPlayers = await dbGet(playersPath(mpGameCode));
+        const name = allPlayers?.[round.activePlayerId]?.name ?? 'Another player';
+        mpShowWaiting(name);
+      }
     }
 
     mpInitListeners();
@@ -4399,6 +4420,11 @@
     updateDeckCount();
 
     if (isMultiplayer) {
+      // Lock everything immediately — before any Firebase reads — so there is
+      // zero window where a non-active player can click a card.
+      // mpInit() will unlock slots if it turns out to be our turn.
+      setAllSlotsLocked(true);
+      cardSelected = true;
       // mpInit detects host role, syncs state, and starts all Firebase listeners
       await mpInit();
     }

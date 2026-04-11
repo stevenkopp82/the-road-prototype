@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -19,104 +19,188 @@
   <div class="sm-box">
     <div class="sm-corner-br"></div>
     <div class="sm-corner-bl"></div>
-    <div class="sm-eyebrow">A Survival Card Game</div>
-    <div class="sm-title">The Road</div>
-    <div class="sm-divider"></div>
-    <div class="sm-lore">
-      <p>It has been 10 years since The Collapse. We thought we were saving civilization, but we ended it instead. You survived, but supplies are running dangerously thin.</p>
-      <p>Somewhere beyond the wasteland lies The Sanctuary — a fortified refuge where survivors have rebuilt something worth protecting. You've heard the stories. You've chosen to believe them.</p>
-      <p>The road ahead is long. You'll scavenge what you can, fight what you must, and try to hold yourself together long enough to reach the gates. Food is scarce. Threats are everywhere. Every decision matters.</p>
+
+    <!-- ══════════════════════════════════════
+         STEP: Landing
+    ══════════════════════════════════════ -->
+    <div class="sm-step" id="step-landing">
+      <div class="sm-eyebrow">A Survival Card Game</div>
+      <div class="sm-title">The Road</div>
+      <div class="sm-divider"></div>
+      <div class="sm-lore">
+        <p>It has been 10 years since The Collapse. We thought we were saving civilization, but we ended it instead. You survived, but supplies are running dangerously thin.</p>
+        <p>Somewhere beyond the wasteland lies The Sanctuary — a fortified refuge where survivors have rebuilt something worth protecting. You've heard the stories. You've chosen to believe them.</p>
+        <p>The road ahead is long. You'll scavenge what you can, fight what you must, and try to hold yourself together long enough to reach the gates. Food is scarce. Threats are everywhere. Every decision matters.</p>
+      </div>
+      <div class="sm-goal">
+        <span class="sm-goal-title">Your Objective</span>
+        Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
+      </div>
+      <div class="sm-landing-btns">
+        <button class="sm-landing-btn" id="btn-solo">
+          <span class="sm-landing-btn-icon">🎒</span>
+          <span class="sm-landing-btn-name">Play Solo</span>
+          <span class="sm-landing-btn-sub">One survivor. Your choices alone.</span>
+        </button>
+        <button class="sm-landing-btn" id="btn-multiplayer">
+          <span class="sm-landing-btn-icon">👥</span>
+          <span class="sm-landing-btn-name">Play with Others</span>
+          <span class="sm-landing-btn-sub">Co-op for 2–4 players online.</span>
+        </button>
+      </div>
+      <div class="sm-links">
+        <button class="sm-link-rules" id="sm-rules-link">📖 Read the Rules</button>
+        <a class="sm-link-video" href="https://www.youtube.com/watch?v=UrSI9mRKcVU" target="_blank" rel="noopener">▶ Watch the Instructional Video</a>
+        <a class="sm-link-video" href="https://docs.google.com/forms/d/e/1FAIpQLSdrRJMyKJaW5NMEp1w21HDH5YRvpGqmpPbcWRKsHNKCEsHCHw/viewform?usp=publish-editor" target="_blank" rel="noopener">✉ Share Feedback</a>
+      </div>
     </div>
-    <div class="sm-goal">
-      <span class="sm-goal-title">Your Objective</span>
-      Survive three legs of the journey — The Road, The Sprawl, and The Hive — and reach The Sanctuary before your health, sanity, or humanity runs out.
-    </div>
-    <!-- Character selection -->
-    <div class="sm-character" id="sm-character">
-      <div class="sm-character-label">Who are you?</div>
-      <div class="sm-char-btns">
-        <button class="sm-char-btn" data-char="soldier">
-          <span class="sm-char-icon">⚔️</span>
-          <span class="sm-char-name">Soldier</span>
-          <span class="sm-char-benefit">+1 STR in all battles. Starts with a Handgun.</span>
+
+    <!-- ══════════════════════════════════════
+         STEP: MP Fork — Create or Join
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-mp-fork">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-mp-fork">← Back</button>
+      </div>
+      <div class="sm-step-heading">Play with Others</div>
+      <div class="sm-step-sub">Start a new session or join a friend's game.</div>
+      <div class="sm-landing-btns">
+        <button class="sm-landing-btn" id="btn-create">
+          <span class="sm-landing-btn-icon">🔑</span>
+          <span class="sm-landing-btn-name">Create Game</span>
+          <span class="sm-landing-btn-sub">Host a session. Share your code with allies.</span>
         </button>
-        <button class="sm-char-btn" data-char="medic">
-          <span class="sm-char-icon">🩺</span>
-          <span class="sm-char-name">Medic</span>
-          <span class="sm-char-benefit">+1 Health on gather heals. Starts with +2 Health.</span>
-        </button>
-        <button class="sm-char-btn" data-char="survivalist">
-          <span class="sm-char-icon">🎒</span>
-          <span class="sm-char-name">Survivalist</span>
-          <span class="sm-char-benefit">+1 Food on gather food. Starts with the Backpack.</span>
-        </button>
-        <button class="sm-char-btn" data-char="psychologist">
-          <span class="sm-char-icon">🧠</span>
-          <span class="sm-char-name">Psychologist</span>
-          <span class="sm-char-benefit">+1 Sanity on gather sanity. Starts with +2 Sanity.</span>
-        </button>
-        <button class="sm-char-btn" data-char="hunter">
-          <span class="sm-char-icon">🏹</span>
-          <span class="sm-char-name">Hunter</span>
-          <span class="sm-char-benefit">+2 Food on battle win. Starts with Bow &amp; Arrows.</span>
+        <button class="sm-landing-btn" id="btn-join">
+          <span class="sm-landing-btn-icon">🚪</span>
+          <span class="sm-landing-btn-name">Join Game</span>
+          <span class="sm-landing-btn-sub">Enter a code to join an existing game.</span>
         </button>
       </div>
     </div>
 
-    <!-- variant selection hidden; armor mode is active by default -->
-    <div class="sm-difficulty">
-      <div class="sm-difficulty-label">How much do you have left to lose?</div>
-      <div class="sm-difficulty-btns">
-        <button class="sm-diff-btn" data-difficulty="cautious"  data-deal="30" data-food="8" data-health="8" data-sanity="8" data-mutation="0"><span class="sm-diff-name">Cautious</span><span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span></button>
-        <button class="sm-diff-btn" data-difficulty="resolute"  data-deal="30" data-food="7" data-health="7" data-sanity="7" data-mutation="1"><span class="sm-diff-name">Resolute</span><span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span></button>
-        <button class="sm-diff-btn sm-diff-hard" data-difficulty="desperate" data-deal="30" data-food="6" data-health="6" data-sanity="6" data-mutation="2"><span class="sm-diff-name">Desperate</span><span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span></button>
+    <!-- ══════════════════════════════════════
+         STEP: Join — Enter Code
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-join-code">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-join-code">← Back</button>
       </div>
+      <div class="sm-step-heading">Enter Game Code</div>
+      <div class="sm-step-sub">Ask your host for the 6-character code.</div>
+      <div class="mp-input-group" style="width:100%;">
+        <input class="mp-input mp-input-code" id="join-code-input" maxlength="6"
+               placeholder="XXXXXX" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="mp-error" id="join-code-error"></div>
+      <button class="sm-continue-btn" id="btn-join-code-continue">Continue</button>
     </div>
-    <!-- Play-mode row — appears after character + difficulty are both selected -->
-    <div class="sm-play-mode hidden" id="sm-play-mode">
-      <div class="sm-play-mode-label">How will you play?</div>
-      <div class="sm-play-mode-btns">
-        <button class="sm-play-btn" id="btn-play-solo">
-          <span class="sm-play-btn-name">Play Solo</span>
-          <span class="sm-play-btn-sub">One survivor on your own.</span>
+
+    <!-- ══════════════════════════════════════
+         STEP: Character Selection (shared)
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-character">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-character">← Back</button>
+      </div>
+      <div class="sm-step-heading">Who are you?</div>
+      <div class="sm-character" id="sm-character">
+        <div class="sm-char-btns">
+          <button class="sm-char-btn" data-char="soldier">
+            <span class="sm-char-icon">⚔️</span>
+            <span class="sm-char-name">Soldier</span>
+            <span class="sm-char-benefit">+1 STR in all battles. Starts with a Handgun.</span>
+          </button>
+          <button class="sm-char-btn" data-char="medic">
+            <span class="sm-char-icon">🩺</span>
+            <span class="sm-char-name">Medic</span>
+            <span class="sm-char-benefit">+1 Health on gather heals. Starts with +2 Health.</span>
+          </button>
+          <button class="sm-char-btn" data-char="survivalist">
+            <span class="sm-char-icon">🎒</span>
+            <span class="sm-char-name">Survivalist</span>
+            <span class="sm-char-benefit">+1 Food on gather food. Starts with the Backpack.</span>
+          </button>
+          <button class="sm-char-btn" data-char="psychologist">
+            <span class="sm-char-icon">🧠</span>
+            <span class="sm-char-name">Psychologist</span>
+            <span class="sm-char-benefit">+1 Sanity on gather sanity. Starts with +2 Sanity.</span>
+          </button>
+          <button class="sm-char-btn" data-char="hunter">
+            <span class="sm-char-icon">🏹</span>
+            <span class="sm-char-name">Hunter</span>
+            <span class="sm-char-benefit">+2 Food on battle win. Starts with Bow &amp; Arrows.</span>
+          </button>
+        </div>
+      </div>
+      <button class="sm-continue-btn" id="btn-character-continue" disabled>Continue</button>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         STEP: Difficulty (solo + create only)
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-difficulty">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-difficulty">← Back</button>
+      </div>
+      <div class="sm-step-heading">How much do you have left to lose?</div>
+      <div class="sm-difficulty-btns" style="width:100%;">
+        <button class="sm-diff-btn" data-difficulty="cautious"  data-deal="30" data-food="8" data-health="8" data-sanity="8" data-mutation="0">
+          <span class="sm-diff-name">Cautious</span>
+          <span class="sm-diff-sub">Fewer cards, fewer threats. The shortest path to The Sanctuary.</span>
         </button>
-        <button class="sm-play-btn" id="btn-create-game">
-          <span class="sm-play-btn-name">Create Game</span>
-          <span class="sm-play-btn-sub">Host a co-op session for 2–4 players.</span>
+        <button class="sm-diff-btn" data-difficulty="resolute"  data-deal="30" data-food="7" data-health="7" data-sanity="7" data-mutation="1">
+          <span class="sm-diff-name">Resolute</span>
+          <span class="sm-diff-sub">A longer road. More chances to find what you need — and more that can go wrong.</span>
         </button>
-        <button class="sm-play-btn" id="btn-join-game">
-          <span class="sm-play-btn-name">Join Game</span>
-          <span class="sm-play-btn-sub">Enter a code to join an ally's game.</span>
+        <button class="sm-diff-btn sm-diff-hard" data-difficulty="desperate" data-deal="30" data-food="6" data-health="6" data-sanity="6" data-mutation="2">
+          <span class="sm-diff-name">Desperate</span>
+          <span class="sm-diff-sub">The full wasteland. The most threats, the most danger, and no room for error.</span>
         </button>
       </div>
     </div>
 
-    <div class="sm-links">
-      <button class="sm-link-rules" id="sm-rules-link">📖 Read the Rules</button>
-      <a class="sm-link-video" href="https://www.youtube.com/watch?v=UrSI9mRKcVU" target="_blank" rel="noopener">▶ Watch the Instructional Video</a>
-      <a class="sm-link-video" href="https://docs.google.com/forms/d/e/1FAIpQLSdrRJMyKJaW5NMEp1w21HDH5YRvpGqmpPbcWRKsHNKCEsHCHw/viewform?usp=publish-editor" target="_blank" rel="noopener">✉ Share Feedback</a>
+    <!-- ══════════════════════════════════════
+         STEP: Create — Your Name
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-create-name">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-create-name">← Back</button>
+      </div>
+      <div class="sm-step-heading">What's your name?</div>
+      <div class="sm-step-sub">Other players will see this in the lobby.</div>
+      <div class="mp-input-group" style="width:100%;">
+        <input class="mp-input" id="create-name-input" maxlength="20"
+               placeholder="Survivor" autocomplete="off">
+      </div>
+      <button class="sm-continue-btn" id="btn-create-lobby">Create Lobby</button>
     </div>
-  </div>
-</div>
+
+    <!-- ══════════════════════════════════════
+         STEP: Join — Your Name
+    ══════════════════════════════════════ -->
+    <div class="sm-step hidden" id="step-join-name">
+      <div class="sm-step-nav">
+        <button class="sm-back-btn" id="back-from-join-name">← Back</button>
+      </div>
+      <div class="sm-step-heading">What's your name?</div>
+      <div class="sm-step-sub">Other players will see this in the lobby.</div>
+      <div class="mp-input-group" style="width:100%;">
+        <input class="mp-input" id="join-name-input" maxlength="20"
+               placeholder="Survivor" autocomplete="off">
+      </div>
+      <div class="mp-error" id="join-name-error"></div>
+      <button class="sm-continue-btn" id="btn-join-confirm">Join Game</button>
+    </div>
+
+  </div><!-- .sm-box -->
+</div><!-- #start-menu -->
 
 <button class="rules-btn" id="rules-btn-start" title="Rulebook">?</button>
 
-<!-- ── Multiplayer Lobby Overlay ───────────────────────────────────────────── -->
+<!-- ── Multiplayer Lobby Waiting Rooms ───────────────────────────────────────── -->
 <div id="mp-overlay" class="mp-overlay hidden">
 
-  <!-- Panel: Create game — name entry -->
-  <div id="mp-panel-create" class="mp-box hidden">
-    <div class="mp-title">Create a Game</div>
-    <div class="mp-input-group">
-      <div class="mp-input-label">Your Name</div>
-      <input class="mp-input" id="mp-name-create" maxlength="20" placeholder="Survivor" autocomplete="off">
-    </div>
-    <div class="mp-error" id="mp-create-error"></div>
-    <button class="mp-btn" id="mp-btn-create-confirm">Create Game</button>
-    <button class="mp-btn mp-btn-ghost" id="mp-btn-create-cancel">Cancel</button>
-  </div>
-
-  <!-- Panel: Host waiting room -->
+  <!-- Host waiting room -->
   <div id="mp-panel-host-wait" class="mp-box hidden">
     <div class="mp-title">Waiting for Allies</div>
     <div class="mp-code-block">
@@ -130,29 +214,14 @@
     <button class="mp-btn mp-btn-ghost" id="mp-btn-host-cancel">Cancel Game</button>
   </div>
 
-  <!-- Panel: Join game — name + code entry -->
-  <div id="mp-panel-join" class="mp-box hidden">
-    <div class="mp-title">Join a Game</div>
-    <div class="mp-input-group">
-      <div class="mp-input-label">Your Name</div>
-      <input class="mp-input" id="mp-name-join" maxlength="20" placeholder="Survivor" autocomplete="off">
-    </div>
-    <div class="mp-input-group">
-      <div class="mp-input-label">Game Code</div>
-      <input class="mp-input mp-input-code" id="mp-join-code-input" maxlength="6" placeholder="XXXXXX" autocomplete="off" spellcheck="false">
-    </div>
-    <div class="mp-error" id="mp-join-error"></div>
-    <button class="mp-btn" id="mp-btn-join-confirm">Join Game</button>
-    <button class="mp-btn mp-btn-ghost" id="mp-btn-join-cancel">Cancel</button>
-  </div>
-
-  <!-- Panel: Guest waiting room -->
+  <!-- Guest waiting room -->
   <div id="mp-panel-guest-wait" class="mp-box hidden">
     <div class="mp-title">Game Lobby</div>
     <div class="mp-code-block">
       <div class="mp-code-label">Game Code</div>
       <div class="mp-code-value" id="mp-guest-code">------</div>
     </div>
+    <div class="mp-status-msg" id="mp-guest-difficulty"></div>
     <div class="mp-players" id="mp-guest-player-list"></div>
     <div class="mp-status-msg" id="mp-guest-status">Waiting for the host to start...</div>
     <button class="mp-btn mp-btn-ghost" id="mp-btn-guest-leave">Leave Game</button>
@@ -161,84 +230,26 @@
 </div>
 
 <script>
-  // ── Selection state ──────────────────────────────────────────────────────────
+  // ── State ────────────────────────────────────────────────────────────────────
+  let _flow            = null;  // 'solo' | 'create' | 'join'
   let selectedChar     = null;
-  let selectedDiffData = null;   // set when a difficulty button is clicked
+  let selectedDiffData = null;
+  let _joinCode        = null;  // validated game code for join flow
 
-  // ── Character selection ──────────────────────────────────────────────────────
-  document.querySelectorAll('.sm-char-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
-      btn.classList.add('sm-char-selected');
-      selectedChar = btn.dataset.char;
-      document.getElementById('sm-character').classList.remove('sm-character-required');
-      maybeShowPlayMode();
-    });
-  });
+  // Multiplayer lobby state
+  let mpGameCode     = null;
+  let mpPlayerId     = null;
+  let mpUnsubPlayers = null;
+  let mpUnsubMeta    = null;
 
-  // ── Difficulty selection — selects but does NOT navigate ─────────────────────
-  document.querySelectorAll('.sm-diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!selectedChar) {
-        const charEl = document.getElementById('sm-character');
-        charEl.classList.add('sm-character-required');
-        setTimeout(() => charEl.classList.remove('sm-character-required'), 600);
-        return;
-      }
-      document.querySelectorAll('.sm-diff-btn').forEach(b => b.classList.remove('sm-diff-selected'));
-      btn.classList.add('sm-diff-selected');
-      selectedDiffData = {
-        difficulty: btn.dataset.difficulty,
-        deal:       btn.dataset.deal,
-        food:       btn.dataset.food,
-        health:     btn.dataset.health,
-        sanity:     btn.dataset.sanity,
-        mutation:   btn.dataset.mutation,
-      };
-      maybeShowPlayMode();
-    });
-  });
-
-  function maybeShowPlayMode() {
-    if (selectedChar && selectedDiffData) {
-      document.getElementById('sm-play-mode').classList.remove('hidden');
-    }
+  // ── Step navigation ──────────────────────────────────────────────────────────
+  function showStep(id) {
+    document.querySelectorAll('.sm-step').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
   }
-
-  function saveSessionAndGo() {
-    sessionStorage.setItem('character',  selectedChar);
-    sessionStorage.setItem('difficulty', selectedDiffData.difficulty);
-    sessionStorage.setItem('deal',       selectedDiffData.deal);
-    sessionStorage.setItem('food',       selectedDiffData.food);
-    sessionStorage.setItem('health',     selectedDiffData.health);
-    sessionStorage.setItem('sanity',     selectedDiffData.sanity);
-    sessionStorage.setItem('mutation',   selectedDiffData.mutation);
-  }
-
-  // ── Play Solo ────────────────────────────────────────────────────────────────
-  document.getElementById('btn-play-solo').addEventListener('click', () => {
-    sessionStorage.removeItem('multiplayer');
-    saveSessionAndGo();
-    window.location.href = 'game.html';
-  });
-
-  // ── Rules ────────────────────────────────────────────────────────────────────
-  document.getElementById('rules-btn-start').addEventListener('click', () => {
-    window.open('rules.html', '_blank');
-  });
-  document.getElementById('sm-rules-link').addEventListener('click', () => {
-    window.open('rules.html', '_blank');
-  });
-
-  // ── Multiplayer lobby ────────────────────────────────────────────────────────
-  let mpGameCode            = null;
-  let mpPlayerId            = null;
-  let mpIsHost              = false;
-  let mpUnsubPlayers        = null;
-  let mpUnsubMeta           = null;
 
   function showPanel(id) {
-    ['mp-panel-create','mp-panel-host-wait','mp-panel-join','mp-panel-guest-wait']
+    ['mp-panel-host-wait', 'mp-panel-guest-wait']
       .forEach(p => document.getElementById(p).classList.add('hidden'));
     document.getElementById('mp-overlay').classList.remove('hidden');
     document.getElementById(id).classList.remove('hidden');
@@ -250,13 +261,245 @@
     if (mpUnsubMeta)    { mpUnsubMeta();    mpUnsubMeta    = null; }
     mpGameCode = null;
     mpPlayerId = null;
-    mpIsHost   = false;
   }
 
-  function defaultPlayerName() {
-    const names = { soldier:'Soldier', medic:'Medic', survivalist:'Survivalist',
-                    psychologist:'Psychologist', hunter:'Hunter' };
-    return selectedChar ? (names[selectedChar] || 'Survivor') : 'Survivor';
+  // ── Landing ──────────────────────────────────────────────────────────────────
+  document.getElementById('btn-solo').addEventListener('click', () => {
+    _flow = 'solo';
+    selectedChar = null;
+    document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
+    document.getElementById('btn-character-continue').disabled = true;
+    showStep('step-character');
+  });
+
+  document.getElementById('btn-multiplayer').addEventListener('click', () => {
+    showStep('step-mp-fork');
+  });
+
+  // ── MP Fork ──────────────────────────────────────────────────────────────────
+  document.getElementById('back-from-mp-fork').addEventListener('click', () => {
+    showStep('step-landing');
+  });
+
+  document.getElementById('btn-create').addEventListener('click', () => {
+    _flow = 'create';
+    selectedChar = null;
+    document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
+    document.getElementById('btn-character-continue').disabled = true;
+    showStep('step-character');
+  });
+
+  document.getElementById('btn-join').addEventListener('click', () => {
+    _flow = 'join';
+    document.getElementById('join-code-input').value = '';
+    document.getElementById('join-code-error').textContent = '';
+    showStep('step-join-code');
+  });
+
+  // ── Join: Enter Code ─────────────────────────────────────────────────────────
+  document.getElementById('back-from-join-code').addEventListener('click', () => {
+    showStep('step-mp-fork');
+  });
+
+  document.getElementById('join-code-input').addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    document.getElementById('join-code-error').textContent = '';
+  });
+
+  document.getElementById('btn-join-code-continue').addEventListener('click', async () => {
+    const code  = document.getElementById('join-code-input').value.trim();
+    const errEl = document.getElementById('join-code-error');
+    const btn   = document.getElementById('btn-join-code-continue');
+
+    if (code.length !== 6) { errEl.textContent = 'Enter the 6-character game code.'; return; }
+
+    btn.disabled = true; btn.textContent = 'Checking...';
+    errEl.textContent = '';
+
+    const meta = await dbGet(`games/${code}/meta`);
+    if (!meta) {
+      errEl.textContent = 'Game not found — check the code and try again.';
+      btn.disabled = false; btn.textContent = 'Continue';
+      return;
+    }
+    if (meta.status !== 'lobby') {
+      errEl.textContent = 'That game has already started.';
+      btn.disabled = false; btn.textContent = 'Continue';
+      return;
+    }
+    const existing = await dbGet(`games/${code}/players`);
+    if (existing && Object.keys(existing).length >= 4) {
+      errEl.textContent = 'That game is full (4 players max).';
+      btn.disabled = false; btn.textContent = 'Continue';
+      return;
+    }
+
+    // Store host's difficulty settings so joiner uses the same starting stats
+    const hostId = meta.hostId;
+    if (hostId && existing?.[hostId]) {
+      const h = existing[hostId];
+      selectedDiffData = {
+        difficulty: h.difficulty,
+        deal:       String(meta.deal ?? 30),
+        food:       String(h.food),
+        health:     String(h.health),
+        sanity:     String(h.sanity),
+        mutation:   String(h.mutation),
+      };
+    }
+
+    _joinCode = code;
+    btn.disabled = false; btn.textContent = 'Continue';
+
+    // Advance to character selection
+    selectedChar = null;
+    document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
+    document.getElementById('btn-character-continue').disabled = true;
+    showStep('step-character');
+  });
+
+  // ── Character Selection (shared) ─────────────────────────────────────────────
+  document.getElementById('back-from-character').addEventListener('click', () => {
+    if (_flow === 'solo')   showStep('step-landing');
+    if (_flow === 'create') showStep('step-mp-fork');
+    if (_flow === 'join')   showStep('step-join-code');
+  });
+
+  document.querySelectorAll('.sm-char-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
+      btn.classList.add('sm-char-selected');
+      selectedChar = btn.dataset.char;
+      document.getElementById('sm-character').classList.remove('sm-character-required');
+      document.getElementById('btn-character-continue').disabled = false;
+    });
+  });
+
+  document.getElementById('btn-character-continue').addEventListener('click', () => {
+    if (!selectedChar) return;
+    if (_flow === 'join') {
+      // Join: character → name
+      const charNames = { soldier:'Soldier', medic:'Medic', survivalist:'Survivalist',
+                          psychologist:'Psychologist', hunter:'Hunter' };
+      document.getElementById('join-name-input').value = charNames[selectedChar] ?? 'Survivor';
+      document.getElementById('join-name-error').textContent = '';
+      showStep('step-join-name');
+    } else {
+      // Solo / Create: character → difficulty
+      showStep('step-difficulty');
+    }
+  });
+
+  // ── Difficulty (solo + create) ────────────────────────────────────────────────
+  document.getElementById('back-from-difficulty').addEventListener('click', () => {
+    showStep('step-character');
+  });
+
+  document.querySelectorAll('.sm-diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedDiffData = {
+        difficulty: btn.dataset.difficulty,
+        deal:       btn.dataset.deal,
+        food:       btn.dataset.food,
+        health:     btn.dataset.health,
+        sanity:     btn.dataset.sanity,
+        mutation:   btn.dataset.mutation,
+      };
+      if (_flow === 'solo') {
+        saveSessionAndGo();
+        window.location.href = 'game.html';
+      } else {
+        // Create: difficulty → name
+        const charNames = { soldier:'Soldier', medic:'Medic', survivalist:'Survivalist',
+                            psychologist:'Psychologist', hunter:'Hunter' };
+        document.getElementById('create-name-input').value = charNames[selectedChar] ?? 'Survivor';
+        showStep('step-create-name');
+      }
+    });
+  });
+
+  // ── Create: Name → Lobby ─────────────────────────────────────────────────────
+  document.getElementById('back-from-create-name').addEventListener('click', () => {
+    showStep('step-difficulty');
+  });
+
+  document.getElementById('btn-create-lobby').addEventListener('click', async () => {
+    const name = document.getElementById('create-name-input').value.trim()
+                 || (document.getElementById('create-name-input').placeholder);
+    const btn  = document.getElementById('btn-create-lobby');
+    btn.disabled = true; btn.textContent = 'Creating...';
+
+    mpGameCode = generateGameCode();
+    mpPlayerId = generatePlayerId();
+
+    await dbSet(`games/${mpGameCode}/meta`, {
+      hostId:  mpPlayerId,
+      created: Date.now(),
+      status:  'lobby',
+      deal:    parseInt(selectedDiffData.deal),
+    });
+    await dbSet(`games/${mpGameCode}/players/${mpPlayerId}`, buildPlayerData(name, true));
+
+    document.getElementById('mp-host-code').textContent = mpGameCode;
+    showPanel('mp-panel-host-wait');
+    startLobbyListeners(true);
+
+    btn.disabled = false; btn.textContent = 'Create Lobby';
+  });
+
+  // ── Join: Name → Lobby ───────────────────────────────────────────────────────
+  document.getElementById('back-from-join-name').addEventListener('click', () => {
+    showStep('step-character');
+  });
+
+  document.getElementById('btn-join-confirm').addEventListener('click', async () => {
+    const name  = document.getElementById('join-name-input').value.trim() || 'Survivor';
+    const errEl = document.getElementById('join-name-error');
+    const btn   = document.getElementById('btn-join-confirm');
+
+    btn.disabled = true; btn.textContent = 'Joining...';
+    errEl.textContent = '';
+
+    // Re-validate the game is still available
+    const meta = await dbGet(`games/${_joinCode}/meta`);
+    if (!meta || meta.status !== 'lobby') {
+      errEl.textContent = 'This game is no longer available.';
+      btn.disabled = false; btn.textContent = 'Join Game';
+      return;
+    }
+
+    mpGameCode = _joinCode;
+    mpPlayerId = generatePlayerId();
+
+    await dbSet(`games/${mpGameCode}/players/${mpPlayerId}`, buildPlayerData(name, false));
+
+    document.getElementById('mp-guest-code').textContent = mpGameCode;
+    const diffLabel = { cautious:'Cautious', resolute:'Resolute', desperate:'Desperate' };
+    document.getElementById('mp-guest-difficulty').textContent =
+      `Difficulty: ${diffLabel[selectedDiffData?.difficulty] ?? '—'}`;
+    showPanel('mp-panel-guest-wait');
+    startLobbyListeners(false);
+
+    btn.disabled = false; btn.textContent = 'Join Game';
+  });
+
+  // ── Rules ─────────────────────────────────────────────────────────────────────
+  document.getElementById('rules-btn-start').addEventListener('click', () => {
+    window.open('rules.html', '_blank');
+  });
+  document.getElementById('sm-rules-link').addEventListener('click', () => {
+    window.open('rules.html', '_blank');
+  });
+
+  // ── Shared helpers ────────────────────────────────────────────────────────────
+  function saveSessionAndGo() {
+    sessionStorage.setItem('character',  selectedChar);
+    sessionStorage.setItem('difficulty', selectedDiffData.difficulty);
+    sessionStorage.setItem('deal',       selectedDiffData.deal);
+    sessionStorage.setItem('food',       selectedDiffData.food);
+    sessionStorage.setItem('health',     selectedDiffData.health);
+    sessionStorage.setItem('sanity',     selectedDiffData.sanity);
+    sessionStorage.setItem('mutation',   selectedDiffData.mutation);
   }
 
   function buildPlayerData(name, isHost) {
@@ -285,7 +528,7 @@
         ? p.character.charAt(0).toUpperCase() + p.character.slice(1) : '';
       row.innerHTML =
         `<span>${p.name}</span>` +
-        `<span class="mp-player-char">${charName} · ${p.difficulty || ''}</span>` +
+        `<span class="mp-player-char">${charName}</span>` +
         (p.isHost  ? `<span class="mp-player-host-badge">Host</span>` : '') +
         (id === mpPlayerId ? `<span class="mp-player-you">(you)</span>` : '');
       el.appendChild(row);
@@ -303,17 +546,14 @@
         const startBtn = document.getElementById('mp-btn-start-game');
         const statusEl = document.getElementById('mp-host-status');
         startBtn.disabled = count < 1;
-        if (statusEl) {
-          statusEl.textContent = count === 1
-            ? 'Waiting for allies to join, or start solo to test.'
-            : `${count} players ready.`;
-        }
+        statusEl.textContent = count === 1
+          ? 'Waiting for allies — or start now to test solo.'
+          : `${count} players ready.`;
       }
     });
 
     mpUnsubMeta = dbListen(`games/${mpGameCode}/meta`, meta => {
       if (meta && meta.status === 'active') {
-        // All clients navigate when the host marks the game active
         saveSessionAndGo();
         sessionStorage.setItem('multiplayer', 'true');
         sessionStorage.setItem('gameCode',    mpGameCode);
@@ -323,102 +563,13 @@
     });
   }
 
-  // ── Create Game ──────────────────────────────────────────────────────────────
-  document.getElementById('btn-create-game').addEventListener('click', () => {
-    document.getElementById('mp-name-create').value = defaultPlayerName();
-    document.getElementById('mp-create-error').textContent = '';
-    showPanel('mp-panel-create');
-  });
-
-  document.getElementById('mp-btn-create-cancel').addEventListener('click', closeLobby);
-
-  document.getElementById('mp-btn-create-confirm').addEventListener('click', async () => {
-    const name = document.getElementById('mp-name-create').value.trim() || defaultPlayerName();
-    const btn  = document.getElementById('mp-btn-create-confirm');
-    btn.disabled = true; btn.textContent = 'Creating...';
-
-    mpGameCode = generateGameCode();
-    mpPlayerId = generatePlayerId();
-    mpIsHost   = true;
-
-    await dbSet(`games/${mpGameCode}/meta`, {
-      hostId:  mpPlayerId,
-      created: Date.now(),
-      status:  'lobby',
-    });
-    await dbSet(`games/${mpGameCode}/players/${mpPlayerId}`, buildPlayerData(name, true));
-
-    document.getElementById('mp-host-code').textContent = mpGameCode;
-    showPanel('mp-panel-host-wait');
-    startLobbyListeners(true);
-
-    btn.disabled = false; btn.textContent = 'Create Game';
-  });
-
-  // ── Join Game ────────────────────────────────────────────────────────────────
-  document.getElementById('btn-join-game').addEventListener('click', () => {
-    document.getElementById('mp-name-join').value = defaultPlayerName();
-    document.getElementById('mp-join-code-input').value = '';
-    document.getElementById('mp-join-error').textContent = '';
-    showPanel('mp-panel-join');
-  });
-
-  document.getElementById('mp-btn-join-cancel').addEventListener('click', closeLobby);
-
-  document.getElementById('mp-join-code-input').addEventListener('input', e => {
-    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  });
-
-  document.getElementById('mp-btn-join-confirm').addEventListener('click', async () => {
-    const name  = document.getElementById('mp-name-join').value.trim() || defaultPlayerName();
-    const code  = document.getElementById('mp-join-code-input').value.trim().toUpperCase();
-    const errEl = document.getElementById('mp-join-error');
-    const btn   = document.getElementById('mp-btn-join-confirm');
-
-    if (code.length !== 6) { errEl.textContent = 'Enter the 6-character game code.'; return; }
-
-    btn.disabled = true; btn.textContent = 'Joining...';
-    errEl.textContent = '';
-
-    const meta = await dbGet(`games/${code}/meta`);
-    if (!meta) {
-      errEl.textContent = 'Game not found — check the code and try again.';
-      btn.disabled = false; btn.textContent = 'Join Game';
-      return;
-    }
-    if (meta.status !== 'lobby') {
-      errEl.textContent = 'That game has already started.';
-      btn.disabled = false; btn.textContent = 'Join Game';
-      return;
-    }
-    const existing = await dbGet(`games/${code}/players`);
-    if (existing && Object.keys(existing).length >= 4) {
-      errEl.textContent = 'That game is full (4 players max).';
-      btn.disabled = false; btn.textContent = 'Join Game';
-      return;
-    }
-
-    mpGameCode = code;
-    mpPlayerId = generatePlayerId();
-    mpIsHost   = false;
-
-    await dbSet(`games/${mpGameCode}/players/${mpPlayerId}`, buildPlayerData(name, false));
-
-    document.getElementById('mp-guest-code').textContent = mpGameCode;
-    showPanel('mp-panel-guest-wait');
-    startLobbyListeners(false);
-
-    btn.disabled = false; btn.textContent = 'Join Game';
-  });
-
-  // ── Start Game (host only) ───────────────────────────────────────────────────
+  // ── Start Game (host only) ────────────────────────────────────────────────────
   document.getElementById('mp-btn-start-game').addEventListener('click', async () => {
     const btn = document.getElementById('mp-btn-start-game');
     btn.disabled = true; btn.textContent = 'Starting...';
 
     const players   = await dbGet(`games/${mpGameCode}/players`);
     const playerIds = Object.keys(players);
-    // Shuffle turn order
     for (let i = playerIds.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [playerIds[i], playerIds[j]] = [playerIds[j], playerIds[i]];
@@ -432,14 +583,14 @@
       claimedSlots:   [],
     });
 
-    // Mark active — all clients' meta listener triggers navigation
     await dbUpdate(`games/${mpGameCode}/meta`, { status: 'active' });
   });
 
-  // ── Cancel / Leave ───────────────────────────────────────────────────────────
+  // ── Cancel / Leave ────────────────────────────────────────────────────────────
   document.getElementById('mp-btn-host-cancel').addEventListener('click', async () => {
     if (mpGameCode) await dbRemove(`games/${mpGameCode}`);
     closeLobby();
+    showStep('step-landing');
   });
 
   document.getElementById('mp-btn-guest-leave').addEventListener('click', async () => {
@@ -450,6 +601,7 @@
     sessionStorage.removeItem('gameCode');
     sessionStorage.removeItem('playerId');
     closeLobby();
+    showStep('step-landing');
   });
 </script>
 </body>
