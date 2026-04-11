@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Road — Unit Tests</title>
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #ccc;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 24px;
+      margin: 0;
+    }
+    h1 { color: #e0c070; margin: 0 0 4px; font-size: 20px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+
+    .suite { margin-bottom: 24px; }
+    .suite-name {
+      color: #88aaff;
+      font-size: 15px;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+
+    .test { display: flex; align-items: baseline; gap: 8px; padding: 2px 0; }
+    .icon { width: 14px; flex-shrink: 0; }
+    .pass .icon { color: #4caf50; }
+    .fail .icon { color: #f44336; }
+    .desc { flex: 1; }
+    .fail .desc { color: #ff8a80; }
+    .detail {
+      color: #888;
+      font-size: 12px;
+      margin-left: 22px;
+      margin-bottom: 4px;
+    }
+    .fail .detail { color: #ff6e6e; }
+
+    #summary {
+      margin-top: 24px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .summary-pass { background: #1b3a1f; color: #81c784; }
+    .summary-fail { background: #3a1b1b; color: #e57373; }
+  </style>
+</head>
+<body>
+  <h1>The Road — Unit Tests</h1>
+  <p class="subtitle">Open via <code>http://localhost:8000/tests.html</code></p>
+  <div id="output"></div>
+  <div id="summary"></div>
+
+  <script src="game-logic.js"></script>
+  <script>
+    /* ── Tiny test harness ────────────────────────────────── */
+    const suites = [];
+    let currentSuite = null;
+
+    function describe(name, fn) {
+      currentSuite = { name, tests: [] };
+      suites.push(currentSuite);
+      fn();
+      currentSuite = null;
+    }
+
+    function it(desc, fn) {
+      try {
+        fn();
+        currentSuite.tests.push({ desc, pass: true });
+      } catch (e) {
+        currentSuite.tests.push({ desc, pass: false, detail: e.message });
+      }
+    }
+
+    function expect(actual) {
+      return {
+        toBe(expected) {
+          if (actual !== expected)
+            throw new Error(`expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+        },
+        toEqual(expected) {
+          const a = JSON.stringify(actual), b = JSON.stringify(expected);
+          if (a !== b) throw new Error(`expected ${b}, got ${a}`);
+        },
+        toBeGreaterThan(n) {
+          if (!(actual > n)) throw new Error(`expected ${actual} > ${n}`);
+        },
+        toBeLessThan(n) {
+          if (!(actual < n)) throw new Error(`expected ${actual} < ${n}`);
+        },
+        toContain(item) {
+          if (!actual.includes(item))
+            throw new Error(`expected array to contain ${JSON.stringify(item)}`);
+        },
+        toBeNull() {
+          if (actual !== null) throw new Error(`expected null, got ${JSON.stringify(actual)}`);
+        },
+        toBeTruthy() {
+          if (!actual) throw new Error(`expected truthy, got ${JSON.stringify(actual)}`);
+        },
+        toBeFalsy() {
+          if (actual) throw new Error(`expected falsy, got ${JSON.stringify(actual)}`);
+        },
+      };
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       TESTS
+    ═══════════════════════════════════════════════════════════ */
+
+    /* ── shuffle ─────────────────────────────────────────── */
+    describe('shuffle', () => {
+      it('returns an array of the same length', () => {
+        const arr = [1, 2, 3, 4, 5];
+        expect(shuffle(arr).length).toBe(5);
+      });
+
+      it('contains all the original elements', () => {
+        const arr = [1, 2, 3, 4, 5];
+        const result = shuffle(arr);
+        for (const x of arr) expect(result).toContain(x);
+      });
+
+      it('does not mutate the original array', () => {
+        const arr = [1, 2, 3];
+        shuffle(arr);
+        expect(arr).toEqual([1, 2, 3]);
+      });
+
+      it('handles an empty array', () => {
+        expect(shuffle([])).toEqual([]);
+      });
+
+      it('handles a single-element array', () => {
+        expect(shuffle([42])).toEqual([42]);
+      });
+    });
+
+    /* ── checkGameOverCondition ───────────────────────────── */
+    describe('checkGameOverCondition', () => {
+      it('returns "health" when health reaches 0', () => {
+        expect(checkGameOverCondition('health', 0)).toBe('health');
+      });
+
+      it('returns "health" when health goes negative', () => {
+        expect(checkGameOverCondition('health', -1)).toBe('health');
+      });
+
+      it('returns null when health is 1', () => {
+        expect(checkGameOverCondition('health', 1)).toBeNull();
+      });
+
+      it('returns "sanity" when sanity reaches 0', () => {
+        expect(checkGameOverCondition('sanity', 0)).toBe('sanity');
+      });
+
+      it('returns null when sanity is 1', () => {
+        expect(checkGameOverCondition('sanity', 1)).toBeNull();
+      });
+
+      it('returns "mutation" when mutation reaches 10', () => {
+        expect(checkGameOverCondition('mutation', 10)).toBe('mutation');
+      });
+
+      it('returns "mutation" when mutation exceeds 10', () => {
+        expect(checkGameOverCondition('mutation', 11)).toBe('mutation');
+      });
+
+      it('returns null when mutation is 9', () => {
+        expect(checkGameOverCondition('mutation', 9)).toBeNull();
+      });
+
+      it('returns null for unrelated tracks', () => {
+        expect(checkGameOverCondition('food', 0)).toBeNull();
+      });
+    });
+
+    /* ── getBaseStrength ─────────────────────────────────── */
+    describe('getBaseStrength', () => {
+      it('health 10 → base 3', () => {
+        expect(getBaseStrength(10, 'default')).toBe(3);
+      });
+
+      it('health 9 → base 2', () => {
+        expect(getBaseStrength(9, 'default')).toBe(2);
+      });
+
+      it('health 7 → base 2', () => {
+        expect(getBaseStrength(7, 'default')).toBe(2);
+      });
+
+      it('health 6 → base 1', () => {
+        expect(getBaseStrength(6, 'default')).toBe(1);
+      });
+
+      it('health 3 → base 1', () => {
+        expect(getBaseStrength(3, 'default')).toBe(1);
+      });
+
+      it('health 2 → base 0', () => {
+        expect(getBaseStrength(2, 'default')).toBe(0);
+      });
+
+      it('health 1 → base 0', () => {
+        expect(getBaseStrength(1, 'default')).toBe(0);
+      });
+
+      it('soldier gets +1 on top of bracket', () => {
+        expect(getBaseStrength(10, 'soldier')).toBe(4);
+        expect(getBaseStrength(5, 'soldier')).toBe(2);
+        expect(getBaseStrength(1, 'soldier')).toBe(1);
+      });
+    });
+
+    /* ── getSanityStrModifier ────────────────────────────── */
+    describe('getSanityStrModifier', () => {
+      it('sanity 1 (Frenzy) → +2', () => {
+        expect(getSanityStrModifier(1)).toBe(2);
+      });
+
+      it('sanity 2 (Cracking) → -1', () => {
+        expect(getSanityStrModifier(2)).toBe(-1);
+      });
+
+      it('sanity 3–7 (Neutral) → 0', () => {
+        for (const s of [3, 4, 5, 6, 7]) {
+          expect(getSanityStrModifier(s)).toBe(0);
+        }
+      });
+
+      it('sanity 8 (Clear-headed) → +1', () => {
+        expect(getSanityStrModifier(8)).toBe(1);
+      });
+
+      it('sanity 10 (Clear-headed) → +1', () => {
+        expect(getSanityStrModifier(10)).toBe(1);
+      });
+    });
+
+    /* ── getDraftPick / getDraftDraw ─────────────────────── */
+    describe('getDraftPick / getDraftDraw', () => {
+      it('dealCount 30 → pick 6, draw 9', () => {
+        expect(getDraftPick(30)).toBe(6);
+        expect(getDraftDraw(30)).toBe(9);
+      });
+
+      it('dealCount 25 → pick 5, draw 8', () => {
+        expect(getDraftPick(25)).toBe(5);
+        expect(getDraftDraw(25)).toBe(8);
+      });
+
+      it('dealCount 20 → pick 4, draw 7', () => {
+        expect(getDraftPick(20)).toBe(4);
+        expect(getDraftDraw(20)).toBe(7);
+      });
+
+      it('draw is always pick + 3', () => {
+        for (const n of [15, 20, 25, 30, 35]) {
+          expect(getDraftDraw(n)).toBe(getDraftPick(n) + 3);
+        }
+      });
+    });
+
+    /* ── hasMutant / countMutants ─────────────────────────── */
+    describe('hasMutant / countMutants', () => {
+      const cards = [
+        { effect: 'forehead_tusk' },
+        { effect: 'forehead_tusk' },
+        { effect: 'hive_mind' },
+      ];
+
+      it('hasMutant returns true when effect is present', () => {
+        expect(hasMutant('forehead_tusk', cards)).toBeTruthy();
+      });
+
+      it('hasMutant returns false when effect is absent', () => {
+        expect(hasMutant('extra_arm', cards)).toBeFalsy();
+      });
+
+      it('hasMutant returns false for empty array', () => {
+        expect(hasMutant('hive_mind', [])).toBeFalsy();
+      });
+
+      it('countMutants returns correct count', () => {
+        expect(countMutants('forehead_tusk', cards)).toBe(2);
+        expect(countMutants('hive_mind', cards)).toBe(1);
+        expect(countMutants('extra_arm', cards)).toBe(0);
+      });
+    });
+
+    /* ── applyItemCostModifiers ──────────────────────────── */
+    describe('applyItemCostModifiers', () => {
+      const baseCosts = { food: 2, threat: 1, mutation: 0, health: 0, sanity: 0 };
+
+      it('returns costs unchanged when no items equipped', () => {
+        expect(applyItemCostModifiers(0, baseCosts, [null, null, null]))
+          .toEqual(baseCosts);
+      });
+
+      it('reduces food cost when modifier applies to the slot', () => {
+        const compass = {
+          name: 'Compass',
+          mechanism: { type: 'cost_modifier', cost: 'food', amount: -1, min: 0, slots: [0, 1] }
+        };
+        const result = applyItemCostModifiers(0, { ...baseCosts, food: 2 }, [compass]);
+        expect(result.food).toBe(1);
+      });
+
+      it('does not apply modifier to slots not listed', () => {
+        const compass = {
+          name: 'Compass',
+          mechanism: { type: 'cost_modifier', cost: 'food', amount: -1, min: 0, slots: [0, 1] }
+        };
+        const result = applyItemCostModifiers(2, { ...baseCosts, food: 2 }, [compass]);
+        expect(result.food).toBe(2);
+      });
+
+      it('respects the min floor — cost cannot go below min', () => {
+        const item = {
+          name: 'Big Discount',
+          mechanism: { type: 'cost_modifier', cost: 'food', amount: -5, min: 1, slots: [0] }
+        };
+        const result = applyItemCostModifiers(0, { ...baseCosts, food: 2 }, [item]);
+        expect(result.food).toBe(1);
+      });
+
+      it('ignores items with non-matching mechanism type', () => {
+        const battleItem = {
+          name: 'Sword',
+          mechanism: { type: 'battle_str', bonus: 2 }
+        };
+        const result = applyItemCostModifiers(0, baseCosts, [battleItem]);
+        expect(result).toEqual(baseCosts);
+      });
+    });
+
+    /* ── getItemBattleStrBonus ───────────────────────────── */
+    describe('getItemBattleStrBonus', () => {
+      it('returns 0 bonus with no items', () => {
+        const { bonus } = getItemBattleStrBonus(true, { weapon_class: 'melee' }, [null, null]);
+        expect(bonus).toBe(0);
+      });
+
+      it('adds unconditional battle_str bonus', () => {
+        const item = {
+          name: 'Stimpack',
+          mechanism: { type: 'battle_str', bonus: 2 }
+        };
+        const { bonus } = getItemBattleStrBonus(true, { weapon_class: 'melee' }, [item]);
+        expect(bonus).toBe(2);
+      });
+
+      it('applies weapon_class conditional bonus when class matches', () => {
+        const item = {
+          name: 'Sharpening Stone',
+          mechanism: { type: 'battle_str', bonus: 1, condition: 'weapon_class', weapon_classes: ['melee'] }
+        };
+        const { bonus } = getItemBattleStrBonus(true, { weapon_class: 'melee' }, [item]);
+        expect(bonus).toBe(1);
+      });
+
+      it('skips weapon_class bonus when class does not match', () => {
+        const item = {
+          name: 'Sharpening Stone',
+          mechanism: { type: 'battle_str', bonus: 1, condition: 'weapon_class', weapon_classes: ['melee'] }
+        };
+        const { bonus } = getItemBattleStrBonus(true, { weapon_class: 'ranged' }, [item]);
+        expect(bonus).toBe(0);
+      });
+
+      it('skips weapon_class bonus when no weapon is equipped', () => {
+        const item = {
+          name: 'Sharpening Stone',
+          mechanism: { type: 'battle_str', bonus: 1, condition: 'weapon_class', weapon_classes: ['melee'] }
+        };
+        const { bonus } = getItemBattleStrBonus(false, null, [item]);
+        expect(bonus).toBe(0);
+      });
+    });
+
+    /* ── getPlayerStrength ───────────────────────────────── */
+    describe('getPlayerStrength', () => {
+      const baseState = {
+        healthVal: 10,
+        sanityVal: 5,
+        character: 'default',
+        weapon: null,
+        weaponUsesRemaining: 0,
+        itemSlots: [],
+        mutantCards: [],
+        deckPass: 0,
+      };
+
+      it('unarmed at full health → base 3', () => {
+        expect(getPlayerStrength(baseState)).toBe(3);
+      });
+
+      it('adds weapon strength when weapon has uses remaining', () => {
+        const state = { ...baseState, weapon: { strength: 4, weapon_class: 'melee' }, weaponUsesRemaining: 3 };
+        expect(getPlayerStrength(state)).toBe(7); // 3 base + 4 weapon
+      });
+
+      it('does not add weapon strength when uses are depleted', () => {
+        const state = { ...baseState, weapon: { strength: 4, weapon_class: 'melee' }, weaponUsesRemaining: 0 };
+        expect(getPlayerStrength(state)).toBe(3);
+      });
+
+      it('applies sanity frenzy bonus (+2) at sanity 1', () => {
+        const state = { ...baseState, sanityVal: 1 };
+        expect(getPlayerStrength(state)).toBe(5); // 3 + 2
+      });
+
+      it('applies sanity cracking penalty (-1) at sanity 2', () => {
+        const state = { ...baseState, sanityVal: 2 };
+        expect(getPlayerStrength(state)).toBe(2); // 3 - 1
+      });
+
+      it('forehead_tusk grants +2 per mutant', () => {
+        const state = {
+          ...baseState,
+          mutantCards: [{ effect: 'forehead_tusk' }, { effect: 'forehead_tusk' }]
+        };
+        expect(getPlayerStrength(state)).toBe(7); // 3 + 4
+      });
+
+      it('hive_mind grants +3 only at deckPass >= 2', () => {
+        const stateHive  = { ...baseState, mutantCards: [{ effect: 'hive_mind' }], deckPass: 2 };
+        const stateRoad  = { ...baseState, mutantCards: [{ effect: 'hive_mind' }], deckPass: 0 };
+        expect(getPlayerStrength(stateHive)).toBe(6);  // 3 + 3
+        expect(getPlayerStrength(stateRoad)).toBe(3);  // no bonus
+      });
+
+      it('extra_arm grants +3 only with a melee weapon equipped', () => {
+        const noWeapon   = { ...baseState, mutantCards: [{ effect: 'extra_arm' }] };
+        const withMelee  = { ...baseState, weapon: { strength: 2, weapon_class: 'melee' }, weaponUsesRemaining: 1, mutantCards: [{ effect: 'extra_arm' }] };
+        const withRanged = { ...baseState, weapon: { strength: 2, weapon_class: 'ranged' }, weaponUsesRemaining: 1, mutantCards: [{ effect: 'extra_arm' }] };
+        expect(getPlayerStrength(noWeapon)).toBe(3);   // no bonus
+        expect(getPlayerStrength(withMelee)).toBe(8);  // 3 + 2 weapon + 3 extra_arm
+        expect(getPlayerStrength(withRanged)).toBe(5); // 3 + 2 weapon, no extra_arm
+      });
+
+      it('soldier character gets +1 base', () => {
+        const state = { ...baseState, character: 'soldier' };
+        expect(getPlayerStrength(state)).toBe(4);
+      });
+    });
+
+    /* ── armorAbsorbCalc ─────────────────────────────────── */
+    describe('armorAbsorbCalc', () => {
+      const helmet = { card: { name: 'Helmet' }, pips: { health: 2 } };
+
+      it('returns no absorption with empty slots', () => {
+        const { absorbed } = armorAbsorbCalc({ health: -3 }, { head: null, body: null, accessory: null });
+        expect(absorbed).toEqual({});
+      });
+
+      it('absorbs damage and returns remaining pips', () => {
+        const { absorbed, newArmorSlots } = armorAbsorbCalc(
+          { health: -2 },
+          { head: helmet, body: null, accessory: null }
+        );
+        expect(absorbed.health).toBe(2);
+        expect(newArmorSlots.head.pips.health).toBe(0);
+      });
+
+      it('partially absorbs when damage exceeds pips', () => {
+        const { absorbed } = armorAbsorbCalc(
+          { health: -5 },
+          { head: helmet, body: null, accessory: null }
+        );
+        expect(absorbed.health).toBe(2); // only 2 pips available
+      });
+
+      it('marks armor as destroyed when all pips are depleted', () => {
+        const { newArmorSlots, lines } = armorAbsorbCalc(
+          { health: -2 },
+          { head: helmet, body: null, accessory: null }
+        );
+        expect(newArmorSlots.head).toBeNull();
+        expect(lines.some(l => l.includes('destroyed'))).toBeTruthy();
+      });
+
+      it('does not mutate the input armorSlots', () => {
+        const slots = { head: { card: { name: 'Helmet' }, pips: { health: 2 } }, body: null, accessory: null };
+        armorAbsorbCalc({ health: -2 }, slots);
+        expect(slots.head.pips.health).toBe(2); // unchanged
+      });
+
+      it('does not absorb healing (positive health)', () => {
+        const { absorbed } = armorAbsorbCalc(
+          { health: 3 },
+          { head: helmet, body: null, accessory: null }
+        );
+        expect(absorbed).toEqual({});
+      });
+
+      it('absorbs across multiple slots in head→body→accessory order', () => {
+        const body = { card: { name: 'Vest' }, pips: { health: 2 } };
+        const { absorbed } = armorAbsorbCalc(
+          { health: -4 },
+          { head: helmet, body, accessory: null }
+        );
+        expect(absorbed.health).toBe(4); // 2 from helmet + 2 from vest
+      });
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       RENDER RESULTS
+    ═══════════════════════════════════════════════════════════ */
+    let totalPass = 0, totalFail = 0;
+    const out = document.getElementById('output');
+
+    for (const suite of suites) {
+      const div = document.createElement('div');
+      div.className = 'suite';
+
+      const title = document.createElement('div');
+      title.className = 'suite-name';
+      title.textContent = suite.name;
+      div.appendChild(title);
+
+      for (const t of suite.tests) {
+        const row = document.createElement('div');
+        row.className = `test ${t.pass ? 'pass' : 'fail'}`;
+
+        const icon = document.createElement('span');
+        icon.className = 'icon';
+        icon.textContent = t.pass ? '✓' : '✗';
+
+        const desc = document.createElement('span');
+        desc.className = 'desc';
+        desc.textContent = t.desc;
+
+        row.appendChild(icon);
+        row.appendChild(desc);
+        div.appendChild(row);
+
+        if (!t.pass && t.detail) {
+          const detail = document.createElement('div');
+          detail.className = 'detail';
+          detail.textContent = t.detail;
+          div.appendChild(detail);
+        }
+
+        t.pass ? totalPass++ : totalFail++;
+      }
+
+      out.appendChild(div);
+    }
+
+    const summary = document.getElementById('summary');
+    summary.className = totalFail === 0 ? 'summary-pass' : 'summary-fail';
+    summary.textContent = totalFail === 0
+      ? `All ${totalPass} tests passed`
+      : `${totalFail} failed, ${totalPass} passed (${totalPass + totalFail} total)`;
+  </script>
+</body>
+</html>
