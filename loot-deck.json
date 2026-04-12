@@ -780,7 +780,7 @@
       "name": "hiking boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 2
       },
@@ -791,7 +791,7 @@
       "name": "leather gloves",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "health": 1,
         "sanity": 1
@@ -814,7 +814,7 @@
       "name": "steel toe boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "health": 1,
         "sanity": 2
@@ -872,7 +872,7 @@
       "name": "belt",
       "location": "sprawl",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 2
       },
@@ -951,7 +951,7 @@
       "name": "biohazard gloves",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "mutation": 3
       },
@@ -962,7 +962,7 @@
       "name": "gold necklace",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 3
       },

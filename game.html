@@ -118,24 +118,6 @@
     <div class="board-title" id="gather-board-title">🛣️ The Road</div>
     <div class="divider"></div>
 
-    <div class="draw-area">
-      <div class="rules-ref">
-        <div class="rules-ref-title">Your Turn</div>
-        <ol class="rules-ref-list">
-          <li>Select a card</li>
-          <li>Pay cost / draw threats</li>
-          <li>Resolve battles</li>
-          <li>Gain loot</li>
-          <li>Reload board</li>
-        </ol>
-      </div>
-      <button class="draw-btn" id="draw-btn" disabled>
-        <span class="draw-btn-icons">📦</span>
-        <span class="draw-btn-label">Draw</span>
-        <span class="draw-btn-count" id="draw-btn-count"></span>
-      </button>
-      <button class="discard-view-btn" id="discard-view-btn" title="View discard pile">🗑️</button>
-    </div>
 
     <div class="journey-path" id="journey-path"></div>
 
@@ -161,12 +143,6 @@
 
     <div class="slots-row" id="slots-row"></div>
 
-    <div class="board-footer">
-      <div class="legend-item"><span class="legend-pip">🌾</span> Food cost</div>
-      <div class="legend-item"><span class="legend-pip">☣</span> Threats</div>
-      <div class="legend-item"><span class="legend-pip">📦</span> Loot card</div>
-    </div>
-
     <!-- Multiplayer: shown when it's another player's turn -->
     <div id="mp-turn-overlay" class="mp-turn-overlay mp-hidden">
       <span class="mp-turn-icon">⏳</span>
@@ -180,12 +156,10 @@
 
   <!-- Items panel — below gather board -->
   <div id="items-panel">
-    <div class="items-panel-label">🎒 Items</div>
     <div id="item-slots-container"></div>
   </div>
 
   <div id="mutant-cards-panel" style="display:none;">
-    <div class="items-panel-label">🧬 Mutations</div>
     <div id="mutant-tags-container"></div>
   </div>
   </div>
@@ -367,7 +341,38 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       PLAYER BOARD + INVENTORY
+       INVENTORY (always visible)
+  ══════════════════════════════════════ -->
+  <div class="inventory-panel" id="inventory-panel">
+    <!-- Armor slots -->
+    <div class="inventory-slot" id="inv-slot-armor-head">
+      <div class="inventory-slot-label">🪖 Head</div>
+      <div class="inventory-card-zone inv-armor-head" id="inv-armor-head">
+        <span class="inventory-empty-icon">🪖</span>
+      </div>
+    </div>
+    <div class="inventory-slot" id="inv-slot-armor-body">
+      <div class="inventory-slot-label">🧥 Body</div>
+      <div class="inventory-card-zone inv-armor-body" id="inv-armor-body">
+        <span class="inventory-empty-icon">🧥</span>
+      </div>
+    </div>
+    <div class="inventory-slot" id="inv-slot-armor-acc">
+      <div class="inventory-slot-label">📿 Misc</div>
+      <div class="inventory-card-zone inv-armor-acc" id="inv-armor-acc">
+        <span class="inventory-empty-icon">📿</span>
+      </div>
+    </div>
+    <div class="inventory-slot">
+      <div class="inventory-slot-label">🔧 Weapon</div>
+      <div class="inventory-card-zone inv-weapon" id="inv-weapon">
+        <span class="inventory-empty-icon">🔧</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PLAYER BOARD / TRACKS (collapsible)
   ══════════════════════════════════════ -->
   <div id="player-board-outer">
     <div class="board-frame" id="player-board">
@@ -381,37 +386,6 @@
 
       <div class="character-ability" id="character-ability"></div>
 
-      <div class="footer-note">Don't reach the bottom of any of the tracks</div>
-      <a class="footer-feedback" href="https://docs.google.com/forms/d/e/1FAIpQLSdrRJMyKJaW5NMEp1w21HDH5YRvpGqmpPbcWRKsHNKCEsHCHw/viewform?usp=publish-editor" target="_blank" rel="noopener">✉ Share Feedback</a>
-    </div>
-
-    <!-- Inventory slots -->
-    <div class="inventory-panel" id="inventory-panel">
-      <!-- Armor slots -->
-      <div class="inventory-slot" id="inv-slot-armor-head">
-        <div class="inventory-slot-label">🪖 Head</div>
-        <div class="inventory-card-zone inv-armor-head" id="inv-armor-head">
-          <span class="inventory-empty-icon">🪖</span>
-        </div>
-      </div>
-      <div class="inventory-slot" id="inv-slot-armor-body">
-        <div class="inventory-slot-label">🧥 Body</div>
-        <div class="inventory-card-zone inv-armor-body" id="inv-armor-body">
-          <span class="inventory-empty-icon">🧥</span>
-        </div>
-      </div>
-      <div class="inventory-slot" id="inv-slot-armor-acc">
-        <div class="inventory-slot-label">📿 Accessory</div>
-        <div class="inventory-card-zone inv-armor-acc" id="inv-armor-acc">
-          <span class="inventory-empty-icon">📿</span>
-        </div>
-      </div>
-      <div class="inventory-slot">
-        <div class="inventory-slot-label">🔧 Weapon</div>
-        <div class="inventory-card-zone inv-weapon" id="inv-weapon">
-          <span class="inventory-empty-icon">🔧</span>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -426,7 +400,20 @@
     <div class="log-entries" id="log-entries"></div>
   </div>
 
-<button id="log-toggle-btn">📋 Log</button>
+<div id="bottom-controls">
+  <button id="stats-pill" title="Show / hide player board">
+    <span class="sp-stat sp-food">🌾 <span id="sp-food">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-health">❤️ <span id="sp-health">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-sanity">🧠 <span id="sp-sanity">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-mutation">🧬 <span id="sp-mutation">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-str">⚔️ <span id="sp-str">—</span></span>
+  </button>
+  <button id="log-toggle-btn">📋 Log</button>
+</div>
 
 
 <script>
@@ -511,6 +498,23 @@
   document.getElementById('log-toggle-btn').addEventListener('click', () => {
     const log = document.getElementById('game-log');
     log.classList.toggle('log-visible');
+  });
+
+  function updateStatsPill() {
+    const spFood     = document.getElementById('sp-food');
+    if (!spFood) return;
+    document.getElementById('sp-food').textContent     = playerState.food.value;
+    document.getElementById('sp-health').textContent   = playerState.health.value;
+    document.getElementById('sp-sanity').textContent   = playerState.sanity.value;
+    document.getElementById('sp-mutation').textContent = playerState.mutation.value;
+    document.getElementById('sp-str').textContent      = getBaseStrength() + getSanityStrModifier();
+  }
+
+  document.getElementById('stats-pill').addEventListener('click', () => {
+    const board = document.getElementById('player-board-outer');
+    const pill  = document.getElementById('stats-pill');
+    const isOpen = board.classList.toggle('board-expanded');
+    pill.classList.toggle('board-open', isOpen);
   });
 
   /* ═══════════════════════════════════════════
@@ -799,9 +803,6 @@
   ];
 
   function updateDeckCount() {
-    const countEl = document.getElementById('draw-btn-count');
-    if (countEl) countEl.textContent = drawPile.length > 0 ? `${drawPile.length}` : '';
-    document.getElementById('draw-btn').disabled = drawPile.length < 1;
     renderJourneyPath();
   }
 
@@ -1070,7 +1071,9 @@
 
     const badge = document.createElement('div');
     badge.className = `card-type-badge badge-${card.type}`;
-    badge.textContent = card.type;
+    badge.textContent = (card.type === 'armor' && card.armor_slot)
+      ? `🛡️${card.armor_slot}`
+      : card.type;
     headerRow.appendChild(badge);
 
     if (card.env_bonuses?.length) {
@@ -1153,10 +1156,6 @@
       const parts = Object.entries(card.absorb).map(([k,v]) => `${v} ${k}`).join(', ');
       stat.innerHTML = `🛡️: ${parts}`;
       wrap.appendChild(stat);
-      const slotTag = document.createElement('div');
-      slotTag.className = 'card-stat';
-      slotTag.textContent = `📍 ${card.armor_slot}`;
-      wrap.appendChild(slotTag);
     }
     if (card.text) {
       const txt = document.createElement('div');
@@ -1446,9 +1445,9 @@
 
   // ── Armor slots (armor variant only) ─────────────────────────────
   // Each slot: null | { card, pips: { health: N, sanity: N, mutation: N } }
-  const armorSlots = { head: null, body: null, accessory: null };
-  const ARMOR_SLOT_IDS = { head: 'inv-armor-head', body: 'inv-armor-body', accessory: 'inv-armor-acc' };
-  const ARMOR_SLOT_LABELS = { head: '🪖 Head', body: '🧥 Body', accessory: '📿 Accessory' };
+  const armorSlots = { head: null, body: null, misc: null };
+  const ARMOR_SLOT_IDS = { head: 'inv-armor-head', body: 'inv-armor-body', misc: 'inv-armor-acc' };
+  const ARMOR_SLOT_LABELS = { head: '🪖 Head', body: '🧥 Body', misc: '📿 Misc' };
 
   // Max food (8 normally, 10 with Backpack)
   let maxFood = 8;
@@ -1629,7 +1628,7 @@
 
   /* ── Armor: equip a new armor card (with replace prompt if slot occupied) ── */
   async function equipArmor(card) {
-    const slotKey = card.armor_slot; // head | body | accessory
+    const slotKey = card.armor_slot; // head | body | misc
     const existing = armorSlots[slotKey];
 
     if (existing) {
@@ -1654,8 +1653,8 @@
       if (!isDamage) continue;
       const dmgAmt = Math.abs(amt);
       let remaining = dmgAmt;
-      // Try each slot in priority order: head, body, accessory
-      for (const slotKey of ['head', 'body', 'accessory']) {
+      // Try each slot in priority order: head, body, misc
+      for (const slotKey of ['head', 'body', 'misc']) {
         const slot = armorSlots[slotKey];
         if (!slot || (slot.pips[stat] ?? 0) <= 0) continue;
         const canAbsorb = Math.min(remaining, slot.pips[stat]);
@@ -3735,7 +3734,6 @@
 
   async function loadDeck(dealCount = 40, excludeName = null) {
     const titleEl = document.getElementById('gather-board-title');
-    const drawBtn = document.getElementById('draw-btn');
     try {
       const res = await fetch('loot-deck.json?v=' + Date.now());
       if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the same folder?`);
@@ -3936,10 +3934,6 @@
     });
   }
 
-  document.getElementById('discard-view-btn').addEventListener('click', () => {
-    openDiscardViewer();
-  });
-
   document.getElementById('dv-close-btn').addEventListener('click', () => {
     document.getElementById('discard-viewer').classList.remove('open');
   });
@@ -3959,7 +3953,6 @@
     renderDiscardViewer();
   });
 
-  // Draw is fully automatic — no manual draw-btn handler
 
   updateBoardLocation();
 
@@ -4104,6 +4097,7 @@
       render();
       // Refresh item action buttons when food changes
       if (track.id === 'food') renderItemSlots();
+      updateStatsPill();
       // Track mutation thresholds crossed — game flow awaits these via drainMutantSpots()
       if (track.id === 'mutation') {
         const MUTATION_CARDS_SET = new Set([4, 6, 9]);
@@ -4713,7 +4707,7 @@
       items:           itemSlots.filter(Boolean).length,
       armorHead:       armorSlots.head == null,
       armorBody:       armorSlots.body == null,
-      armorAccessory:  armorSlots.accessory == null,
+      armorAccessory:  armorSlots.misc == null,
     };
     dbUpdate(playerPath(mpGameCode, mpPlayerId), { invSlots }).catch(() => {});
   }
@@ -4721,7 +4715,7 @@
   /**
    * Return allies who have an empty slot matching the given card type.
    * type: 'weapon' | 'item' | 'armor'
-   * armorSlotKey: 'head' | 'body' | 'accessory' (only for armor type)
+   * armorSlotKey: 'head' | 'body' | 'misc' (only for armor type)
    */
   function mpGetEligibleShareAllies(type, armorSlotKey) {
     return Object.entries(mpAllPlayers)
@@ -4734,7 +4728,7 @@
         if (type === 'armor') {
           if (armorSlotKey === 'head')      return s.armorHead      === true;
           if (armorSlotKey === 'body')      return s.armorBody      === true;
-          if (armorSlotKey === 'accessory') return s.armorAccessory === true;
+          if (armorSlotKey === 'misc')      return s.armorAccessory === true;
         }
         return false;
       })
@@ -5265,7 +5259,8 @@
     }
 
     document.getElementById('game-log').classList.add('log-visible');
-    document.getElementById('log-toggle-btn').style.display = 'block';
+    document.getElementById('bottom-controls').style.display = 'flex';
+    updateStatsPill();
 
     if (isMultiplayer) {
       // Lock everything immediately — before any Firebase reads — so there is
