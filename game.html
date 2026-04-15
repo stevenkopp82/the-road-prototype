@@ -157,10 +157,43 @@
   <!-- Items panel — below gather board -->
   <div id="items-panel">
     <div id="item-slots-container"></div>
+    <div id="passive-items-container"></div>
   </div>
 
   <div id="mutant-cards-panel" style="display:none;">
     <div id="mutant-tags-container"></div>
+  </div>
+
+  <!-- Stats pill — collapsed player board trigger -->
+  <button id="stats-pill" title="Show / hide player board">
+    <span class="sp-stat sp-food">🌾 <span id="sp-food">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-health">❤️ <span id="sp-health">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-sanity">🧠 <span id="sp-sanity">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-mutation">🧬 <span id="sp-mutation">—</span></span>
+    <span class="sp-div">·</span>
+    <span class="sp-stat sp-str">⚔️ <span id="sp-str">—</span></span>
+  </button>
+
+  <!-- ══════════════════════════════════════
+       PLAYER BOARD / TRACKS (collapsible overlay)
+  ══════════════════════════════════════ -->
+  <div id="player-board-outer">
+    <div class="board-frame" id="player-board">
+      <div class="corner-br"></div>
+      <div class="corner-bl"></div>
+
+      <button id="player-board-close" title="Close">✕</button>
+      <div class="board-title" id="board-title">Player Board</div>
+      <div class="divider"></div>
+
+      <div class="tracks-container" id="tracks-container"></div>
+
+      <div class="character-ability" id="character-ability"></div>
+
+    </div>
   </div>
   </div>
 
@@ -372,24 +405,6 @@
   </div>
 
   <!-- ══════════════════════════════════════
-       PLAYER BOARD / TRACKS (collapsible)
-  ══════════════════════════════════════ -->
-  <div id="player-board-outer">
-    <div class="board-frame" id="player-board">
-      <div class="corner-br"></div>
-      <div class="corner-bl"></div>
-
-      <div class="board-title" id="board-title">Player Board</div>
-      <div class="divider"></div>
-
-      <div class="tracks-container" id="tracks-container"></div>
-
-      <div class="character-ability" id="character-ability"></div>
-
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════
        GAME LOG
   ══════════════════════════════════════ -->
   <div id="game-log">
@@ -401,17 +416,6 @@
   </div>
 
 <div id="bottom-controls">
-  <button id="stats-pill" title="Show / hide player board">
-    <span class="sp-stat sp-food">🌾 <span id="sp-food">—</span></span>
-    <span class="sp-div">·</span>
-    <span class="sp-stat sp-health">❤️ <span id="sp-health">—</span></span>
-    <span class="sp-div">·</span>
-    <span class="sp-stat sp-sanity">🧠 <span id="sp-sanity">—</span></span>
-    <span class="sp-div">·</span>
-    <span class="sp-stat sp-mutation">🧬 <span id="sp-mutation">—</span></span>
-    <span class="sp-div">·</span>
-    <span class="sp-stat sp-str">⚔️ <span id="sp-str">—</span></span>
-  </button>
   <button id="log-toggle-btn">📋 Log</button>
 </div>
 
@@ -500,21 +504,48 @@
     log.classList.toggle('log-visible');
   });
 
+  const PILL_STATS = [
+    { elId: 'sp-food',     key: 'food',     danger: v => v <= 1 },
+    { elId: 'sp-health',   key: 'health',   danger: v => v <= 1 },
+    { elId: 'sp-sanity',   key: 'sanity',   danger: v => v <= 1 },
+    { elId: 'sp-mutation', key: 'mutation', danger: v => v >= 9 },
+  ];
+
   function updateStatsPill() {
-    const spFood     = document.getElementById('sp-food');
-    if (!spFood) return;
-    document.getElementById('sp-food').textContent     = playerState.food.value;
-    document.getElementById('sp-health').textContent   = playerState.health.value;
-    document.getElementById('sp-sanity').textContent   = playerState.sanity.value;
-    document.getElementById('sp-mutation').textContent = playerState.mutation.value;
-    document.getElementById('sp-str').textContent      = getBaseStrength() + getSanityStrModifier();
+    if (!document.getElementById('sp-food')) return;
+    for (const { elId, key, danger } of PILL_STATS) {
+      const valEl  = document.getElementById(elId);
+      const statEl = valEl.closest('.sp-stat');
+      const prev   = parseInt(valEl.textContent);
+      const curr   = playerState[key].value;
+      valEl.textContent = curr;
+      statEl.classList.toggle('danger', danger(curr));
+      if (!isNaN(prev) && curr !== prev)
+        flashPillStat(statEl, curr < prev ? 'pill-flash-down' : 'pill-flash-up');
+    }
+    document.getElementById('sp-str').textContent = getBaseStrength() + getSanityStrModifier();
+  }
+
+  function flashPillStat(statEl, animName) {
+    statEl.style.animation = 'none';
+    void statEl.offsetWidth; // force reflow so the new animation restarts
+    statEl.style.animation = `${animName} 0.7s ease-out forwards`;
+    clearTimeout(statEl._flashTimer);
+    statEl._flashTimer = setTimeout(() => { statEl.style.animation = ''; }, 700);
   }
 
   document.getElementById('stats-pill').addEventListener('click', () => {
     const board = document.getElementById('player-board-outer');
     const pill  = document.getElementById('stats-pill');
-    const isOpen = board.classList.toggle('board-expanded');
-    pill.classList.toggle('board-open', isOpen);
+    board.classList.add('board-expanded');
+    pill.classList.add('board-open');
+  });
+
+  document.getElementById('player-board-close').addEventListener('click', () => {
+    const board = document.getElementById('player-board-outer');
+    const pill  = document.getElementById('stats-pill');
+    board.classList.remove('board-expanded');
+    pill.classList.remove('board-open');
   });
 
   /* ═══════════════════════════════════════════
@@ -1443,6 +1474,9 @@
   let itemUsesArr    = [0, 0, 0];          // parallel array of remaining uses
   const itemSlotsCount = 3;
 
+  // Passive items: capacity/perpetual items that don't occupy a slot
+  let passiveItems = [];
+
   // ── Armor slots (armor variant only) ─────────────────────────────
   // Each slot: null | { card, pips: { health: N, sanity: N, mutation: N } }
   const armorSlots = { head: null, body: null, misc: null };
@@ -1539,6 +1573,47 @@
     updateItemBars();
     // Refresh slot costs to reflect any item discounts (Area Map, Binoculars, etc.)
     updateSlotCosts();
+  }
+
+  /* ── Render passive (no-slot) items into #passive-items-container ── */
+  function renderPassiveItems() {
+    const container = document.getElementById('passive-items-container');
+    if (!container) return;
+    container.innerHTML = '';
+    if (passiveItems.length === 0) return;
+    passiveItems.forEach(card => {
+      const badge = document.createElement('div');
+      badge.className = 'passive-item-badge';
+      badge.title = card.text ?? card.name;
+      const icon = document.createElement('span');
+      icon.className = 'passive-item-icon';
+      if (card.icon && card.icon.endsWith('.svg')) {
+        const img = document.createElement('img');
+        img.src = card.icon;
+        img.alt = card.name;
+        icon.appendChild(img);
+      } else {
+        icon.textContent = card.icon ?? '🎒';
+      }
+      const label = document.createElement('span');
+      label.className = 'passive-item-label';
+      label.textContent = card.name;
+      badge.appendChild(icon);
+      badge.appendChild(label);
+      badge.onmouseenter = () => showMagnifier(card, badge);
+      badge.onmouseleave = hideMagnifier;
+      container.appendChild(badge);
+    });
+  }
+
+  /* ── Equip a passive item (applies effect, no slot consumed) ── */
+  function equipPassiveItem(card) {
+    const dupIdx = passiveItems.findIndex(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
+    if (dupIdx >= 0) return false; // already have one
+    passiveItems.push(card);
+    applyCapacityMechanism(card, true);
+    renderPassiveItems();
+    return true;
   }
 
   /* ── Get/set a specific item slot ── */
@@ -3283,6 +3358,11 @@
           const next = Math.max(0, Math.min(track === 'food' ? maxFood : 10, prevVal + rounded));
           if (playerState[track].set) playerState[track].set(next);
           effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
+          // Game-over check: gather cards can have negative health/sanity or high mutation
+          if (rounded < 0 || track === 'mutation') {
+            if (track === 'food' && next === 0) { applyStarvation(); if (gameOver) break; }
+            else if (checkGameOver(track, next)) break;
+          }
           // Co-op food sharing: if food hits the cap and there was overflow, offer to share
           if (isMultiplayer && track === 'food' && rounded > 0 && next === maxFood) {
             const overflow = (prevVal + rounded) - maxFood;
@@ -3360,45 +3440,58 @@
         }
       } else if (type === 'item') {
         if (card.mechanism?.type === 'capacity') {
-          // Capacity item (e.g. Backpack): only one per stat
-          const dupIdx = itemSlots.findIndex(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
-          if (dupIdx >= 0) {
-            discardPile.push(card);
-            effectLines.push(`🎒 Already carrying a ${card.name}`);
-          } else {
-            const emptyIdx = firstEmptyItemSlot();
-            if (emptyIdx >= 0) {
-              setItemSlot(emptyIdx, card);
-              applyCapacityMechanism(card, true);
+          if (card.mechanism.passive) {
+            // Passive capacity item (e.g. Backpack): equips without using an item slot
+            const already = passiveItems.some(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
+            if (already) {
+              discardPile.push(card);
+              effectLines.push(`🎒 Already carrying a ${card.name}`);
+            } else {
+              equipPassiveItem(card);
               effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
               gearAcquired = true;
+            }
+          } else {
+            // Slot-based capacity item: only one per stat
+            const dupIdx = itemSlots.findIndex(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
+            if (dupIdx >= 0) {
+              discardPile.push(card);
+              effectLines.push(`🎒 Already carrying a ${card.name}`);
             } else {
-              // All item slots full — check for share option first in multiplayer
-              const eligible = isMultiplayer ? mpGetEligibleShareAllies('item', null) : [];
-              let handled = false;
-              if (eligible.length > 0) {
-                const toPlayerId = await mpPromptShareRecipient(eligible, card);
-                if (toPlayerId) {
-                  const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
-                  const shareResult = await mpSendShareRequest(toPlayerId, toName, card, 'item');
-                  if (shareResult === 'accepted') {
-                    effectLines.push(`📦 ${card.name} shared with ${toName}`);
-                    handled = true;
+              const emptyIdx = firstEmptyItemSlot();
+              if (emptyIdx >= 0) {
+                setItemSlot(emptyIdx, card);
+                applyCapacityMechanism(card, true);
+                effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
+                gearAcquired = true;
+              } else {
+                // All item slots full — check for share option first in multiplayer
+                const eligible = isMultiplayer ? mpGetEligibleShareAllies('item', null) : [];
+                let handled = false;
+                if (eligible.length > 0) {
+                  const toPlayerId = await mpPromptShareRecipient(eligible, card);
+                  if (toPlayerId) {
+                    const toName = mpAllPlayers[toPlayerId]?.name ?? 'Ally';
+                    const shareResult = await mpSendShareRequest(toPlayerId, toName, card, 'item');
+                    if (shareResult === 'accepted') {
+                      effectLines.push(`📦 ${card.name} shared with ${toName}`);
+                      handled = true;
+                    }
                   }
                 }
-              }
-              if (!handled) {
-                const discardIdx = await promptItemDiscard(card);
-                if (discardIdx >= 0) {
-                  const displaced = itemSlots[discardIdx];
-                  if (displaced?.mechanism?.type === 'capacity') applyCapacityMechanism(displaced, false);
-                  setItemSlot(discardIdx, card);
-                  applyCapacityMechanism(card, true);
-                  effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
-                  gearAcquired = true;
-                } else {
-                  discardPile.push(card);
-                  effectLines.push('🎒 Item not taken');
+                if (!handled) {
+                  const discardIdx = await promptItemDiscard(card);
+                  if (discardIdx >= 0) {
+                    const displaced = itemSlots[discardIdx];
+                    if (displaced?.mechanism?.type === 'capacity') applyCapacityMechanism(displaced, false);
+                    setItemSlot(discardIdx, card);
+                    applyCapacityMechanism(card, true);
+                    effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
+                    gearAcquired = true;
+                  } else {
+                    discardPile.push(card);
+                    effectLines.push('🎒 Item not taken');
+                  }
                 }
               }
             }
@@ -5235,6 +5328,9 @@
       if (startingCard) {
         if (startingCard.type === 'weapon') {
           setInventorySlot('weapon', startingCard);
+        } else if (startingCard.mechanism?.type === 'capacity' && startingCard.mechanism.passive) {
+          equipPassiveItem(startingCard);
+          updateItemBars();
         } else {
           setItemSlot(0, startingCard);
           if (startingCard.mechanism?.type === 'capacity') applyCapacityMechanism(startingCard, true);

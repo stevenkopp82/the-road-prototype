@@ -385,7 +385,7 @@
       "location": "road",
       "type": "item",
       "text": "Expand max food to 10",
-      "mechanism": { "type": "capacity", "stat": "food", "max": 10 },
+      "mechanism": { "type": "capacity", "stat": "food", "max": 10, "passive": true },
       "value": 5,
       "icon": "SVGs/knapsack.svg"
     },
