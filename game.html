@@ -13,6 +13,10 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="db.js"></script>
+  <script src="game-logic.js"></script>
+  <script src="game-mutant.js"></script>
+  <script src="game-draft.js"></script>
+  <script src="game-multiplayer.js"></script>
   <script>
     // Analytics — wraps Firestore writes so errors never break the game
     let _db = null;
@@ -154,16 +158,6 @@
     </div>
   </div>
 
-  <!-- Items panel — below gather board -->
-  <div id="items-panel">
-    <div id="item-slots-container"></div>
-    <div id="passive-items-container"></div>
-  </div>
-
-  <div id="mutant-cards-panel" style="display:none;">
-    <div id="mutant-tags-container"></div>
-  </div>
-
   <!-- Stats pill — collapsed player board trigger -->
   <button id="stats-pill" title="Show / hide player board">
     <span class="sp-stat sp-food">🌾 <span id="sp-food">—</span></span>
@@ -176,6 +170,16 @@
     <span class="sp-div">·</span>
     <span class="sp-stat sp-str">⚔️ <span id="sp-str">—</span></span>
   </button>
+
+  <!-- Items panel — below gather board -->
+  <div id="items-panel">
+    <div id="item-slots-container"></div>
+    <div id="passive-items-container"></div>
+  </div>
+
+  <div id="mutant-cards-panel" style="display:none;">
+    <div id="mutant-tags-container"></div>
+  </div>
 
   <!-- ══════════════════════════════════════
        PLAYER BOARD / TRACKS (collapsible overlay)
@@ -426,7 +430,7 @@
      All track controllers register themselves here
      so the gather board can apply card effects.
   ═══════════════════════════════════════════ */
-  const playerState = {
+  var playerState = {
     food:     { value: 7,  set: null },
     health:   { value: 7,  set: null },
     sanity:   { value: 7,  set: null },
@@ -455,7 +459,7 @@
   /* ═══════════════════════════════════════════
      GAME LOG
   ═══════════════════════════════════════════ */
-  const gameLog = (() => {
+  var gameLog = (() => {
     let turnNum = 0;
     let entryCount = 0;
 
@@ -551,7 +555,7 @@
   /* ═══════════════════════════════════════════
      GAME OVER
   ═══════════════════════════════════════════ */
-  let gameOver = false;
+  var gameOver = false;
 
   const GAME_OVER_DEFS = {
     health: {
@@ -716,7 +720,7 @@
 
       const noteEl = document.getElementById('lt-deck-note');
       const pool = deckPass === 1 ? sprawlPool : hivePool;
-      noteEl.textContent = `A draft awaits — choose ${getDraftPick()} cards from ${Math.min(getDraftDraw(), pool.length)} available`;
+      noteEl.textContent = `A draft awaits — choose ${getDraftPick(gameDealCount)} cards from ${Math.min(getDraftDraw(gameDealCount), pool.length)} available`;
 
       const btn = document.getElementById('lt-continue-btn');
       btn.className = `lt-continue-btn ${loc.btnClass}`;
@@ -788,10 +792,10 @@
     };
 
     // Item cost_modifier mechanisms
-    costs = applyItemCostModifiers(slotIndex, costs);
+    costs = applyItemCostModifiers(slotIndex, costs, itemSlots);
 
     // Future flicker mutant: −1 threat on slots 4 & 5, min 1
-    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
+    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker', mutantCards)) {
       costs.threat = Math.max(1, costs.threat - 1);
     }
     return costs;
@@ -799,32 +803,25 @@
 
   // Populated from gather-track.json by loadGatherTrack()
   let SEPARATORS_AFTER = new Set();
-  let DRAW_SLOTS = 5;
+  var DRAW_SLOTS = 5;
 
-  let fullDeck      = [];
-  let drawPile      = [];
-  let discardPile   = [];   // cards that have been played/passed through
-  let deckPass          = 0;  // 0=Road, 1=Sprawl, 2=Hive, 3+=Sanctuary
-  let gameDealCount     = 30; // set at difficulty selection; drives draft size
+  var fullDeck      = [];
+  var drawPile      = [];
+  var discardPile   = [];   // cards that have been played/passed through
+  var deckPass          = 0;  // 0=Road, 1=Sprawl, 2=Hive, 3+=Sanctuary
+  var gameDealCount     = 30; // set at difficulty selection; drives draft size
   let deckLaps          = 0;  // how many times the full deck has been cycled
-  let passStartDeckSize = 0;  // drawPile size at start of current location
-  let lootZones     = [];
-  let slotCards     = [];   // card data currently in each slot (null if empty)
-  let cardSelected  = false; // has a card been selected this round?
+  var passStartDeckSize = 0;  // drawPile size at start of current location
+  var lootZones     = [];
+  var slotCards     = [];   // card data currently in each slot (null if empty)
+  var cardSelected  = false; // has a card been selected this round?
   // Injured monsters: one entry per slot. null = none; otherwise { card, originalStrength, remainingStrength }
-  let injuredMonsters = [null, null, null, null, null];
+  var injuredMonsters = [null, null, null, null, null];
   let retainedSlot = null; // { card, slotIndex } — card kept on board after battle loss
   let suppressThreatNextPick = false; // Walkie-talkie: skip all threats on next pick
   let tempStrBonus = 0;               // Adrenaline shot: +3 STR for one battle, then reset
 
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
+
 
   const LOCATION_DEFS = [
     { id: 'road',       icon: '🛣️',  label: 'The Road'     },
@@ -1002,7 +999,7 @@
       const costIcon = m.cost === 'food' ? '🌾' : m.cost === 'health' ? '❤️' : m.cost === 'sanity' ? '🧠' : m.cost === 'threat' ? '☣' : '🧬';
       mods.push(`${sign}${m.amount} ${costIcon} from ${card.name}`);
     }
-    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker')) {
+    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 ☣ from Future Flicker');
     }
     if (mods.length > 0) {
@@ -1210,39 +1207,7 @@
      No hardcoded card-name checks outside this block.
   ═══════════════════════════════════════════ */
 
-  // ── cost_modifier: called from getEffectiveCosts ──────────────────
-  function applyItemCostModifiers(slotIndex, costs) {
-    let { food, threat, mutation, health, sanity } = costs;
-    for (const card of itemSlots) {
-      if (!card?.mechanism || card.mechanism.type !== 'cost_modifier') continue;
-      const m = card.mechanism;
-      if (!m.slots.includes(slotIndex)) continue;
-      if (m.cost === 'food')     food     = Math.max(m.min, food     + m.amount);
-      if (m.cost === 'threat')   threat   = Math.max(m.min, threat   + m.amount);
-      if (m.cost === 'mutation') mutation = Math.max(m.min, mutation + m.amount);
-      if (m.cost === 'health')   health   = Math.max(m.min, health   + m.amount);
-      if (m.cost === 'sanity')   sanity   = Math.max(m.min, sanity   + m.amount);
-    }
-    return { food, threat, mutation, health, sanity };
-  }
 
-  // ── battle_str: called when computing effective player STR ────────
-  // Returns { bonus, labels } where labels is an array of display strings
-  function getItemBattleStrBonus(usingWeapon, weaponCard) {
-    let bonus = 0;
-    const labels = [];
-    for (const card of itemSlots) {
-      if (!card?.mechanism || card.mechanism.type !== 'battle_str') continue;
-      const m = card.mechanism;
-      if (m.condition === 'weapon_class') {
-        if (!usingWeapon || !weaponCard) continue;
-        if (!m.weapon_classes.includes(weaponCard.weapon_class)) continue;
-      }
-      bonus += m.bonus;
-      labels.push(`+${m.bonus} ${card.name.toLowerCase()}`);
-    }
-    return { bonus, labels };
-  }
 
   // ── passive_event / battle_win_or_tie ─────────────────────────────
   // Returns array of toast/log lines
@@ -1468,9 +1433,9 @@
   /* ═══════════════════════════════════════════
      INVENTORY
   ═══════════════════════════════════════════ */
-  const inventory = { weapon: null };
+  var inventory = { weapon: null };
   // Item slots: always 3
-  let itemSlots      = [null, null, null]; // array of card|null
+  var itemSlots      = [null, null, null]; // array of card|null
   let itemUsesArr    = [0, 0, 0];          // parallel array of remaining uses
   const itemSlotsCount = 3;
 
@@ -1479,7 +1444,7 @@
 
   // ── Armor slots (armor variant only) ─────────────────────────────
   // Each slot: null | { card, pips: { health: N, sanity: N, mutation: N } }
-  const armorSlots = { head: null, body: null, misc: null };
+  var armorSlots = { head: null, body: null, misc: null };
   const ARMOR_SLOT_IDS = { head: 'inv-armor-head', body: 'inv-armor-body', misc: 'inv-armor-acc' };
   const ARMOR_SLOT_LABELS = { head: '🪖 Head', body: '🧥 Body', misc: '📿 Misc' };
 
@@ -2040,148 +2005,6 @@
     }
   }
 
-  /* ═══════════════════════════════════════════
-     MUTANT DECK
-  ═══════════════════════════════════════════ */
-  let mutantFull  = [];
-  let mutantPile  = [];
-  let mutantCards = []; // cards the player currently holds
-  let _pendingMutantSpots = 0; // count of mutation thresholds crossed, awaited by game flow
-
-  async function loadMutantDeck() {
-    try {
-      const res  = await fetch('mutant-deck.json?v=' + Date.now());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      mutantFull = data.mutant_deck;
-      mutantPile = shuffle([...mutantFull]);
-      console.log(`✓ Loaded ${mutantFull.length} mutant cards`);
-    } catch (e) {
-      console.warn('Could not load mutant-deck.json:', e.message);
-    }
-  }
-
-  function drawMutantCard() {
-    if (mutantPile.length === 0) mutantPile = shuffle([...mutantFull]);
-    return mutantPile.splice(0, 1)[0] ?? null;
-  }
-
-  function hasMutant(effect) {
-    return mutantCards.some(c => c.effect === effect);
-  }
-
-  function countMutants(effect) {
-    return mutantCards.filter(c => c.effect === effect).length;
-  }
-
-  function renderMutantPanel() {
-    const panel = document.getElementById('mutant-cards-panel');
-    const container = document.getElementById('mutant-tags-container');
-    container.innerHTML = '';
-    if (mutantCards.length === 0) { panel.style.display = 'none'; return; }
-    panel.style.display = '';
-    mutantCards.forEach(c => {
-      // Render as a loot-style card by building a synthetic card object
-      const synth = {
-        name: c.name,
-        type: 'mutant',
-        icon: c.icon ?? '🧬',
-        effects: {},
-        text: c.text,
-      };
-      const cardEl = renderCard(synth);
-      cardEl.addEventListener('mouseenter', () => showMagnifier(synth, cardEl));
-      cardEl.addEventListener('mouseleave', hideMagnifier);
-      container.appendChild(cardEl);
-    });
-  }
-
-  /* ── Show mutant card choice dialog (draw 2, pick 1) ── */
-  let mutantResolve = null;
-
-  function buildMutantCardEl(card) {
-    const wrap = document.createElement('div');
-    wrap.className = 'mutant-choice-card';
-
-    const nameEl = document.createElement('div');
-    nameEl.className = 'mutant-card-name';
-    nameEl.textContent = card.name;
-    wrap.appendChild(nameEl);
-
-    if (card.icon) wrap.appendChild(createIconEl(card.icon, card.name, 'mutant-card-icon'));
-
-    const effEl = document.createElement('div');
-    effEl.className = 'mutant-card-effect';
-    effEl.textContent = card.text;
-    wrap.appendChild(effEl);
-
-    const btn = document.createElement('button');
-    btn.className = 'mutant-choose-btn';
-    btn.textContent = 'Choose';
-    wrap.appendChild(btn);
-
-    return { wrap, btn };
-  }
-
-  function promptMutantChoice(cardA, cardB) {
-    return new Promise(resolve => {
-      mutantResolve = resolve;
-      const row = document.getElementById('mutant-choice-row');
-      row.innerHTML = '';
-
-      const { wrap: wrapA, btn: btnA } = buildMutantCardEl(cardA);
-      const { wrap: wrapB, btn: btnB } = buildMutantCardEl(cardB);
-
-      btnA.addEventListener('click', () => {
-        document.getElementById('mutant-dialog').classList.remove('open');
-        if (mutantResolve) { mutantResolve(cardA); mutantResolve = null; }
-      });
-      btnB.addEventListener('click', () => {
-        document.getElementById('mutant-dialog').classList.remove('open');
-        if (mutantResolve) { mutantResolve(cardB); mutantResolve = null; }
-      });
-
-      // Clicking the card itself also chooses it
-      wrapA.addEventListener('click', e => { if (e.target !== btnA) btnA.click(); });
-      wrapB.addEventListener('click', e => { if (e.target !== btnB) btnB.click(); });
-
-      row.appendChild(wrapA);
-      row.appendChild(wrapB);
-      document.getElementById('mutant-dialog').classList.add('open');
-    });
-  }
-
-  /* ── Called when mutation track marker lands on a card-spot ── */
-  async function onMutantCardSpot() {
-    const cardA = drawMutantCard();
-    if (!cardA) return;
-    const cardB = drawMutantCard();
-    if (!cardB) {
-      // Fallback: only one card available — auto-accept it
-      mutantCards.push(cardA);
-      renderMutantPanel();
-      updateSlotCosts();
-      return;
-    }
-    const chosen = await promptMutantChoice(cardA, cardB);
-    const rejected = chosen === cardA ? cardB : cardA;
-    mutantCards.push(chosen);
-    // Return the rejected card to the pile (shuffled back in)
-    mutantPile.push(rejected);
-    mutantPile = shuffle(mutantPile);
-    renderMutantPanel();
-    // Refresh board costs — some mutations affect slot costs (e.g. future_flicker)
-    updateSlotCosts();
-  }
-
-  /* Await all pending mutation card picks before continuing game flow */
-  async function drainMutantSpots() {
-    while (_pendingMutantSpots > 0) {
-      _pendingMutantSpots--;
-      await onMutantCardSpot();
-    }
-  }
-
   function drawThreatCard() {
     const locationNames = ['The Road', 'The Sprawl', 'The Hive'];
     const currentLocation = locationNames[Math.min(deckPass, 2)];
@@ -2240,11 +2063,11 @@
     const weaponBonus = usingWeapon ? (weapon.strength ?? 0) : 0;
     const sanityMod = getSanityStrModifier();
     const isMelee = weapon && weapon.weapon_class === 'melee';
-    const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+    const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
     // Mutant bonuses
-    const tuskBonus     = countMutants('forehead_tusk') * 2;
-    const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
-    const extraArmBonus = (hasMutant('extra_arm') && isMelee && weaponBonus > 0) ? 3 : 0;
+    const tuskBonus     = countMutants('forehead_tusk', mutantCards) * 2;
+    const hiveMindBonus = (hasMutant('hive_mind', mutantCards) && deckPass >= 2) ? 3 : 0;
+    const extraArmBonus = (hasMutant('extra_arm', mutantCards) && isMelee && weaponBonus > 0) ? 3 : 0;
     return base + weaponBonus + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
   }
 
@@ -2359,10 +2182,10 @@
         const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
         const isMelee      = weapon && weapon.weapon_class === 'melee';
         // Mutant bonuses
-        const tuskBonus     = countMutants('forehead_tusk') * 2;
-        const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
+        const tuskBonus     = countMutants('forehead_tusk', mutantCards) * 2;
+        const hiveMindBonus = (hasMutant('hive_mind', mutantCards) && deckPass >= 2) ? 3 : 0;
         // extra_arm: +3 STR only when using a melee weapon
-        const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
+        const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm', mutantCards) && usingMelee) ? 3 : 0;
         // Adrenaline (pre_battle active): +N STR for this battle only
         const adrenalineBonus = tempStrBonus;
         // Environment bonus from weapon's env_bonuses array
@@ -2433,7 +2256,7 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
-          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
+          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
           const activeEnvBonus = usingWeapon ? envBonus : 0;
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
@@ -2487,7 +2310,7 @@
         } else {
           // No weapon: static bare-hand breakdown
           const sanityModBare = getSanityStrModifier();
-          const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null);
+          const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null, itemSlots);
           const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
           strRows.appendChild(makeBsrRow('Base', baseStr, 'str-base'));
           bareItemLabels.forEach(lbl => {
@@ -2512,7 +2335,7 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
-          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
           const activeEnvBonus = usingWeapon ? envBonus : 0;
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
@@ -2556,7 +2379,7 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
-          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+          const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
 
@@ -2587,11 +2410,11 @@
               showToast('🏹 Hunter — food +2', false, 2400);
             }
             // Mutant bonuses
-            if (hasMutant('feral_instinct')) {
+            if (hasMutant('feral_instinct', mutantCards)) {
               if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
               showToast('🧬 Feral instinct — food +2', false, 2400);
             }
-            if (hasMutant('hardened_skin')) {
+            if (hasMutant('hardened_skin', mutantCards)) {
               const restorable = Object.entries(armorSlots).find(([k, slot]) => {
                 if (!slot) return false;
                 return Object.keys(slot.card.absorb).some(stat => (slot.pips[stat] ?? 0) < slot.card.absorb[stat]);
@@ -2921,9 +2744,9 @@
       const hasWeapon  = weapon != null && weaponUsesRemaining > 0;
       const isProjectile = weapon && (weapon.weapon_class === 'ranged' || weapon.weapon_class === 'explosive');
       const isMelee      = weapon && weapon.weapon_class === 'melee';
-      const tuskBonus     = countMutants('forehead_tusk') * 2;
-      const hiveMindBonus = (hasMutant('hive_mind') && deckPass >= 2) ? 3 : 0;
-      const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm') && usingMelee) ? 3 : 0;
+      const tuskBonus     = countMutants('forehead_tusk', mutantCards) * 2;
+      const hiveMindBonus = (hasMutant('hive_mind', mutantCards) && deckPass >= 2) ? 3 : 0;
+      const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm', mutantCards) && usingMelee) ? 3 : 0;
       let usingWeapon = hasWeapon;
 
       const battleRow = document.createElement('div');
@@ -2960,7 +2783,7 @@
           const usingMelee = usingWeapon && isMelee;
           const extraArmBonus = getExtraArmBonus(usingMelee);
           const sanityMod = getSanityStrModifier();
-          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon);
+          const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
           const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                        + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
           const weaponLabel   = usingWeapon       ? `+${weaponStr} weapon` : '';
@@ -2989,7 +2812,7 @@
         updatePlayerSide();
       } else {
         const sanityModBare2 = getSanityStrModifier();
-        const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null);
+        const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null, itemSlots);
         const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + sanityModBare2;
         const bareLabels = [
           ...bareItemLabels,
@@ -3011,7 +2834,7 @@
       function updateOutcome() {
         const usingMelee = usingWeapon && isMelee;
         const extraArmBonus = getExtraArmBonus(usingMelee);
-        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
         const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                      + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus;
         outcomeEl.className = 'battle-outcome';
@@ -3052,7 +2875,7 @@
         btn.removeEventListener('click', handler);
         const usingMelee = usingWeapon && isMelee;
         const extraArmBonus = getExtraArmBonus(usingMelee);
-        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon);
+        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
         const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                      + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus;
 
@@ -3082,7 +2905,7 @@
             if (playerState.food.set) playerState.food.set(nf);
             showToast('🔥 Matches — food +1', false, 2000);
           }
-          if (hasMutant('feral_instinct')) {
+          if (hasMutant('feral_instinct', mutantCards)) {
             const ff = Math.min(maxFood, playerState.food.value + 2);
             if (playerState.food.set) playerState.food.set(ff);
             showToast('🧬 Feral instinct — food +2', false, 2400);
@@ -3257,7 +3080,7 @@
     let { food: foodCost, threat: threatCount, mutation: mutationCost, health: healthCost, sanity: sanityCost } = getEffectiveCosts(slotIndex);
 
     // Glowing fingers mutant: −1 threat when picking up an item card (min 0)
-    if (card.type === 'item' && hasMutant('glowing_fingers')) {
+    if (card.type === 'item' && hasMutant('glowing_fingers', mutantCards)) {
       threatCount = Math.max(0, threatCount - 1);
     }
     // Gas mask: −1 mutation cost in The Hive (min 0)
@@ -3373,7 +3196,7 @@
           effectLines.push(...gatherBonusLines);
           // Regenerative tissue mutant: stacks with gather_gain items — +1 extra health per mutation card on health gain
           if (track === 'health' && rounded > 0) {
-            const regenCount = countMutants('regenerative_tissue');
+            const regenCount = countMutants('regenerative_tissue', mutantCards);
             if (regenCount > 0) {
               const regenHealth = Math.min(10, playerState.health.value + regenCount);
               if (playerState.health.set) playerState.health.set(regenHealth);
@@ -3382,7 +3205,7 @@
           }
           // Loss of fear mutant: +1 extra sanity per mutation card on sanity gain
           if (track === 'sanity' && rounded > 0) {
-            const fearCount = countMutants('loss_of_fear');
+            const fearCount = countMutants('loss_of_fear', mutantCards);
             if (fearCount > 0) {
               const fearSanity = Math.min(10, playerState.sanity.value + fearCount);
               if (playerState.sanity.set) playerState.sanity.set(fearSanity);
@@ -3655,7 +3478,7 @@
       const costName = STAT_LABELS[m.cost] ?? m.cost;
       mods.push(`${sign}${m.amount} ${costName} from ${card.name}`);
     }
-    if ((index === 3 || index === 4) && hasMutant('future_flicker')) {
+    if ((index === 3 || index === 4) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 threat from Future Flicker');
     }
     if (mods.length > 0) tip += '\n' + mods.map(m => `• ${m}`).join('\n');
@@ -3821,212 +3644,6 @@
   const slotsRow = document.getElementById('slots-row');
   // rebuildSlotsRow() is called in startGame() after loadGatherTrack() populates the data
 
-
-  let sprawlPool = [];  // 12 Sprawl cards, drawn from during draft
-  let hivePool   = [];  // 12 Hive cards, drawn from during draft
-
-  async function loadDeck(dealCount = 40, excludeName = null) {
-    const titleEl = document.getElementById('gather-board-title');
-    try {
-      const res = await fetch('loot-deck.json?v=' + Date.now());
-      if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the same folder?`);
-      const data = await res.json();
-      if (!data.loot_deck || !Array.isArray(data.loot_deck)) throw new Error('Unexpected JSON structure');
-      fullDeck = data.loot_deck;
-
-      // Separate by location
-      let roadCards = shuffle(fullDeck.filter(c => c.location === 'road'));
-      sprawlPool    = shuffle(fullDeck.filter(c => c.location === 'sprawl'));
-      hivePool      = shuffle(fullDeck.filter(c => c.location === 'hive'));
-
-      // Remove starting gear card from road pool before dealing so draw pile is always full
-      if (excludeName) {
-        const idx = roadCards.findIndex(c => c.name === excludeName);
-        if (idx >= 0) roadCards.splice(idx, 1);
-      }
-
-      // Deal N road cards to draw pile; the rest are permanently set aside
-      drawPile          = roadCards.slice(0, dealCount);
-      passStartDeckSize = drawPile.length;
-
-      console.log(`✓ Deck: ${drawPile.length} road cards dealt, ${roadCards.length - drawPile.length} road set aside${excludeName ? ` (excluded: ${excludeName})` : ''}`);
-      console.log(`✓ Sprawl pool: ${sprawlPool.length} | Hive pool: ${hivePool.length}`);
-      updateDeckCount();
-    } catch (e) {
-      if (titleEl) { titleEl.textContent = `⚠ ${e.message}`; titleEl.style.color = '#c94040'; }
-      drawBtn.disabled = true;
-    }
-  }
-
-  /* ── Starting gear pick: show 3 random road items/weapons, player picks 1 ── */
-  function runStartingGearPick() {
-    return new Promise(resolve => {
-      // Pull 3 random item or weapon cards from the road portion of the full deck
-      // (drawPile already sliced; sample from fullDeck road items/weapons instead,
-      //  avoiding cards already in the draw pile by sampling from the full filtered pool)
-
-      const eligible = shuffle(
-        fullDeck.filter(c => c.location === 'road' && (c.type === 'item' || c.type === 'weapon'))
-      ).slice(0, 3);
-
-      if (eligible.length === 0) { resolve(null); return; }
-
-      const dialog    = document.getElementById('starting-gear-dialog');
-      const titleEl   = document.getElementById('sg-title');
-      const subtitleEl= document.getElementById('sg-subtitle');
-      const cardsEl   = document.getElementById('sg-cards');
-      const confirmBtn= document.getElementById('sg-confirm-btn');
-
-      titleEl.textContent    = '⚙ Starting Gear';
-      subtitleEl.textContent = 'You scavenged something before setting out. Choose one to keep.';
-      confirmBtn.disabled    = true;
-      cardsEl.innerHTML      = '';
-      // Dialog is already open from page load — no classList.add needed
-      let chosen = null;
-
-      const wraps = eligible.map((card) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'draft-card-wrap';
-
-        const check = document.createElement('div');
-        check.className = 'draft-check';
-        check.textContent = '✓';
-        wrap.appendChild(check);
-        wrap.appendChild(renderCard(card));
-        wrap.addEventListener('mouseenter', () => showMagnifier(card, wrap));
-        wrap.addEventListener('mouseleave', hideMagnifier);
-
-        wrap.addEventListener('click', () => {
-          // Deselect all, select this one
-          wraps.forEach(w => w.classList.remove('draft-selected'));
-          wrap.classList.add('draft-selected');
-          chosen = card;
-          confirmBtn.disabled = false;
-        });
-
-        cardsEl.appendChild(wrap);
-        return wrap;
-      });
-
-      confirmBtn.onclick = () => {
-        dialog.classList.remove('open');
-        resolve(chosen);
-      };
-    });
-  }
-
-  /* ── Draft phase: pick (dealCount/5) from pool, pool size = pick+3 ── */
-  function getDraftPick() { return Math.floor(gameDealCount / 5); }
-  function getDraftDraw() { return getDraftPick() + 3; }
-
-  function runDraftPhase(pool, locationName) {
-    return new Promise(resolve => {
-      if (pool.length === 0) { resolve([]); return; }
-
-      const DRAFT_PICK = getDraftPick();
-      const DRAFT_DRAW = getDraftDraw();
-
-      // Draw up to DRAFT_DRAW from pool
-      const drawn = pool.splice(0, Math.min(DRAFT_DRAW, pool.length));
-      const selected = new Set();
-
-      const dialog    = document.getElementById('draft-dialog');
-      const titleEl   = document.getElementById('draft-title');
-      const subtitleEl= document.getElementById('draft-subtitle');
-      const progressEl= document.getElementById('draft-progress');
-      const cardsEl   = document.getElementById('draft-cards');
-      const confirmBtn= document.getElementById('draft-confirm-btn');
-
-      titleEl.textContent    = `📦 Entering ${locationName} — Choose Your Supplies`;
-      subtitleEl.textContent = `Select ${DRAFT_PICK} cards to add to your deck. The rest return to the pool.`;
-      progressEl.textContent = `0 / ${DRAFT_PICK} selected`;
-      confirmBtn.disabled    = true;
-      cardsEl.innerHTML      = '';
-
-      const wraps = drawn.map((card, i) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'draft-card-wrap';
-
-        const check = document.createElement('div');
-        check.className = 'draft-check';
-        check.textContent = '✓';
-        wrap.appendChild(check);
-        wrap.appendChild(renderCard(card));
-        wrap.addEventListener('mouseenter', () => showMagnifier(card, wrap));
-        wrap.addEventListener('mouseleave', hideMagnifier);
-
-        wrap.addEventListener('click', () => {
-          if (selected.has(i)) {
-            selected.delete(i);
-            wrap.classList.remove('draft-selected');
-          } else {
-            if (selected.size >= DRAFT_PICK) return;
-            selected.add(i);
-            wrap.classList.add('draft-selected');
-          }
-          // Disable unselected cards once limit reached
-          const full = selected.size >= DRAFT_PICK;
-          wraps.forEach((w, j) => {
-            if (!selected.has(j)) w.classList.toggle('draft-disabled', full);
-          });
-          progressEl.textContent = `${selected.size} / ${DRAFT_PICK} selected`;
-          confirmBtn.disabled = selected.size < DRAFT_PICK;
-        });
-
-        cardsEl.appendChild(wrap);
-        return wrap;
-      });
-
-      dialog.classList.add('open');
-
-      confirmBtn.onclick = () => {
-        dialog.classList.remove('open');
-        const picked = drawn.filter((_, i) => selected.has(i));
-        const returned = drawn.filter((_, i) => !selected.has(i));
-        // Return unkept cards to the pool (back of pool, order doesn't matter)
-        returned.forEach(c => pool.push(c));
-        gameLog.add(`📦 Draft: kept ${picked.map(c => c.name).join(', ')}`, 'gold');
-        resolve(picked);
-      };
-    });
-  }
-  let dvActiveFilter = 'all';
-
-  function openDiscardViewer() {
-    renderDiscardViewer();
-    document.getElementById('discard-viewer').classList.add('open');
-  }
-
-  function renderDiscardViewer() {
-    const pile = [...discardPile].reverse(); // most recent first
-    const filtered = dvActiveFilter === 'all'
-      ? pile
-      : pile.filter(c => c.type === dvActiveFilter);
-
-    document.getElementById('dv-count').textContent =
-      `${discardPile.length} card${discardPile.length !== 1 ? 's' : ''}`;
-
-    const grid = document.getElementById('dv-grid');
-    grid.innerHTML = '';
-
-    if (filtered.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'dv-empty';
-      empty.textContent = discardPile.length === 0
-        ? 'The discard pile is empty.'
-        : 'No cards of this type in the discard pile.';
-      grid.appendChild(empty);
-      return;
-    }
-
-    filtered.forEach(card => {
-      const wrap = document.createElement('div');
-      wrap.className = 'dv-card-wrap';
-      wrap.appendChild(renderCard(card));
-      grid.appendChild(wrap);
-    });
-  }
-
   document.getElementById('dv-close-btn').addEventListener('click', () => {
     document.getElementById('discard-viewer').classList.remove('open');
   });
@@ -4068,7 +3685,7 @@
     hunter:       { label: 'Hunter',       startGear: 'Bow and arrows',  strBonus: 0, ability: '🏹 Gain +2 food on battle win/tie' },
   };
   const character = sessionStorage.getItem('character') ?? 'soldier';
-  const charDef   = CHARACTER_DEFS[character] ?? CHARACTER_DEFS.soldier;
+  var charDef   = CHARACTER_DEFS[character] ?? CHARACTER_DEFS.soldier;
   gameDealCount = _session.deal;
   playerState.food.value     = _session.food;
   playerState.health.value   = _session.health;
@@ -4385,920 +4002,6 @@
   // Show chrome immediately
   document.getElementById('restart-btn').style.display = 'block';
   document.getElementById('rules-btn-game').style.display = 'flex';
-
-  /* ══════════════════════════════════════════════════════════════
-     MULTIPLAYER MODULE
-     All code in this block is gated on isMultiplayer === true.
-     Solo paths are never touched.
-  ══════════════════════════════════════════════════════════════ */
-
-  const isMultiplayer  = sessionStorage.getItem('multiplayer') === 'true';
-  const mpGameCode     = sessionStorage.getItem('gameCode');
-  const mpPlayerId     = sessionStorage.getItem('playerId');
-  // Consumed once: true when arriving directly from the lobby (not a browser refresh/reconnect)
-  const mpFreshStart   = sessionStorage.getItem('mpFreshStart') === 'true';
-  sessionStorage.removeItem('mpFreshStart');
-
-  let mpIsHost    = false;   // true if this client created the game
-  let mpMyName    = '';      // display name from Firebase
-  let mpRound     = null;    // latest round snapshot from Firebase
-  let mpAllPlayers = {};     // all players snapshot from Firebase
-
-  // Unsubscribe handles — cleaned up on game over / page unload
-  let _mpUnsubRound = null, _mpUnsubShared = null,
-      _mpUnsubPlayers = null, _mpUnsubMeta = null;
-
-  // ── Overlay helpers ─────────────────────────────────────────────────
-  function mpShowWaiting(name) {
-    document.getElementById('mp-turn-name').textContent = name || 'another player';
-    document.getElementById('mp-turn-overlay').classList.remove('mp-hidden');
-  }
-  function mpHideWaiting() {
-    document.getElementById('mp-turn-overlay').classList.add('mp-hidden');
-  }
-
-  // ── Visual: gray out a slot that was just claimed without clearing others ──
-  function mpMarkSlotClaimed(slotIndex) {
-    const zone = lootZones[slotIndex];
-    if (!zone) return;
-    slotCards[slotIndex] = null;
-    zone.innerHTML = '';
-    zone.classList.remove('has-card', 'locked');
-    zone.classList.add('slot-disabled');
-    const icon = document.createElement('span');
-    icon.className = 'loot-icon';
-    icon.textContent = '✓';
-    zone.appendChild(icon);
-    const lbl = document.createElement('div');
-    lbl.className = 'loot-label';
-    lbl.textContent = 'taken';
-    zone.appendChild(lbl);
-  }
-
-  // ── Render a sparse slotCards array (some slots may be null/claimed) ──
-  function mpApplySlotCards(stateSlotCards) {
-    if (!stateSlotCards) return;
-    const arr = Array.isArray(stateSlotCards)
-      ? stateSlotCards
-      : Object.values(stateSlotCards); // Firebase can return objects for arrays
-    slotCards = Array(DRAW_SLOTS).fill(null);
-    lootZones.slice(0, DRAW_SLOTS).forEach((zone, i) => {
-      const card = arr[i] ?? null;
-      zone.innerHTML = '';
-      zone.classList.remove('has-card', 'locked', 'slot-disabled');
-      if (!card) {
-        zone.classList.add('slot-disabled');
-        const icon = document.createElement('span');
-        icon.className = 'loot-icon';
-        icon.textContent = '📦';
-        zone.appendChild(icon);
-      } else {
-        slotCards[i] = card;
-        zone.classList.add('has-card');
-        zone.appendChild(renderCard(card));
-        zone.addEventListener('mouseenter', () => showMagnifier(card, zone, i));
-        zone.addEventListener('mouseleave', hideMagnifier);
-      }
-    });
-  }
-
-  // ── Sync this player's stats to Firebase ──
-  function mpWriteMyState() {
-    if (!isMultiplayer) return Promise.resolve();
-    return dbUpdate(playerPath(mpGameCode, mpPlayerId), {
-      food:     playerState.food.value,
-      health:   playerState.health.value,
-      sanity:   playerState.sanity.value,
-      mutation: playerState.mutation.value,
-    });
-  }
-
-  // ── Write shared board / deck state to Firebase (active player writes this) ──
-  function mpWriteSharedState(currentSlotCards) {
-    if (!isMultiplayer) return Promise.resolve();
-    // Ensure no undefined in arrays (Firebase rejects undefined)
-    const safeSlots = (currentSlotCards || slotCards).map(c => c ?? null);
-    return dbSet(sharedStatePath(mpGameCode), {
-      slotCards:       safeSlots,
-      drawPile:        drawPile,
-      discardPile:     discardPile,
-      injuredMonsters: injuredMonsters,
-      deckPass:        deckPass,
-    });
-  }
-
-  // ── Ally sidebar ──────────────────────────────────────────────────────
-  function mpRenderAllySidebar(players) {
-    const el = document.getElementById('mp-ally-sidebar');
-    if (!el) return;
-    el.innerHTML = '';
-    const others = Object.entries(players).filter(([id]) => id !== mpPlayerId);
-    others.forEach(([id, p]) => {
-      const card = document.createElement('div');
-      card.className = 'mp-ally-card' + (id === mpRound?.activePlayerId ? ' mp-ally-active' : '');
-      card.innerHTML =
-        `<div class="mp-ally-name">${p.name ?? 'Ally'}</div>` +
-        `<div class="mp-ally-stats">` +
-        `<span>🌾 ${p.food ?? '?'}</span>` +
-        `<span>🩸 ${p.health ?? '?'}</span>` +
-        `<span>🕯️ ${p.sanity ?? '?'}</span>` +
-        `<span>🧬 ${p.mutation ?? '?'}</span>` +
-        `</div>`;
-      el.appendChild(card);
-    });
-    el.style.display = others.length > 0 ? 'flex' : 'none';
-  }
-
-  // ── Phase 5: Co-op Draft Phase ─────────────────────────────────────
-  // Each player drafts independently. The host assembles the shared drawPile
-  // once everyone has submitted their picks.
-  async function mpRunDraftPhase(pool, locationName) {
-    const draftBasePath = `games/${mpGameCode}/draft`;
-
-    // ── Step A: Host writes per-player draft offers ──
-    const allPlayers = await dbGet(playersPath(mpGameCode));
-    const playerIds  = Object.keys(allPlayers || {});
-    const DRAFT_PICK = getDraftPick();
-    const DRAFT_DRAW = getDraftDraw();
-
-    if (mpIsHost) {
-      // Clear any previous draft data
-      await dbRemove(draftBasePath);
-      // Generate a unique shuffled offer for each player
-      const writes = playerIds.map(id => {
-        const offer = shuffle([...pool]).slice(0, Math.min(DRAFT_DRAW, pool.length));
-        return dbSet(`${draftBasePath}/offers/${id}`, offer);
-      });
-      await Promise.all(writes);
-      // Signal all clients that offers are ready
-      await dbSet(`${draftBasePath}/phase`, 'offering');
-    } else {
-      // Non-host: wait until offers are written
-      await new Promise(resolve => {
-        const unsub = dbListen(`${draftBasePath}/phase`, phase => {
-          if (phase === 'offering') { unsub(); resolve(); }
-        });
-      });
-    }
-
-    // ── Step B: Each player picks from their own offer ──
-    const myOffer = await dbGet(`${draftBasePath}/offers/${mpPlayerId}`);
-    if (!myOffer) return []; // safety
-
-    const offerArr = Array.isArray(myOffer) ? myOffer : Object.values(myOffer);
-    const picked   = await runDraftPhase(offerArr, locationName);
-
-    // Write this player's picks to Firebase
-    await dbSet(`${draftBasePath}/picks/${mpPlayerId}`, picked);
-    gameLog.add(`📦 Draft submitted: ${picked.map(c => c.name).join(', ')}`, 'gold');
-
-    // ── Step C: Show waiting overlay until all players have submitted ──
-    const waitOverlay = document.getElementById('mp-draft-waiting');
-    const waitList    = document.getElementById('mp-draft-wait-list');
-    waitOverlay.classList.remove('hidden');
-
-    const allPicks = await new Promise(resolve => {
-      const unsub = dbListen(`${draftBasePath}/picks`, picks => {
-        // Update the waiting list UI
-        waitList.innerHTML = '';
-        playerIds.forEach(id => {
-          const row = document.createElement('div');
-          row.className = 'mp-draft-wait-row';
-          const name = allPlayers[id]?.name ?? 'Ally';
-          const done = picks?.[id] != null;
-          row.innerHTML = `<span>${name}</span><span class="${done ? 'mp-draft-wait-done' : 'mp-draft-wait-pending'}">${done ? '✓ Ready' : 'Drafting...'}</span>`;
-          waitList.appendChild(row);
-        });
-
-        if (picks && playerIds.every(id => picks[id] != null)) {
-          unsub();
-          resolve(picks);
-        }
-      });
-    });
-
-    waitOverlay.classList.add('hidden');
-
-    // ── Step D: Host assembles the shared drawPile from all picks + discard ──
-    if (mpIsHost) {
-      const allPicked = playerIds.flatMap(id => {
-        const p = allPicks[id];
-        return Array.isArray(p) ? p : Object.values(p || {});
-      });
-      const newDeck = shuffle([...discardPile, ...allPicked]);
-      drawPile        = newDeck;
-      passStartDeckSize = drawPile.length;
-      discardPile     = [];
-      await mpWriteSharedState([...slotCards]);
-      await dbRemove(draftBasePath);
-    } else {
-      // Non-host: wait for host to write the new sharedState drawPile
-      await new Promise(resolve => {
-        const unsub = dbListen(sharedStatePath(mpGameCode), state => {
-          if (state?.drawPile && (Array.isArray(state.drawPile) ? state.drawPile : Object.values(state.drawPile)).length > 0) {
-            drawPile    = Array.isArray(state.drawPile) ? state.drawPile : Object.values(state.drawPile);
-            discardPile = [];
-            passStartDeckSize = drawPile.length;
-            unsub();
-            resolve();
-          }
-        });
-      });
-    }
-
-    updateDeckCount();
-    return [];  // drawPile is set directly; caller doesn't need the array
-  }
-
-  // ── Phase 4: Food Sharing ──────────────────────────────────────────
-  // Called after a food gather when the player ends up at maxFood.
-  // Returns a promise that resolves when the player clicks Done.
-  async function mpOfferFoodShare(excessFood) {
-    if (!isMultiplayer || excessFood <= 0) return;
-
-    const others = Object.entries(mpAllPlayers).filter(([id]) => id !== mpPlayerId);
-    if (others.length === 0) return; // solo in co-op session, nothing to share
-
-    // Build the modal
-    const dialog   = document.getElementById('mp-food-share-dialog');
-    const subEl    = document.getElementById('mp-food-share-sub');
-    const poolEl   = document.getElementById('mp-food-pool-count');
-    const rowsEl   = document.getElementById('mp-food-rows');
-    const confirmBtn = document.getElementById('mp-food-share-confirm');
-
-    let poolLeft = excessFood;
-    const allocations = {}; // playerId → amount to give
-    others.forEach(([id]) => { allocations[id] = 0; });
-
-    subEl.textContent = `You reached max food. Distribute up to ${excessFood} 🌾 to allies.`;
-    poolEl.textContent = poolLeft;
-    rowsEl.innerHTML = '';
-
-    const amountEls = {};
-
-    others.forEach(([id, p]) => {
-      const row = document.createElement('div');
-      row.className = 'mp-food-row';
-      const nameEl = document.createElement('div');
-      nameEl.className = 'mp-food-row-name';
-      nameEl.textContent = `${p.name} (🌾 ${p.food ?? '?'})`;
-      const controls = document.createElement('div');
-      controls.className = 'mp-food-row-controls';
-      const minusBtn = document.createElement('button');
-      minusBtn.className = 'mp-food-adj-btn';
-      minusBtn.textContent = '−';
-      minusBtn.disabled = true;
-      const amtEl = document.createElement('span');
-      amtEl.className = 'mp-food-row-amount';
-      amtEl.textContent = '0';
-      amountEls[id] = amtEl;
-      const plusBtn = document.createElement('button');
-      plusBtn.className = 'mp-food-adj-btn';
-      plusBtn.textContent = '+';
-      plusBtn.disabled = poolLeft <= 0;
-
-      plusBtn.addEventListener('click', () => {
-        if (poolLeft <= 0) return;
-        allocations[id]++;
-        poolLeft--;
-        amtEl.textContent = allocations[id];
-        poolEl.textContent = poolLeft;
-        minusBtn.disabled = false;
-        // Disable all + buttons if pool empty
-        rowsEl.querySelectorAll('.mp-food-adj-btn:last-child').forEach(b => {
-          b.disabled = poolLeft <= 0;
-        });
-      });
-      minusBtn.addEventListener('click', () => {
-        if (allocations[id] <= 0) return;
-        allocations[id]--;
-        poolLeft++;
-        amtEl.textContent = allocations[id];
-        poolEl.textContent = poolLeft;
-        plusBtn.disabled = false;
-        minusBtn.disabled = allocations[id] <= 0;
-      });
-
-      controls.appendChild(minusBtn);
-      controls.appendChild(amtEl);
-      controls.appendChild(plusBtn);
-      row.appendChild(nameEl);
-      row.appendChild(controls);
-      rowsEl.appendChild(row);
-    });
-
-    dialog.classList.remove('hidden');
-
-    await new Promise(resolve => {
-      confirmBtn.onclick = () => {
-        confirmBtn.onclick = null;
-        resolve();
-      };
-    });
-
-    dialog.classList.add('hidden');
-
-    // Write food deltas to Firebase for each recipient
-    const writes = Object.entries(allocations).filter(([, amt]) => amt > 0).map(([id, amt]) => {
-      const recipientFood = mpAllPlayers[id]?.food ?? 0;
-      const newFood = Math.min(mpAllPlayers[id]?.food != null ? 10 : 10, recipientFood + amt);
-      gameLog.add(`🌾 Shared ${amt} food with ${mpAllPlayers[id]?.name ?? 'ally'}`, 'good');
-      return dbUpdate(playerPath(mpGameCode, id), { food: newFood });
-    });
-    await Promise.all(writes);
-  }
-
-  // ── Phase 4: Ally Battle System ────────────────────────────────────
-  // Called by the active player when they lose a first battle in co-op.
-  // Returns a promise that resolves to: { won: bool, combinedStr: number }
-  async function mpRequestAllies(card, monsterStr, myStr) {
-    const allyRequestPath = `${roundPath(mpGameCode)}/allyRequest`;
-
-    // Write the request to Firebase — eligible allies will see the banner
-    await dbSet(allyRequestPath, {
-      requesterId:  mpPlayerId,
-      monsterName:  card.name,
-      monsterStr,
-      requesterStr: myStr,
-      allies:       {},
-      resolved:     false,
-    });
-
-    // Show the requester's waiting banner
-    const waitEl   = document.getElementById('mp-ally-waiting');
-    const waitText = document.getElementById('mp-ally-wait-text');
-    waitEl.classList.remove('hidden');
-
-    // Determine eligible allies: those who haven't picked yet this round
-    const players = await dbGet(playersPath(mpGameCode));
-    const eligible = Object.entries(players || {})
-      .filter(([id, p]) => id !== mpPlayerId && !p.hasPickedThisRound);
-
-    if (eligible.length === 0) {
-      // No allies available — fall through to die roll
-      waitEl.classList.add('hidden');
-      await dbRemove(allyRequestPath);
-      return { won: false, combinedStr: myStr };
-    }
-
-    // Poll for ally responses with a 30-second timeout
-    const result = await new Promise(resolve => {
-      let timeout = null;
-      const unsub = dbListen(allyRequestPath, req => {
-        if (!req) { unsub(); resolve({ won: false, combinedStr: myStr }); return; }
-
-        const alliedIds = Object.keys(req.allies || {});
-        const combinedStr = myStr + alliedIds.reduce((sum, id) => {
-          // Use the ally's STR recorded when they answered
-          return sum + (req.allies[id]?.str ?? 0);
-        }, 0);
-
-        waitText.textContent = alliedIds.length > 0
-          ? `${alliedIds.length} ally/allies answered — combined STR: ${combinedStr} vs ${monsterStr}`
-          : 'Calling for allies...';
-
-        // Resolve if we've won or all eligible allies have responded
-        const allAnswered = eligible.every(([id]) =>
-          req.allies?.[id] !== undefined
-        );
-
-        if (combinedStr > monsterStr || allAnswered) {
-          clearTimeout(timeout);
-          unsub();
-          resolve({ won: combinedStr > monsterStr, combinedStr });
-        }
-      });
-
-      timeout = setTimeout(() => {
-        unsub();
-        resolve({ won: false, combinedStr: myStr });
-      }, 30000);
-    });
-
-    waitEl.classList.add('hidden');
-
-    // Mark allies who answered as having used their turn
-    const req = await dbGet(allyRequestPath);
-    const answeredAllies = Object.keys(req?.allies || {});
-    if (answeredAllies.length > 0) {
-      const updates = {};
-      answeredAllies.forEach(id => { updates[`${id}/hasPickedThisRound`] = true; });
-      await dbUpdate(playersPath(mpGameCode), updates);
-    }
-
-    await dbRemove(allyRequestPath);
-    return result;
-  }
-
-  // ── Phase 7: Equipment Sharing ────────────────────────────────────────
-
-  /** Write this player's inventory vacancy flags to Firebase so allies can check for empty slots. */
-  function mpSyncInventorySlots() {
-    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
-    const invSlots = {
-      weapon:          inventory.weapon == null,
-      items:           itemSlots.filter(Boolean).length,
-      armorHead:       armorSlots.head == null,
-      armorBody:       armorSlots.body == null,
-      armorAccessory:  armorSlots.misc == null,
-    };
-    dbUpdate(playerPath(mpGameCode, mpPlayerId), { invSlots }).catch(() => {});
-  }
-
-  /**
-   * Return allies who have an empty slot matching the given card type.
-   * type: 'weapon' | 'item' | 'armor'
-   * armorSlotKey: 'head' | 'body' | 'misc' (only for armor type)
-   */
-  function mpGetEligibleShareAllies(type, armorSlotKey) {
-    return Object.entries(mpAllPlayers)
-      .filter(([id]) => id !== mpPlayerId)
-      .filter(([, p]) => {
-        const s = p.invSlots;
-        if (!s) return false;
-        if (type === 'weapon') return s.weapon === true;
-        if (type === 'item')   return s.items < 3;
-        if (type === 'armor') {
-          if (armorSlotKey === 'head')      return s.armorHead      === true;
-          if (armorSlotKey === 'body')      return s.armorBody      === true;
-          if (armorSlotKey === 'misc')      return s.armorAccessory === true;
-        }
-        return false;
-      })
-      .map(([id, p]) => ({ id, name: p.name ?? 'Ally' }));
-  }
-
-  /** Check whether this player's own inventory can receive a shared card. */
-  function mpCanReceiveCard(type, armorSlotKey) {
-    if (type === 'weapon') return inventory.weapon == null;
-    if (type === 'item')   return firstEmptyItemSlot() >= 0;
-    if (type === 'armor')  return armorSlots[armorSlotKey] == null;
-    return false;
-  }
-
-  /**
-   * Show the recipient picker modal and return the chosen playerId, or null if cancelled.
-   * eligible: array of { id, name }
-   */
-  function mpPromptShareRecipient(eligible, card) {
-    return new Promise(resolve => {
-      const dialog  = document.getElementById('mp-share-picker');
-      const subEl   = document.getElementById('mp-share-picker-sub');
-      const rowsEl  = document.getElementById('mp-share-picker-rows');
-      const cancelBtn = document.getElementById('mp-share-picker-cancel');
-
-      subEl.textContent = `Who should receive ${card.name} (${cardPreviewStat(card)})?`;
-      rowsEl.innerHTML  = '';
-
-      eligible.forEach(({ id, name }) => {
-        const btn = document.createElement('button');
-        btn.className   = 'mp-share-ally-btn';
-        btn.textContent = name;
-        btn.addEventListener('click', () => {
-          dialog.classList.add('hidden');
-          cancelBtn.onclick = null;
-          resolve(id);
-        });
-        rowsEl.appendChild(btn);
-      });
-
-      cancelBtn.onclick = () => {
-        dialog.classList.add('hidden');
-        cancelBtn.onclick = null;
-        resolve(null);
-      };
-
-      dialog.classList.remove('hidden');
-    });
-  }
-
-  /**
-   * Write a share request to Firebase, show the waiting bar, and return
-   * 'accepted' | 'declined' | 'cancelled' when the recipient responds.
-   */
-  async function mpSendShareRequest(toPlayerId, toName, card, type) {
-    const path = `games/${mpGameCode}/shareRequests/${toPlayerId}`;
-
-    await dbSet(path, {
-      fromPlayerId: mpPlayerId,
-      fromName:     mpMyName,
-      card,
-      type,
-      status:    'pending',
-      expiresAt: Date.now() + 60000,
-    });
-
-    const waitEl   = document.getElementById('mp-share-waiting');
-    const waitText = document.getElementById('mp-share-wait-text');
-    const cancelBtn = document.getElementById('mp-share-wait-cancel');
-    waitText.textContent = `Waiting for ${toName} to respond…`;
-    waitEl.classList.remove('hidden');
-
-    const outcome = await new Promise(resolve => {
-      let done = false;
-
-      const finish = (result) => {
-        if (done) return;
-        done = true;
-        unsub();
-        clearTimeout(timer);
-        cancelBtn.onclick = null;
-        waitEl.classList.add('hidden');
-        resolve(result);
-      };
-
-      const unsub = dbListen(path, req => {
-        if (!req)                       return finish('declined');
-        if (req.status === 'accepted')  return finish('accepted');
-        if (req.status === 'declined')  return finish('declined');
-      });
-
-      const timer = setTimeout(() => finish('declined'), 60000);
-
-      cancelBtn.onclick = () => finish('cancelled');
-    });
-
-    await dbRemove(path);
-    return outcome;
-  }
-
-  /**
-   * Apply a card received from an ally directly into this player's inventory.
-   * Assumes the slot vacancy was already verified before the request was accepted.
-   */
-  async function mpApplySharedCard(card, type) {
-    if (type === 'weapon') {
-      setInventorySlot('weapon', card);
-    } else if (type === 'item') {
-      const idx = firstEmptyItemSlot();
-      if (idx >= 0) setItemSlot(idx, card);
-    } else if (type === 'armor') {
-      const slotKey = card.armor_slot;
-      armorSlots[slotKey] = { card, pips: { ...card.absorb } };
-      refreshArmorSlot(slotKey);
-      mpSyncInventorySlots();
-    }
-    await mpWriteMyState();
-  }
-
-  // ── Broadcast game over to all clients ──────────────────────────────
-  function mpTriggerGameOver(reason) {
-    if (!isMultiplayer) return;
-    dbUpdate(metaPath(mpGameCode), {
-      status:         'gameover',
-      gameOverReason: reason,
-      eliminatedName: mpMyName || 'A survivor',
-    }).catch(() => {});
-  }
-
-  // ── Called when the active player finishes their pick ───────────────
-  async function mpAfterPick(slotIndex) {
-    if (!isMultiplayer || !mpRound) return;
-
-    // 1. Sync personal stats and mark this player done
-    await Promise.all([
-      mpWriteMyState(),
-      dbUpdate(playerPath(mpGameCode, mpPlayerId), {
-        hasPickedThisRound:  true,
-        slotPickedThisRound: slotIndex,
-      }),
-    ]);
-
-    // 2. Update claimed slots list and persist current board state
-    const claimedSlots = [...(mpRound.claimedSlots || []), slotIndex];
-    await Promise.all([
-      dbUpdate(roundPath(mpGameCode), { claimedSlots }),
-      mpWriteSharedState([...slotCards]),
-    ]);
-
-    // 3. Read all player states to decide what happens next
-    const allPlayers = await dbGet(playersPath(mpGameCode));
-    if (!allPlayers) return;
-
-    // Treat our own write as committed (Firebase may not reflect it yet)
-    if (allPlayers[mpPlayerId]) allPlayers[mpPlayerId].hasPickedThisRound = true;
-
-    const playerIds = Object.keys(allPlayers);
-    const allPicked = playerIds.every(id => allPlayers[id]?.hasPickedThisRound === true);
-
-    if (allPicked) {
-      await mpStartNewRound(playerIds, mpRound.turnOrder || playerIds);
-    } else {
-      // Advance to the next unpicked player in turn order
-      const order  = mpRound.turnOrder || playerIds;
-      const myIdx  = order.indexOf(mpPlayerId);
-      let nextIdx  = (myIdx + 1) % order.length;
-      const start  = nextIdx;
-      while (allPlayers[order[nextIdx]]?.hasPickedThisRound === true) {
-        nextIdx = (nextIdx + 1) % order.length;
-        if (nextIdx === start) break; // safety fallback
-      }
-      await dbUpdate(roundPath(mpGameCode), { activePlayerId: order[nextIdx] });
-    }
-  }
-
-  // ── End of round: clear board, deal new cards, rotate order ─────────
-  async function mpStartNewRound(playerIds, turnOrder) {
-    // Discard remaining cards from slots that weren't picked
-    clearLootZones();
-
-    if (drawPile.length === 0) {
-      cardSelected = false;
-      // Signal all other clients to enter the draft phase
-      await dbUpdate(roundPath(mpGameCode), { phase: 'draft' });
-      await onDeckExhausted();
-      return;
-    }
-
-    // Deal a new board
-    const slotsRowEl = document.getElementById('slots-row');
-    slotsRowEl.classList.add('redrawing');
-    await new Promise(r => setTimeout(r, 250));
-    const drawn = drawPile.splice(0, Math.min(drawPile.length, DRAW_SLOTS));
-    placeCards(drawn);
-    updateDeckCount();
-    cardSelected = false;
-    updateItemBars();
-    slotsRowEl.classList.remove('redrawing');
-
-    // Rotate turn order: move first element to end
-    const newOrder = [...turnOrder.slice(1), turnOrder[0]];
-
-    // Reset hasPickedThisRound for all players
-    const resetUpdates = {};
-    playerIds.forEach(id => {
-      resetUpdates[`${id}/hasPickedThisRound`]  = false;
-      resetUpdates[`${id}/slotPickedThisRound`] = null;
-    });
-    await dbUpdate(playersPath(mpGameCode), resetUpdates);
-
-    // Persist the new shared state and advance the round
-    await mpWriteSharedState([...slotCards]);
-    await dbUpdate(roundPath(mpGameCode), {
-      number:         (mpRound?.number || 1) + 1,
-      turnOrder:      newOrder,
-      activePlayerId: newOrder[0],
-      claimedSlots:   [],
-      phase:          'picking',
-    });
-  }
-
-  // ── Firebase listeners ───────────────────────────────────────────────
-  function mpInitListeners() {
-    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
-
-    // 1. Round: whose turn, phase, claimed slots
-    _mpUnsubRound = dbListen(roundPath(mpGameCode), round => {
-      if (!round) return;
-      mpRound = round;
-
-      // Draft phase signal: all clients run onDeckExhausted independently
-      if (round.phase === 'draft' && !gameOver) {
-        // Only trigger if not already in the draft (host/last-picker already running it)
-        if (round.activePlayerId !== mpPlayerId) {
-          onDeckExhausted();
-        }
-        return;
-      }
-
-      const isMyTurn = round.activePlayerId === mpPlayerId;
-      if (isMyTurn) {
-        mpHideWaiting();
-        setAllSlotsLocked(false);
-        cardSelected = false;
-      } else {
-        const name = mpAllPlayers[round.activePlayerId]?.name ?? 'Another player';
-        mpShowWaiting(name);
-        setAllSlotsLocked(true);
-      }
-    });
-
-    // 2. Shared board: deck + visible cards — only update when it's NOT my turn
-    _mpUnsubShared = dbListen(sharedStatePath(mpGameCode), state => {
-      if (!state) return;
-      // If it's currently my turn I'm the source of truth — skip
-      if (mpRound?.activePlayerId === mpPlayerId) return;
-
-      drawPile        = Array.isArray(state.drawPile)        ? state.drawPile        : Object.values(state.drawPile        || {});
-      discardPile     = Array.isArray(state.discardPile)     ? state.discardPile     : Object.values(state.discardPile     || {});
-      injuredMonsters = Array.isArray(state.injuredMonsters) ? state.injuredMonsters : Object.values(state.injuredMonsters || {});
-      if (typeof state.deckPass === 'number' && state.deckPass !== deckPass) {
-        deckPass = state.deckPass;
-        updateBoardLocation();
-        updateSlotCosts();
-      }
-      mpApplySlotCards(state.slotCards);
-      updateDeckCount();
-      updateItemBars();
-      // Re-lock after mpApplySlotCards (it strips the locked class during re-render)
-      const isMyTurn = mpRound?.activePlayerId === mpPlayerId;
-      setAllSlotsLocked(!isMyTurn);
-      cardSelected = !isMyTurn;
-    });
-
-    // 3. All players — for ally sidebar + waiting overlay name
-    _mpUnsubPlayers = dbListen(playersPath(mpGameCode), players => {
-      if (!players) return;
-      mpAllPlayers = players;
-      mpRenderAllySidebar(players);
-      if (mpRound && mpRound.activePlayerId !== mpPlayerId) {
-        const name = players[mpRound.activePlayerId]?.name ?? 'Another player';
-        document.getElementById('mp-turn-name').textContent = name;
-      }
-    });
-
-    // 4. Ally request — show banner to eligible non-active players
-    dbListen(`${roundPath(mpGameCode)}/allyRequest`, req => {
-      const banner  = document.getElementById('mp-ally-request');
-      const bodyEl  = document.getElementById('mp-ally-req-body');
-      const yesBtn  = document.getElementById('mp-ally-ans-yes');
-      const noBtn   = document.getElementById('mp-ally-ans-no');
-
-      if (!req || req.resolved || req.requesterId === mpPlayerId) {
-        banner.classList.add('hidden');
-        return;
-      }
-      // Only show to players who haven't picked yet
-      const myData = mpAllPlayers[mpPlayerId];
-      if (myData?.hasPickedThisRound) { banner.classList.add('hidden'); return; }
-
-      const name = mpAllPlayers[req.requesterId]?.name ?? 'Your ally';
-      bodyEl.textContent =
-        `${name} is battling ${req.monsterName} (STR ${req.monsterStr}). ` +
-        `Their STR: ${req.requesterStr}. Will you help?`;
-      banner.classList.remove('hidden');
-
-      // Answer the call
-      yesBtn.onclick = async () => {
-        banner.classList.add('hidden');
-        // Record this ally's STR contribution
-        const myStr = getPlayerStrength();
-        await dbUpdate(`${roundPath(mpGameCode)}/allyRequest/allies/${mpPlayerId}`, { str: myStr });
-        gameLog.add(`⚔ You answered ${name}'s call — your STR ${myStr} added`, 'good');
-      };
-      noBtn.onclick = () => {
-        banner.classList.add('hidden');
-      };
-    });
-
-    // 5. Share requests — incoming equipment offer from an ally
-    dbListen(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, async req => {
-      const banner     = document.getElementById('mp-share-request');
-      const bodyEl     = document.getElementById('mp-share-req-body');
-      const acceptBtn  = document.getElementById('mp-share-req-accept');
-      const declineBtn = document.getElementById('mp-share-req-decline');
-
-      if (!req || req.status !== 'pending' || req.expiresAt < Date.now()) {
-        banner.classList.add('hidden');
-        return;
-      }
-
-      const { card, type, fromName = 'Your ally' } = req;
-      const canAccept = mpCanReceiveCard(type, card.armor_slot);
-
-      bodyEl.textContent =
-        `${fromName} wants to share ${card.name} (${cardPreviewStat(card)}) with you.` +
-        (canAccept ? '' : ' (Your slot is full — cannot accept.)');
-
-      acceptBtn.disabled = !canAccept;
-      banner.classList.remove('hidden');
-
-      acceptBtn.onclick = async () => {
-        banner.classList.add('hidden');
-        acceptBtn.onclick  = null;
-        declineBtn.onclick = null;
-        if (!mpCanReceiveCard(type, card.armor_slot)) {
-          // Slot filled up between offer and accept — auto-decline
-          await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'declined' });
-          return;
-        }
-        await mpApplySharedCard(card, type);
-        await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'accepted' });
-        gameLog.add(`📦 Received ${card.name} from ${fromName}`, 'good');
-      };
-
-      declineBtn.onclick = async () => {
-        banner.classList.add('hidden');
-        acceptBtn.onclick  = null;
-        declineBtn.onclick = null;
-        await dbUpdate(`games/${mpGameCode}/shareRequests/${mpPlayerId}`, { status: 'declined' });
-      };
-    });
-
-    // 6. Remote game log — display other players' events in this client's log panel
-    dbListenChildAdded(logPath(mpGameCode), (_key, entry) => {
-      if (!entry || entry.n === mpMyName) return; // skip own entries (already shown locally)
-      if (!mpGameLog) return;
-      mpGameLog.setReceiving(true);
-      if (entry.c === '_turn') {
-        gameLog.newTurn(`[${entry.n}] ${entry.t}`);
-      } else {
-        gameLog.add(`[${entry.n}] ${entry.t}`, entry.c || '');
-      }
-      mpGameLog.setReceiving(false);
-    });
-
-    // 7. Meta — game over broadcast
-    _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
-      if (!meta) return;
-      if (meta.status === 'gameover' && !gameOver) {
-        const reason = meta.gameOverReason ?? 'health';
-        const name   = meta.eliminatedName ?? 'A survivor';
-        gameLog.add(`💀 ${name} has fallen — the group cannot continue.`, 'warn');
-        // triggerGameOver will check gameOver flag and show the screen
-        if (!gameOver) triggerGameOver(reason);
-      }
-    });
-  }
-
-  // ── Multiplayer init: read Firebase state, override local, start listeners ──
-  async function mpInit() {
-    if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
-
-    const [myData, shared, round] = await Promise.all([
-      dbGet(playerPath(mpGameCode, mpPlayerId)),
-      dbGet(sharedStatePath(mpGameCode)),
-      dbGet(roundPath(mpGameCode)),
-    ]);
-
-    mpIsHost = myData?.isHost === true;
-    mpMyName = myData?.name ?? charDef.label;
-
-    // Detect reconnect: round already has an active player → game is in progress.
-    // mpFreshStart suppresses this when arriving directly from the lobby.
-    const isReconnect = !mpFreshStart && round?.activePlayerId != null;
-
-    if (mpIsHost && !isReconnect) {
-      // Fresh game: host is source of truth — write locally-dealt board to Firebase
-      await mpWriteSharedState([...slotCards]);
-    } else if (shared) {
-      // Non-host on fresh game, OR any player reconnecting: read Firebase as source of truth
-      drawPile        = Array.isArray(shared.drawPile)        ? shared.drawPile        : Object.values(shared.drawPile        || {});
-      discardPile     = Array.isArray(shared.discardPile)     ? shared.discardPile     : Object.values(shared.discardPile     || {});
-      injuredMonsters = Array.isArray(shared.injuredMonsters) ? shared.injuredMonsters : Object.values(shared.injuredMonsters || {});
-      if (typeof shared.deckPass === 'number' && shared.deckPass !== deckPass) {
-        deckPass = shared.deckPass;
-        updateBoardLocation();
-        updateSlotCosts();
-      }
-      mpApplySlotCards(shared.slotCards);
-      updateDeckCount();
-    }
-
-    // On reconnect: restore this player's stats from Firebase
-    if (isReconnect && myData) {
-      if (myData.food     != null && playerState.food.set)     playerState.food.set(myData.food);
-      if (myData.health   != null && playerState.health.set)   playerState.health.set(myData.health);
-      if (myData.sanity   != null && playerState.sanity.set)   playerState.sanity.set(myData.sanity);
-      if (myData.mutation != null && playerState.mutation.set) playerState.mutation.set(myData.mutation);
-      gameLog.add(`🔄 Reconnected to game ${mpGameCode}`, 'gold');
-    }
-
-    // Apply turn lock immediately — before listeners fire — to close the first-turn race window
-    if (round) {
-      mpRound = round;
-      const isMyTurn = round.activePlayerId === mpPlayerId;
-      if (isMyTurn) {
-        // Undo the pre-lock applied before mpInit() ran
-        setAllSlotsLocked(false);
-        cardSelected = false;
-      } else {
-        setAllSlotsLocked(true);
-        cardSelected = true;
-        const allPlayers = await dbGet(playersPath(mpGameCode));
-        mpAllPlayers = allPlayers ?? {};
-        const name = allPlayers?.[round.activePlayerId]?.name ?? 'Another player';
-        mpShowWaiting(name);
-      }
-    }
-
-    // ── Game log sync: wrap gameLog so all events broadcast to Firebase ──
-    // Other players receive entries via the log listener in mpInitListeners().
-    let _mpLogReceiving = false;
-    const _origLogAdd      = gameLog.add;
-    const _origLogNewTurn  = gameLog.newTurn;
-    gameLog.add = (text, cls = '') => {
-      _origLogAdd(text, cls);
-      if (!_mpLogReceiving && !gameOver) {
-        dbPush(logPath(mpGameCode), { n: mpMyName, t: text, c: cls ?? '', ts: Date.now() });
-      }
-    };
-    gameLog.newTurn = (label) => {
-      _origLogNewTurn(label);
-      if (!_mpLogReceiving && !gameOver) {
-        dbPush(logPath(mpGameCode), { n: mpMyName, t: label, c: '_turn', ts: Date.now() });
-      }
-    };
-    // Store the receiving flag and restore fns on the module scope so listener can access them
-    mpGameLog = { setReceiving: v => { _mpLogReceiving = v; } };
-
-    mpSyncInventorySlots(); // publish initial vacancy state so allies can see our empty slots
-    mpInitListeners();
-    console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}, Reconnect: ${isReconnect}`);
-  }
-
-  // Holds log-sync helpers set up by mpInit (null until mpInit runs)
-  let mpGameLog = null;
 
   /* ── Start game sequence on page load ── */
   (async function startGame() {
