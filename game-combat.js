@@ -583,7 +583,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
             return;
           }
 
-          const roll = Math.floor(Math.random() * 6) + 1;
+          const roll = Math.floor(_rng() * 6) + 1;
           const isAutoWin = roll === 6;
           const secondStr = roll; // dice roll replaces player strength
 

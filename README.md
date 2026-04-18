@@ -5,6 +5,45 @@ Prototype for a board game to test game mechanisms
 from terminal:python3 -m http.server
 open browser to http://localhost:8000/index.html
 
+# Testing
+
+There is no automated test suite. Testing is done manually in the browser.
+
+## Seeded RNG
+
+Every game run logs its RNG seed to the browser console on load:
+
+```
+[RNG] seed: 3891245012  (to replay: ?seed=3891245012)
+```
+
+To replay an identical run (same card draw order, same dice rolls), open:
+
+```
+http://localhost:8000/game.html?seed=3891245012
+```
+
+Record the seed from the console whenever you encounter a bug or an interesting scenario so you can reproduce it exactly.
+
+## DEV console helpers
+
+Open the browser dev tools console (F12) during any game session. The `DEV` object is available globally:
+
+| Command | Description |
+|---|---|
+| `DEV.help()` | Print all available commands |
+| `DEV.state()` | Dump current stats, location, deck sizes, and active seed |
+| `DEV.set({health:3, food:1})` | Set any stats immediately — updates the UI |
+| `DEV.god()` | Max health/sanity/food, reset mutation to 1 |
+| `DEV.deck()` | List all cards currently in the draw pile |
+| `DEV.discard()` | List all cards in the discard pile |
+| `DEV.forceCard("machete")` | Move a loot card matching that name to the front of the draw pile (searches draw pile, discard, and location pools) |
+| `DEV.forceThreat("raider")` | Move a threat card matching that name to the front of the threat pile |
+| `DEV.seed()` | Show the current RNG seed |
+| `DEV.seed(12345)` | Reseed the RNG mid-session |
+
+`forceCard` and `forceThreat` accept partial, case-insensitive names — `DEV.forceCard("bow")` will match "Bow and arrows".
+
 # Game Rules
 
 ## Goal

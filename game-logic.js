@@ -9,6 +9,29 @@
  */
 
 /* ════════════════════════════════════════════
+   SEEDED RNG  (mulberry32)
+════════════════════════════════════════════ */
+
+var _rngSeed = Date.now() >>> 0;
+
+/** Returns a pseudo-random float in [0, 1) using the current seed. */
+function _rng() {
+  _rngSeed = (_rngSeed + 0x6D2B79F5) >>> 0;
+  var t = Math.imul(_rngSeed ^ (_rngSeed >>> 15), 1 | _rngSeed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/**
+ * Seed the RNG. Omit argument to use Date.now().
+ * Returns the seed that was set — log it to replay a run with ?seed=N.
+ */
+function setRngSeed(seed) {
+  _rngSeed = (seed !== undefined ? seed : Date.now()) >>> 0;
+  return _rngSeed;
+}
+
+/* ════════════════════════════════════════════
    DECK UTILITIES
 ════════════════════════════════════════════ */
 
@@ -18,7 +41,7 @@
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(_rng() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;

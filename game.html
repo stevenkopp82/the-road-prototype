@@ -2970,8 +2970,134 @@
   document.getElementById('restart-btn').style.display = 'block';
   document.getElementById('rules-btn-game').style.display = 'flex';
 
+  /* ════════════════════════════════════════════
+     DEV CONSOLE HELPERS  (window.DEV)
+     Manipulate game state from the browser console.
+     Type DEV.help() for a list of commands.
+  ════════════════════════════════════════════ */
+  window.DEV = {
+    help() {
+      console.log(
+        'DEV helpers:\n' +
+        '  DEV.state()                          — current stats, location, deck sizes\n' +
+        '  DEV.set({health,sanity,food,mutation}) — set any stats\n' +
+        '  DEV.god()                            — max stats, reset mutation to 1\n' +
+        '  DEV.deck()                           — list draw pile cards\n' +
+        '  DEV.discard()                        — list discard pile cards\n' +
+        '  DEV.forceCard(name)                  — move a loot card to front of draw pile\n' +
+        '  DEV.forceThreat(name)                — move a threat card to front of threat pile\n' +
+        '  DEV.seed()                           — show current RNG seed\n' +
+        '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n'
+      );
+    },
+
+    state() {
+      const s = {
+        location: ['Road', 'Sprawl', 'Hive', 'Sanctuary'][Math.min(deckPass, 3)],
+        stats: {
+          health:   playerState.health.value,
+          sanity:   playerState.sanity.value,
+          food:     playerState.food.value,
+          mutation: playerState.mutation.value,
+        },
+        drawPile:    drawPile.length,
+        discardPile: discardPile.length,
+        weapon:      inventory.weapon?.name ?? null,
+        armor: Object.fromEntries(
+          Object.entries(armorSlots).map(([k, v]) => [k, v?.card?.name ?? null])
+        ),
+        rngSeed: _rngSeed,
+      };
+      console.log('[DEV] state:', s);
+      return s;
+    },
+
+    set(obj) {
+      ['health', 'sanity', 'food', 'mutation'].forEach(stat => {
+        if (obj[stat] !== undefined && playerState[stat]?.set) {
+          playerState[stat].set(obj[stat]);
+          console.log(`[DEV] ${stat} → ${obj[stat]}`);
+        }
+      });
+    },
+
+    god() {
+      this.set({ health: 10, sanity: 10, food: maxFood, mutation: 1 });
+      console.log('[DEV] God mode');
+    },
+
+    deck() {
+      if (!drawPile.length) { console.log('[DEV] Draw pile is empty'); return []; }
+      console.table(drawPile.map((c, i) => ({ '#': i, name: c.name, type: c.type })));
+      return drawPile;
+    },
+
+    discard() {
+      if (!discardPile.length) { console.log('[DEV] Discard pile is empty'); return []; }
+      console.table(discardPile.map((c, i) => ({ '#': i, name: c.name, type: c.type })));
+      return discardPile;
+    },
+
+    forceCard(name) {
+      const q = name.toLowerCase();
+      // Search drawPile, then discardPile, then location pools
+      for (const [label, arr] of [
+        ['draw pile',    drawPile],
+        ['discard pile', discardPile],
+        ['sprawl pool',  sprawlPool],
+        ['hive pool',    hivePool],
+      ]) {
+        const idx = arr.findIndex(c => c.name.toLowerCase().includes(q));
+        if (idx >= 0) {
+          const [card] = arr.splice(idx, 1);
+          drawPile.unshift(card);
+          console.log(`[DEV] '${card.name}' from ${label} → front of draw pile`);
+          return card;
+        }
+      }
+      console.warn(`[DEV] No loot card found matching '${name}'`);
+      return null;
+    },
+
+    forceThreat(name) {
+      const q = name.toLowerCase();
+      const idx = threatPile.findIndex(c => c.name.toLowerCase().includes(q));
+      if (idx >= 0) {
+        const [card] = threatPile.splice(idx, 1);
+        threatPile.unshift(card);
+        console.log(`[DEV] Threat '${card.name}' → front of threat pile`);
+        return card;
+      }
+      // Inject a fresh copy from the master list
+      const card = threatFull.find(c => c.name.toLowerCase().includes(q));
+      if (card) {
+        threatPile.unshift({ ...card });
+        console.log(`[DEV] Threat '${card.name}' injected at front of threat pile`);
+        return card;
+      }
+      console.warn(`[DEV] No threat found matching '${name}'`);
+      return null;
+    },
+
+    seed(n) {
+      if (n === undefined) {
+        console.log(`[DEV] Current RNG seed: ${_rngSeed}  (replay: ?seed=${_rngSeed})`);
+        return _rngSeed;
+      }
+      const s = setRngSeed(n);
+      console.log(`[DEV] RNG seed set to: ${s}`);
+      return s;
+    },
+  };
+  console.log('[DEV] helpers ready — type DEV.help() for commands');
+
   /* ── Start game sequence on page load ── */
   (async function startGame() {
+
+    // Seed the RNG — use ?seed=N for reproducible runs
+    const _urlSeed = new URLSearchParams(location.search).get('seed');
+    const _activeSeed = setRngSeed(_urlSeed !== null ? parseInt(_urlSeed, 10) : undefined);
+    console.log(`[RNG] seed: ${_activeSeed}  (to replay: ?seed=${_activeSeed})`);
 
     await loadGatherTrack();
     rebuildSlotsRow();
