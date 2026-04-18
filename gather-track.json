@@ -2,7 +2,7 @@
   "drawSlots": 5,
   "separatorsAfter": [0, 2],
   "environments": [
-    { "label": "Exposed", "icon": "☀️" },
+    { "label": "Open", "icon": "☀️" },
     { "label": "Ruin",    "icon": "🧱" },
     { "label": "Water",   "icon": "💧" },
     { "label": "Dark",    "icon": "🌑" },

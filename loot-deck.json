@@ -134,7 +134,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -466,7 +466,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -499,7 +499,7 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Passive: \u00e2\u02c6\u20191 threat in Exposed (min 0)",
+      "text": "Passive: \u00e2\u02c6\u20191 threat in Open (min 0)",
       "mechanism": {
         "type": "cost_modifier",
         "cost": "threat",
@@ -521,7 +521,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -603,7 +603,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -619,7 +619,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -635,7 +635,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -667,7 +667,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -848,7 +848,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],
@@ -929,7 +929,7 @@
       "weapon_class": "ranged",
       "env_bonuses": [
         {
-          "env": "exposed",
+          "env": "open",
           "bonus": 1
         }
       ],

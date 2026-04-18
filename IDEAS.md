@@ -3,7 +3,7 @@
 ## Shuffled Slot Environments
 
 Currently, the five gather slots always map to the same environments in order:
-`Exposed → Ruin → Water → Dark → Nest`
+`Open → Ruin → Water → Dark → Nest`
 
 **Idea:** Randomly assign environments to slots each game (or each round) for more replayability.
 
