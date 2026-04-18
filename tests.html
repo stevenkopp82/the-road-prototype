@@ -511,6 +511,107 @@
       });
     });
 
+    /* ── getWeaponEnvBonus ──────────────────────────────────── */
+    describe('getWeaponEnvBonus', () => {
+      const SLOT_ENVS = [
+        { label: 'Road' },
+        { label: 'Ruins' },
+        { label: 'Forest' },
+      ];
+
+      it('returns 0 when weapon is null', () => {
+        expect(getWeaponEnvBonus(null, 0, SLOT_ENVS)).toBe(0);
+      });
+
+      it('returns 0 when weapon has no env_bonuses', () => {
+        expect(getWeaponEnvBonus({ name: 'Machete' }, 0, SLOT_ENVS)).toBe(0);
+      });
+
+      it('returns bonus when env matches slot label', () => {
+        const weapon = { env_bonuses: [{ env: 'Forest', bonus: 2 }] };
+        expect(getWeaponEnvBonus(weapon, 2, SLOT_ENVS)).toBe(2);
+      });
+
+      it('returns 0 when env does not match slot', () => {
+        const weapon = { env_bonuses: [{ env: 'Forest', bonus: 2 }] };
+        expect(getWeaponEnvBonus(weapon, 0, SLOT_ENVS)).toBe(0); // slot 0 = Road
+      });
+
+      it('match is case-insensitive', () => {
+        const weapon = { env_bonuses: [{ env: 'FOREST', bonus: 1 }] };
+        expect(getWeaponEnvBonus(weapon, 2, SLOT_ENVS)).toBe(1);
+      });
+
+      it('sums multiple matching bonuses for the same env', () => {
+        const weapon = { env_bonuses: [{ env: 'Road', bonus: 1 }, { env: 'Road', bonus: 2 }] };
+        expect(getWeaponEnvBonus(weapon, 0, SLOT_ENVS)).toBe(3);
+      });
+
+      it('ignores non-matching entries while summing matching ones', () => {
+        const weapon = { env_bonuses: [{ env: 'Road', bonus: 3 }, { env: 'Forest', bonus: 5 }] };
+        expect(getWeaponEnvBonus(weapon, 0, SLOT_ENVS)).toBe(3);
+        expect(getWeaponEnvBonus(weapon, 2, SLOT_ENVS)).toBe(5);
+      });
+
+      it('returns 0 when slotIndex is out of range', () => {
+        const weapon = { env_bonuses: [{ env: 'Road', bonus: 2 }] };
+        expect(getWeaponEnvBonus(weapon, 99, SLOT_ENVS)).toBe(0);
+      });
+    });
+
+    /* ── armorAbsorbCalc — sanity & multi-stat ───────────── */
+    describe('armorAbsorbCalc — sanity and multi-stat', () => {
+      it('absorbs sanity damage from armor with sanity pips', () => {
+        const mask = { card: { name: 'Gas Mask' }, pips: { sanity: 2 } };
+        const { absorbed } = armorAbsorbCalc(
+          { sanity: -2 },
+          { head: mask, body: null, accessory: null }
+        );
+        expect(absorbed.sanity).toBe(2);
+      });
+
+      it('does not absorb positive sanity (healing)', () => {
+        const mask = { card: { name: 'Gas Mask' }, pips: { sanity: 2 } };
+        const { absorbed } = armorAbsorbCalc(
+          { sanity: 3 },
+          { head: mask, body: null, accessory: null }
+        );
+        expect(absorbed).toEqual({});
+      });
+
+      it('absorbs health and sanity independently from separate slots', () => {
+        const helmet = { card: { name: 'Helmet' }, pips: { health: 2 } };
+        const mask   = { card: { name: 'Gas Mask' }, pips: { sanity: 2 } };
+        const { absorbed } = armorAbsorbCalc(
+          { health: -2, sanity: -2 },
+          { head: helmet, body: mask, accessory: null }
+        );
+        expect(absorbed.health).toBe(2);
+        expect(absorbed.sanity).toBe(2);
+      });
+
+      it('partially absorbs sanity when pips are fewer than damage', () => {
+        const mask = { card: { name: 'Gas Mask' }, pips: { sanity: 1 } };
+        const { absorbed } = armorAbsorbCalc(
+          { sanity: -3 },
+          { head: mask, body: null, accessory: null }
+        );
+        expect(absorbed.sanity).toBe(1);
+      });
+
+      it('destroys armor when mixed pips are fully consumed', () => {
+        const combo = { card: { name: 'Combo Pad' }, pips: { health: 1, sanity: 1 } };
+        const { newArmorSlots } = armorAbsorbCalc(
+          { health: -1 },
+          { head: combo, body: null, accessory: null }
+        );
+        // health pip consumed but sanity pip remains — armor should NOT be destroyed
+        expect(newArmorSlots.head).toBeTruthy();
+        expect(newArmorSlots.head.pips.health).toBe(0);
+        expect(newArmorSlots.head.pips.sanity).toBe(1);
+      });
+    });
+
     /* ═══════════════════════════════════════════════════════════
        RENDER RESULTS
     ═══════════════════════════════════════════════════════════ */

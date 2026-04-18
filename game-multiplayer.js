@@ -216,6 +216,9 @@ async function mpRunDraftPhase(pool, locationName) {
       return Array.isArray(p) ? p : Object.values(p || {});
     });
     const newDeck = shuffle([...discardPile, ...allPicked]);
+    // Normalize to a multiple of DRAW_SLOTS (same guard as solo path)
+    const _rem = newDeck.length % DRAW_SLOTS;
+    if (_rem !== 0) newDeck.splice(newDeck.length - _rem, _rem);
     drawPile        = newDeck;
     passStartDeckSize = drawPile.length;
     discardPile     = [];
@@ -734,6 +737,16 @@ function mpInitListeners() {
     if (mpRound && mpRound.activePlayerId !== mpPlayerId) {
       const name = players[mpRound.activePlayerId]?.name ?? 'Another player';
       document.getElementById('mp-turn-name').textContent = name;
+    }
+    // Apply any externally-written stat changes to this player (e.g. food shared by an ally)
+    const myRemote = players[mpPlayerId];
+    if (myRemote) {
+      for (const key of ['food', 'health', 'sanity', 'mutation']) {
+        const remoteVal = myRemote[key];
+        if (typeof remoteVal === 'number' && remoteVal !== playerState[key]?.value) {
+          if (playerState[key]?.set) playerState[key].set(remoteVal);
+        }
+      }
     }
   });
 

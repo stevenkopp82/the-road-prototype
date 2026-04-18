@@ -665,6 +665,11 @@
     } else {
       const drafted = await runDraftPhase(pool, locationName);
       drawPile        = shuffle([...discardPile, ...drafted]);
+      // Normalize to a multiple of DRAW_SLOTS so every draw is a full hand.
+      // Surplus arises when selected cards return to discard (battle losses,
+      // declined gear, instant items) instead of going to inventory.
+      const _rem = drawPile.length % DRAW_SLOTS;
+      if (_rem !== 0) drawPile.splice(drawPile.length - _rem, _rem);
       passStartDeckSize = drawPile.length;
       discardPile = [];
       updateDeckCount();
@@ -1304,7 +1309,7 @@
   function resolveInstantMechanism(card) {
     const m = card.mechanism;
     const lines = [];
-    discardPile.push(card);
+    // Instant cards are consumed — removed from play, not returned to discard
     if (m.effect === 'reload_weapon') {
       const weapon = inventory.weapon;
       if (weapon && weapon.weapon_class === m.weapon_class) {
@@ -2149,8 +2154,7 @@
     let effectLines = [];
 
     if (lootBlocked) {
-      effectLines.push('❌ Loot lost — card discarded');
-      discardPile.push(card);
+      effectLines.push('❌ Loot lost — removed from play');
     } else if (card.type === 'gather') {
       // Gather cards are trashed (removed from play) — deck size shrinks predictably
       if (card.effects) {
@@ -2247,8 +2251,7 @@
             // Passive capacity item (e.g. Backpack): equips without using an item slot
             const already = passiveItems.some(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
             if (already) {
-              discardPile.push(card);
-              effectLines.push(`🎒 Already carrying a ${card.name}`);
+              effectLines.push(`🎒 Already carrying a ${card.name} — removed from play`);
             } else {
               equipPassiveItem(card);
               effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
@@ -2258,8 +2261,7 @@
             // Slot-based capacity item: only one per stat
             const dupIdx = itemSlots.findIndex(c => c?.mechanism?.type === 'capacity' && c.mechanism.stat === card.mechanism.stat);
             if (dupIdx >= 0) {
-              discardPile.push(card);
-              effectLines.push(`🎒 Already carrying a ${card.name}`);
+              effectLines.push(`🎒 Already carrying a ${card.name} — removed from play`);
             } else {
               const emptyIdx = firstEmptyItemSlot();
               if (emptyIdx >= 0) {
@@ -2292,8 +2294,7 @@
                     effectLines.push(`🎒 ${card.name} equipped — ${card.mechanism.stat} capacity expanded to ${card.mechanism.max}`);
                     gearAcquired = true;
                   } else {
-                    discardPile.push(card);
-                    effectLines.push('🎒 Item not taken');
+                    effectLines.push('🎒 Item not taken — removed from play');
                   }
                 }
               }
@@ -2329,9 +2330,8 @@
                 effectLines.push(`🎒 ${card.name} placed in item slot`);
                 gearAcquired = true;
               } else {
-                // Player cancelled — card not taken → discard
-                discardPile.push(card);
-                effectLines.push('🎒 Item not taken');
+                // Player cancelled — card removed from play
+                effectLines.push('🎒 Item not taken — removed from play');
               }
             }
           }
@@ -2349,12 +2349,10 @@
               if (shareResult === 'accepted') {
                 effectLines.push(`📦 ${card.name} shared with ${toName}`);
               } else {
-                discardPile.push(card);
-                effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+                effectLines.push(`${INV_ICONS[type]} Kept existing ${type} — removed from play`);
               }
             } else {
-              discardPile.push(card);
-              effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+              effectLines.push(`${INV_ICONS[type]} Kept existing ${type} — removed from play`);
             }
           } else if (replaceResult) {
             // Old card goes out of play; new card goes to inventory
@@ -2362,9 +2360,8 @@
             effectLines.push(`${INV_ICONS[type]} ${card.name} placed in ${type} slot`);
             gearAcquired = true;
           } else {
-            // Player kept existing — selected card not taken → discard
-            discardPile.push(card);
-            effectLines.push(`${INV_ICONS[type]} Kept existing ${type}`);
+            // Player kept existing — selected card removed from play
+            effectLines.push(`${INV_ICONS[type]} Kept existing ${type} — removed from play`);
           }
         } else {
           setInventorySlot(type, card);

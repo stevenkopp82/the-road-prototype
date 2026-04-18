@@ -132,7 +132,12 @@
       "strength": 5,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 10,
       "icon": "SVGs/pistol-gun.svg"
     },
@@ -161,7 +166,17 @@
       "location": "road",
       "type": "item",
       "text": "Passive: +1 food when gathering a card in Water",
-      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "food", "slots": [2], "effect": { "food": 1 } },
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "gather_gain",
+        "stat_filter": "food",
+        "slots": [
+          2
+        ],
+        "effect": {
+          "food": 1
+        }
+      },
       "value": 4,
       "icon": "SVGs/fishing-pole.svg"
     },
@@ -170,7 +185,11 @@
       "location": "sprawl",
       "type": "item",
       "text": "Use once: Reload range weapon",
-      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
+      "mechanism": {
+        "type": "instant",
+        "effect": "reload_weapon",
+        "weapon_class": "ranged"
+      },
       "value": 4,
       "icon": "SVGs/heavy-bullets.svg"
     },
@@ -179,7 +198,11 @@
       "location": "hive",
       "type": "item",
       "text": "Use once: Reload range weapon",
-      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
+      "mechanism": {
+        "type": "instant",
+        "effect": "reload_weapon",
+        "weapon_class": "ranged"
+      },
       "value": 4,
       "icon": "SVGs/heavy-bullets.svg"
     },
@@ -188,7 +211,13 @@
       "location": "road",
       "type": "item",
       "text": "+1 food after any battle win or tie (passive)",
-      "mechanism": { "type": "passive_event", "trigger": "battle_win_or_tie", "effect": { "food": 1 } },
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "battle_win_or_tie",
+        "effect": {
+          "food": 1
+        }
+      },
       "value": 4,
       "icon": "SVGs/matchbox.svg"
     },
@@ -230,7 +259,16 @@
       "location": "road",
       "type": "item",
       "text": "Passive: Slots 2 & 3 cost 1 less food",
-      "mechanism": { "type": "cost_modifier", "cost": "food", "slots": [1, 2], "amount": -1, "min": 0 },
+      "mechanism": {
+        "type": "cost_modifier",
+        "cost": "food",
+        "slots": [
+          1,
+          2
+        ],
+        "amount": -1,
+        "min": 0
+      },
       "value": 7,
       "icon": "SVGs/treasure-map.svg"
     },
@@ -241,7 +279,12 @@
       "strength": 1,
       "uses": 5,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 5,
       "icon": "SVGs/claw-hammer.svg"
     },
@@ -260,8 +303,12 @@
       "name": "Stash of ration packs",
       "location": "sprawl",
       "type": "item",
-      "text": "Passive: Absorbs starvation — sets food to 1 instead of starving (5 uses)",
-      "mechanism": { "type": "protection", "trigger": "starvation", "effect": "absorb_starvation" },
+      "text": "Passive: Absorbs starvation \u00e2\u20ac\u201d sets food to 1 instead of starving (5 uses)",
+      "mechanism": {
+        "type": "protection",
+        "trigger": "starvation",
+        "effect": "absorb_starvation"
+      },
       "uses": 5,
       "value": 9,
       "icon": "SVGs/cardboard-box-closed.svg"
@@ -293,7 +340,15 @@
       "location": "road",
       "type": "item",
       "text": "+2 STR when using ranged or explosive weapon in battle",
-      "mechanism": { "type": "battle_str", "bonus": 2, "condition": "weapon_class", "weapon_classes": ["ranged", "explosive"] },
+      "mechanism": {
+        "type": "battle_str",
+        "bonus": 2,
+        "condition": "weapon_class",
+        "weapon_classes": [
+          "ranged",
+          "explosive"
+        ]
+      },
       "value": 6,
       "icon": "SVGs/cowboy-holster.svg"
     },
@@ -332,8 +387,16 @@
       "name": "Torch",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Dark (min 0)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [3], "amount": -1, "min": 0 },
+      "text": "Passive: \u00e2\u02c6\u20191 threat in Dark (min 0)",
+      "mechanism": {
+        "type": "cost_modifier",
+        "cost": "threat",
+        "slots": [
+          3
+        ],
+        "amount": -1,
+        "min": 0
+      },
       "value": 8,
       "icon": "SVGs/primitive-torch.svg"
     },
@@ -385,7 +448,12 @@
       "location": "road",
       "type": "item",
       "text": "Expand max food to 10",
-      "mechanism": { "type": "capacity", "stat": "food", "max": 10, "passive": true },
+      "mechanism": {
+        "type": "capacity",
+        "stat": "food",
+        "max": 10,
+        "passive": true
+      },
       "value": 5,
       "icon": "SVGs/knapsack.svg"
     },
@@ -396,7 +464,12 @@
       "strength": 6,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 12,
       "icon": "SVGs/sawed-off-shotgun.svg"
     },
@@ -426,9 +499,17 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Exposed (min 0)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [0], "amount": -1, "min": 0 },
-      "value": 10,
+      "text": "Passive: \u00e2\u02c6\u20191 threat in Exposed (min 0)",
+      "mechanism": {
+        "type": "cost_modifier",
+        "cost": "threat",
+        "slots": [
+          0
+        ],
+        "amount": -1,
+        "min": 0
+      },
+      "value": 8,
       "icon": "SVGs/binoculars.svg"
     },
     {
@@ -438,7 +519,12 @@
       "strength": 5,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 10,
       "icon": "SVGs/pistol-gun.svg"
     },
@@ -446,8 +532,16 @@
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "Passive: −1 threat in Ruin (min 0)",
-      "mechanism": { "type": "cost_modifier", "cost": "threat", "slots": [1], "amount": -1, "min": 0 },
+      "text": "Passive: \u00e2\u02c6\u20191 threat in Ruin (min 0)",
+      "mechanism": {
+        "type": "cost_modifier",
+        "cost": "threat",
+        "slots": [
+          1
+        ],
+        "amount": -1,
+        "min": 0
+      },
       "value": 10,
       "icon": "SVGs/compass.svg"
     },
@@ -456,7 +550,14 @@
       "location": "road",
       "type": "item",
       "text": "Passive: When you gain health from a gather card, +1 extra health",
-      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "health", "effect": { "health": 1 } },
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "gather_gain",
+        "stat_filter": "health",
+        "effect": {
+          "health": 1
+        }
+      },
       "uses": 2,
       "value": 4,
       "icon": "SVGs/camping-tent.svg"
@@ -466,7 +567,14 @@
       "location": "road",
       "type": "item",
       "text": "When you gain food, +1 food",
-      "mechanism": { "type": "passive_event", "trigger": "gather_gain", "stat_filter": "food", "effect": { "food": 1 } },
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "gather_gain",
+        "stat_filter": "food",
+        "effect": {
+          "food": 1
+        }
+      },
       "value": 10,
       "icon": "SVGs/flint-spark.svg"
     },
@@ -477,7 +585,12 @@
       "strength": 2,
       "uses": 5,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 10,
       "icon": "SVGs/spade.svg"
     },
@@ -488,7 +601,12 @@
       "strength": 4,
       "uses": 3,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 12,
       "icon": "SVGs/bow-arrow.svg"
     },
@@ -499,7 +617,12 @@
       "strength": 6,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 12,
       "icon": "SVGs/sawed-off-shotgun.svg"
     },
@@ -510,7 +633,12 @@
       "strength": 7,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 14,
       "icon": "SVGs/ak47.svg"
     },
@@ -521,7 +649,12 @@
       "strength": 3,
       "uses": 5,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 15,
       "icon": "SVGs/hatchet.svg"
     },
@@ -532,7 +665,12 @@
       "strength": 8,
       "uses": 2,
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "value": 16,
       "icon": "SVGs/fn-fal.svg"
     },
@@ -546,7 +684,12 @@
       "strength": 4,
       "uses": 5,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 18,
       "icon": "SVGs/claw.svg"
     },
@@ -567,7 +710,12 @@
       "strength": 1,
       "uses": 2,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 2,
       "icon": "SVGs/wood-stick.svg"
     },
@@ -578,7 +726,12 @@
       "strength": 2,
       "uses": 4,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 8,
       "icon": "SVGs/pitchfork.svg"
     },
@@ -589,7 +742,12 @@
       "strength": 1,
       "uses": 4,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 4,
       "icon": "SVGs/monkey-wrench.svg"
     },
@@ -598,7 +756,11 @@
       "location": "hive",
       "type": "item",
       "text": "Use once: Reload range weapon",
-      "mechanism": { "type": "instant", "effect": "reload_weapon", "weapon_class": "ranged" },
+      "mechanism": {
+        "type": "instant",
+        "effect": "reload_weapon",
+        "weapon_class": "ranged"
+      },
       "value": 4,
       "icon": "SVGs/heavy-bullets.svg"
     },
@@ -609,7 +771,12 @@
       "strength": 3,
       "uses": 5,
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "value": 15,
       "icon": "SVGs/brass-knuckles.svg"
     },
@@ -648,9 +815,13 @@
       "name": "Walkie-talkie",
       "location": "sprawl",
       "type": "item",
-      "text": "3 uses. Once per turn: skip all threat draws on your next card pick.",
-      "mechanism": { "type": "active", "timing": "pre_pick", "effect": "suppress_threats" },
-      "uses": 3,
+      "text": "2 uses. Once per turn: skip all threat draws on your next card pick.",
+      "mechanism": {
+        "type": "active",
+        "timing": "pre_pick",
+        "effect": "suppress_threats"
+      },
+      "uses": 2,
       "value": 15,
       "icon": "SVGs/walkie-talkie.svg"
     },
@@ -659,7 +830,12 @@
       "location": "sprawl",
       "type": "weapon",
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "strength": 4,
       "uses": 6,
       "value": 24,
@@ -670,7 +846,12 @@
       "location": "sprawl",
       "type": "weapon",
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "strength": 5,
       "uses": 2,
       "value": 10,
@@ -713,7 +894,12 @@
       "location": "hive",
       "type": "item",
       "text": "2 uses. Active: gain +3 STR for your next battle only.",
-      "mechanism": { "type": "active", "timing": "pre_battle", "effect": "temp_str_bonus", "bonus": 3 },
+      "mechanism": {
+        "type": "active",
+        "timing": "pre_battle",
+        "effect": "temp_str_bonus",
+        "bonus": 3
+      },
       "uses": 2,
       "value": 8,
       "icon": "SVGs/syringe.svg"
@@ -724,7 +910,12 @@
       "type": "weapon",
       "text": "Melee. Loud and brutal. Extra Arm mutant makes this devastating.",
       "weapon_class": "melee",
-      "env_bonuses": [{ "env": "nest", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "nest",
+          "bonus": 1
+        }
+      ],
       "strength": 6,
       "uses": 3,
       "value": 18,
@@ -736,7 +927,12 @@
       "type": "weapon",
       "text": "Ranged. Reload with Ammo. Quiet, accurate, and built to last.",
       "weapon_class": "ranged",
-      "env_bonuses": [{ "env": "exposed", "bonus": 1 }],
+      "env_bonuses": [
+        {
+          "env": "exposed",
+          "bonus": 1
+        }
+      ],
       "strength": 5,
       "uses": 4,
       "value": 20,
@@ -780,7 +976,7 @@
       "name": "hiking boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "sanity": 2
       },
@@ -791,7 +987,7 @@
       "name": "leather gloves",
       "location": "road",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "health": 1,
         "sanity": 1
@@ -814,7 +1010,7 @@
       "name": "steel toe boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "health": 1,
         "sanity": 2
@@ -872,7 +1068,7 @@
       "name": "belt",
       "location": "sprawl",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "sanity": 2
       },
@@ -951,7 +1147,7 @@
       "name": "biohazard gloves",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "mutation": 3
       },
@@ -962,7 +1158,7 @@
       "name": "gold necklace",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "misc",
+      "armor_slot": "accessory",
       "absorb": {
         "sanity": 3
       },
@@ -1073,7 +1269,7 @@
       "type": "gather",
       "effects": {
         "health": 5,
-        "mutation": 3
+        "mutation": 2
       },
       "value": 0.5,
       "icon": "SVGs/medicine-pills_2.svg"
