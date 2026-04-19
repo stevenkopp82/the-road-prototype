@@ -627,9 +627,6 @@
       case 'capacity': {
         return `Capacity: ${m.stat} max → ${m.max}`;
       }
-      case 'protection': {
-        return `Protection: ${m.effect.replace(/_/g, ' ')} on ${m.trigger}`;
-      }
       default:
         return `${m.type}`;
     }

@@ -300,17 +300,13 @@
       "icon": "SVGs/strawberry.svg"
     },
     {
-      "name": "Stash of ration packs",
+      "name": "Stash of rations",
       "location": "sprawl",
-      "type": "item",
-      "text": "Passive: Absorbs starvation \u00e2\u20ac\u201d sets food to 1 instead of starving (5 uses)",
-      "mechanism": {
-        "type": "protection",
-        "trigger": "starvation",
-        "effect": "absorb_starvation"
+      "type": "gather",
+      "effects": {
+        "food": 6
       },
-      "uses": 5,
-      "value": 9,
+      "value": 6,
       "icon": "SVGs/cardboard-box-closed.svg"
     },
     {

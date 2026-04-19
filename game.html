@@ -82,10 +82,18 @@
 </div>
 <div id="game-over">
   <div class="game-over-box">
-    <div class="game-over-icon" id="go-icon"></div>
-    <div class="game-over-title" id="go-title"></div>
-    <div class="game-over-subtitle" id="go-subtitle"></div>
-    <button class="game-over-restart" id="go-restart">Try Again</button>
+    <div id="go-main">
+      <div class="game-over-icon" id="go-icon"></div>
+      <div class="game-over-title" id="go-title"></div>
+      <div class="game-over-subtitle" id="go-subtitle"></div>
+      <button class="game-over-log-btn" id="go-view-log">📋 View Log</button>
+      <button class="game-over-restart" id="go-restart">Try Again</button>
+    </div>
+    <div id="go-log-view">
+      <div class="go-log-title">📋 Play Log</div>
+      <div class="go-log-entries" id="go-log-entries"></div>
+      <button class="game-over-log-btn" id="go-close-log">← Back</button>
+    </div>
   </div>
 </div>
 
@@ -600,6 +608,20 @@
   }
 
   document.getElementById('go-restart').addEventListener('click', () => { window.location.href = 'index.html'; });
+
+  document.getElementById('go-view-log').addEventListener('click', () => {
+    const entries = document.getElementById('log-entries');
+    const dest = document.getElementById('go-log-entries');
+    dest.innerHTML = entries ? entries.innerHTML : '<p style="opacity:0.5;padding:1rem">No log entries.</p>';
+    dest.scrollTop = dest.scrollHeight;
+    document.getElementById('go-main').style.display = 'none';
+    document.getElementById('go-log-view').style.display = 'flex';
+  });
+
+  document.getElementById('go-close-log').addEventListener('click', () => {
+    document.getElementById('go-log-view').style.display = 'none';
+    document.getElementById('go-main').style.display = 'flex';
+  });
   document.getElementById('restart-btn').addEventListener('click', () => { window.location.href = 'index.html'; });
 
   /* ── Rulebook ─────────────────────────────────────────────── */
@@ -763,16 +785,15 @@
     return false;
   }
 
-  /* ── Apply starvation: health −1, sanity −1 (blocked by protection mechanism) ── */
+  /* ── Apply starvation: health −1, sanity −1 */
   function applyStarvation() {
     if (gameOver) return;
-    if (triggerStarvationProtection()) return;
-    gameLog.add('🌾 Starving — −1 health, −1 sanity', 'warn');
     const newHealth = Math.max(0, playerState.health.value - 1);
+    const newSanity = Math.max(0, playerState.sanity.value - 1);
+    gameLog.add(`🌾 Starving — −1 health (${newHealth}), −1 sanity (${newSanity})`, 'warn');
     if (playerState.health.set) playerState.health.set(newHealth);
     if (checkGameOver('health', newHealth)) return;
 
-    const newSanity = Math.max(0, playerState.sanity.value - 1);
     if (playerState.sanity.set) playerState.sanity.set(newSanity);
     checkGameOver('sanity', newSanity);
   }
@@ -1230,7 +1251,7 @@
         const cap = stat === 'food' ? maxFood : 10;
         const next = Math.min(cap, playerState[stat].value + amt);
         if (playerState[stat].set) playerState[stat].set(next);
-        lines.push(`${card.name} — ${stat} +${amt}`);
+        lines.push(`${card.name} — ${stat} +${amt} (${next})`);
       }
     }
     return lines;
@@ -1261,32 +1282,10 @@
         const cap = eStat === 'food' ? maxFood : 10;
         const next = Math.min(cap, playerState[eStat].value + eAmt);
         if (playerState[eStat].set) playerState[eStat].set(next);
-        lines.push(`${card.name} — ${eStat} +${eAmt}`);
+        lines.push(`${card.name} — ${eStat} +${eAmt} (${next})`);
       }
     }
     return lines;
-  }
-
-  // ── protection / starvation ───────────────────────────────────────
-  // Returns true if starvation was absorbed
-  function triggerStarvationProtection() {
-    for (const [idx, card] of itemSlots.entries()) {
-      if (!card?.mechanism) continue;
-      const m = card.mechanism;
-      if (m.type !== 'protection' || m.trigger !== 'starvation') continue;
-      if (itemUsesArr[idx] <= 0) continue;
-      itemUsesArr[idx]--;
-      if (playerState.food.set) playerState.food.set(1);
-      if (itemUsesArr[idx] === 0) {
-        showToast(`🌾 ${card.name} absorbed starvation!\n🎒 ${card.name} depleted — discarded`, true, 2800);
-        setItemSlot(idx, null);
-      } else {
-        showToast(`🌾 ${card.name} absorbed starvation! (${itemUsesArr[idx]} uses left)`, true, 2400);
-        renderItemSlots();
-      }
-      return true;
-    }
-    return false;
   }
 
   // ── capacity: called on equip/unequip ────────────────────────────
@@ -1786,7 +1785,7 @@
     for (const [stat, amt] of Object.entries(effect)) {
       const next = Math.min(10, playerState[stat].value + amt);
       if (playerState[stat].set) playerState[stat].set(next);
-      lines.push(`${stat} +${amt}`);
+      lines.push(`${stat} +${amt} (${next})`);
     }
     const summary = `🕯 ${card.name} — ${lines.join(', ')}`;
     if (itemUsesArr[torchIdx] === 0) {
@@ -2068,10 +2067,6 @@
     if (card.type === 'item' && hasMutant('glowing_fingers', mutantCards)) {
       threatCount = Math.max(0, threatCount - 1);
     }
-    // Gas mask: −1 mutation cost in The Hive (min 0)
-    if (deckPass >= 2 && itemSlots.some(c => c?.name === 'Gas mask')) {
-      mutationCost = Math.max(0, mutationCost - 1);
-    }
 
     if (isSlot1 && slotDef.alt) {
       const choice = await promptPaymentChoice(slotDef);
@@ -2101,7 +2096,7 @@
       const prevMut = playerState.mutation.value;
       const newMut  = Math.min(10, prevMut + mutationCost);
       if (playerState.mutation.set) playerState.mutation.set(newMut);
-      gameLog.add(`🧬 Slot cost: +${mutationCost} mutation`, 'warn');
+      gameLog.add(`🧬 Slot cost: +${mutationCost} mutation (${newMut})`, 'warn');
       if (newMut >= 10) { triggerGameOver('mutation'); return; }
     }
 
@@ -2109,7 +2104,7 @@
     if (healthCost > 0) {
       const newHealth = Math.max(0, playerState.health.value - healthCost);
       if (playerState.health.set) playerState.health.set(newHealth);
-      gameLog.add(`❤️ Slot cost: −${healthCost} health`, 'warn');
+      gameLog.add(`❤️ Slot cost: −${healthCost} health (${newHealth})`, 'warn');
       if (checkGameOver('health', newHealth)) return;
     }
 
@@ -2117,7 +2112,7 @@
     if (sanityCost > 0) {
       const newSanity = Math.max(0, playerState.sanity.value - sanityCost);
       if (playerState.sanity.set) playerState.sanity.set(newSanity);
-      gameLog.add(`🧠 Slot cost: −${sanityCost} sanity`, 'warn');
+      gameLog.add(`🧠 Slot cost: −${sanityCost} sanity (${newSanity})`, 'warn');
       if (checkGameOver('sanity', newSanity)) return;
     }
 
@@ -2164,7 +2159,7 @@
           const prevVal = playerState[track].value;
           const next = Math.max(0, Math.min(track === 'food' ? maxFood : 10, prevVal + rounded));
           if (playerState[track].set) playerState[track].set(next);
-          effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded}`);
+          effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded} (${next})`);
           // Game-over check: gather cards can have negative health/sanity or high mutation
           if (rounded < 0 || track === 'mutation') {
             if (track === 'food' && next === 0) { applyStarvation(); if (gameOver) break; }
@@ -2184,7 +2179,7 @@
             if (regenCount > 0) {
               const regenHealth = Math.min(10, playerState.health.value + regenCount);
               if (playerState.health.set) playerState.health.set(regenHealth);
-              effectLines.push(`🧬 Regenerative tissue — +${regenCount} extra health`);
+              effectLines.push(`🧬 Regenerative tissue — +${regenCount} extra health (${regenHealth})`);
             }
           }
           // Loss of fear mutant: +1 extra sanity per mutation card on sanity gain
@@ -2193,24 +2188,24 @@
             if (fearCount > 0) {
               const fearSanity = Math.min(10, playerState.sanity.value + fearCount);
               if (playerState.sanity.set) playerState.sanity.set(fearSanity);
-              effectLines.push(`🧬 Loss of fear — +${fearCount} extra sanity`);
+              effectLines.push(`🧬 Loss of fear — +${fearCount} extra sanity (${fearSanity})`);
             }
           }
           // Character passive bonuses on gather gains
           if (track === 'health' && rounded > 0 && character === 'medic') {
             const next = Math.min(10, playerState.health.value + 1);
             if (playerState.health.set) playerState.health.set(next);
-            effectLines.push('🩺 Medic — +1 extra health');
+            effectLines.push(`🩺 Medic — +1 extra health (${next})`);
           }
           if (track === 'food' && rounded > 0 && character === 'survivalist') {
             const next = Math.min(maxFood, playerState.food.value + 1);
             if (playerState.food.set) playerState.food.set(next);
-            effectLines.push('🎒 Survivalist — +1 extra food');
+            effectLines.push(`🎒 Survivalist — +1 extra food (${next})`);
           }
           if (track === 'sanity' && rounded > 0 && character === 'psychologist') {
             const next = Math.min(10, playerState.sanity.value + 1);
             if (playerState.sanity.set) playerState.sanity.set(next);
-            effectLines.push('🧠 Psychologist — +1 extra sanity');
+            effectLines.push(`🧠 Psychologist — +1 extra sanity (${next})`);
           }
         }
       }

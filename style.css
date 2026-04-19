@@ -2228,6 +2228,80 @@
       line-height: 1.6;
     }
 
+    #go-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      width: 100%;
+    }
+
+    #go-log-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      max-height: 70vh;
+    }
+
+    .go-log-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+
+    .go-log-entries {
+      flex: 1;
+      width: 100%;
+      max-height: 55vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.4rem 0;
+      background: rgba(0,0,0,0.3);
+      text-align: left;
+    }
+
+    .go-log-entries .log-entry {
+      font-family: 'Spectral', serif;
+      font-size: 0.62rem;
+      color: var(--parchment);
+      opacity: 0.8;
+      padding: 0.18rem 0.7rem;
+      line-height: 1.4;
+    }
+
+    .go-log-entries .log-turn-divider {
+      font-family: 'Cinzel', serif;
+      font-size: 0.38rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.5;
+      padding: 0.35rem 0.7rem 0.1rem;
+      border-top: 1px solid rgba(180,140,60,0.1);
+      margin-top: 0.2rem;
+    }
+
+    .game-over-log-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      background: none;
+      border: 1px solid rgba(180,140,60,0.35);
+      border-radius: 3px;
+      padding: 0.4rem 1.2rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .game-over-log-btn:hover { color: var(--gold); border-color: var(--gold); }
+
     .game-over-restart {
       font-family: 'Cinzel', serif;
       font-size: 0.65rem;
