@@ -886,6 +886,28 @@ async function mpInit() {
     }
     mpApplySlotCards(shared.slotCards);
     updateDeckCount();
+  } else if (!isReconnect) {
+    // Non-host fresh start: host hasn't written sharedState yet (race). Wait for it.
+    // The permanent sharedState listener (set up in mpInitListeners) skips updates
+    // when it's the active player's turn, so we must apply the initial board here
+    // before that listener is registered.
+    await new Promise(resolve => {
+      const unsub = dbListen(sharedStatePath(mpGameCode), state => {
+        if (!state) return;
+        drawPile        = Array.isArray(state.drawPile)        ? state.drawPile        : Object.values(state.drawPile        || {});
+        discardPile     = Array.isArray(state.discardPile)     ? state.discardPile     : Object.values(state.discardPile     || {});
+        injuredMonsters = Array.isArray(state.injuredMonsters) ? state.injuredMonsters : Object.values(state.injuredMonsters || {});
+        if (typeof state.deckPass === 'number' && state.deckPass !== deckPass) {
+          deckPass = state.deckPass;
+          updateBoardLocation();
+          updateSlotCosts();
+        }
+        mpApplySlotCards(state.slotCards);
+        updateDeckCount();
+        unsub();
+        resolve();
+      });
+    });
   }
 
   // On reconnect: restore this player's stats from Firebase
