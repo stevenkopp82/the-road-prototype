@@ -181,6 +181,25 @@
       "icon": "SVGs/fishing-pole.svg"
     },
     {
+      "name": "Hiking sticks",
+      "location": "sprawl",
+      "type": "item",
+      "text": "Passive: +1 sanity when gathering a card in Ruin",
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "gather_gain",
+        "stat_filter": "sanity",
+        "slots": [
+          1
+        ],
+        "effect": {
+          "sanity": 1
+        }
+      },
+      "value": 8,
+      "icon": "SVGs/hiking.svg"
+    },
+    {
       "name": "Ammo",
       "location": "sprawl",
       "type": "item",
@@ -258,7 +277,7 @@
       "name": "Area Map",
       "location": "road",
       "type": "item",
-      "text": "Passive: Slots 2 & 3 cost 1 less food",
+      "text": "Passive: Ruin and Water cost 1 less food",
       "mechanism": {
         "type": "cost_modifier",
         "cost": "food",
@@ -383,7 +402,7 @@
       "name": "Torch",
       "location": "road",
       "type": "item",
-      "text": "Passive: \u00e2\u02c6\u20191 threat in Dark (min 0)",
+      "text": "Passive: -1 threat in Dark (min 0)",
       "mechanism": {
         "type": "cost_modifier",
         "cost": "threat",
