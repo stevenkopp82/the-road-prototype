@@ -514,7 +514,7 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Passive: \u00e2\u02c6\u20191 threat in Open (min 0)",
+      "text": "Passive: -1 threat in Open (min 0)",
       "mechanism": {
         "type": "cost_modifier",
         "cost": "threat",
@@ -547,7 +547,7 @@
       "name": "Compass",
       "location": "road",
       "type": "item",
-      "text": "Passive: \u00e2\u02c6\u20191 threat in Ruin (min 0)",
+      "text": "Passive: -1 threat in Ruin (min 0)",
       "mechanism": {
         "type": "cost_modifier",
         "cost": "threat",

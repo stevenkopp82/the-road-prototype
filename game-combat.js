@@ -124,7 +124,7 @@ async function applyEffects(effects, skipArmorAbsorb = false) {
 
     const next = Math.max(0, Math.min(10, current + amount));
     if (playerState[track].set) playerState[track].set(next);
-    const effectLine = `${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount}`;
+    const effectLine = `${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount} (${next})`;
     lines.push(effectLine);
     // Log with smart colouring: bad = health/sanity loss, mutation gain; good = health/sanity gain, food gain
     const isBad = (track === 'health' && amount < 0) || (track === 'sanity' && amount < 0) || (track === 'mutation' && amount > 0);
@@ -430,13 +430,15 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
           itemLines.forEach(l => showToast(l, false, 2000));
           // Character passive: Hunter gains +2 food on battle win/tie
           if (character === 'hunter') {
-            if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
-            showToast('🏹 Hunter — food +2', false, 2400);
+            const hf = Math.min(maxFood, playerState.food.value + 2);
+            if (playerState.food.set) playerState.food.set(hf);
+            showToast(`🏹 Hunter — food +2 (${hf})`, false, 2400);
           }
           // Mutant bonuses
           if (hasMutant('feral_instinct', mutantCards)) {
-            if (playerState.food.set) playerState.food.set(Math.min(maxFood, playerState.food.value + 2));
-            showToast('🧬 Feral instinct — food +2', false, 2400);
+            const fif = Math.min(maxFood, playerState.food.value + 2);
+            if (playerState.food.set) playerState.food.set(fif);
+            showToast(`🧬 Feral instinct — food +2 (${fif})`, false, 2400);
           }
           if (hasMutant('hardened_skin', mutantCards)) {
             const restorable = Object.entries(armorSlots).find(([k, slot]) => {
@@ -927,12 +929,12 @@ function battleInjuredMonster(slotIndex) {
         if (matchesIdx >= 0) {
           const nf = Math.min(maxFood, playerState.food.value + 1);
           if (playerState.food.set) playerState.food.set(nf);
-          showToast('🔥 Matches — food +1', false, 2000);
+          showToast(`🔥 Matches — food +1 (${nf})`, false, 2000);
         }
         if (hasMutant('feral_instinct', mutantCards)) {
           const ff = Math.min(maxFood, playerState.food.value + 2);
           if (playerState.food.set) playerState.food.set(ff);
-          showToast('🧬 Feral instinct — food +2', false, 2400);
+          showToast(`🧬 Feral instinct — food +2 (${ff})`, false, 2400);
         }
         dialog.classList.remove('open');
         resolve({ won: true });

@@ -957,6 +957,11 @@ async function mpInit() {
   // Store the receiving flag and restore fns on the module scope so listener can access them
   mpGameLog = { setReceiving: v => { _mpLogReceiving = v; } };
 
+  // Write correct stats (including character bonuses) to Firebase before the players
+  // listener fires. Lobby buildPlayerData stores base stats only, so without this,
+  // dbListen fires immediately with base values and overwrites the local bonus.
+  if (!isReconnect) await mpWriteMyState();
+
   mpSyncInventorySlots(); // publish initial vacancy state so allies can see our empty slots
   mpInitListeners();
   console.log(`[MP] Initialized. Host: ${mpIsHost}, Code: ${mpGameCode}, Reconnect: ${isReconnect}`);

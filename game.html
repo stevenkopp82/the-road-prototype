@@ -2371,7 +2371,7 @@
     }
 
     // 5. Toast summary + log cost/effects
-    const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid` : `☣ threat drawn instead of food`;
+    const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid (${newFood})` : `☣ threat drawn instead of food`;
     gameLog.add(costLine, 'dim');
     showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
 
