@@ -238,9 +238,15 @@
   <div id="mp-ally-request" class="hidden">
     <div class="mp-ally-req-title">⚠ Ally Needed!</div>
     <div class="mp-ally-req-body" id="mp-ally-req-body">Your ally is losing a battle.</div>
-    <div class="mp-ally-req-btns">
+    <div id="mp-ally-req-btns">
       <button class="mp-ally-ans-btn" id="mp-ally-ans-yes">Answer the Call</button>
       <button class="mp-ally-ans-btn btn-decline" id="mp-ally-ans-no">Stand Down</button>
+    </div>
+    <div id="mp-ally-cost-btns" class="hidden">
+      <div class="mp-ally-req-body">Choose your cost to help:</div>
+      <button class="mp-ally-ans-btn" id="mp-ally-cost-food">Pay 2 Food</button>
+      <button class="mp-ally-ans-btn" id="mp-ally-cost-health">Pay 1 Health</button>
+      <button class="mp-ally-ans-btn btn-decline" id="mp-ally-cost-back">Stand Down</button>
     </div>
   </div>
 
@@ -2145,6 +2151,11 @@
     }
     if (gameOver) return;
 
+    // Sync stats to Firebase before processing loot so that any Firebase write triggered
+    // below (setItemSlot→mpSyncInventorySlots, mpOfferFoodShare, mpRequestAllies) cannot
+    // fire the players listener with stale values and overwrite slot-cost / threat damage.
+    if (isMultiplayer) await mpWriteMyState();
+
     // 4. Resolve loot card (unless a monster defeat blocked it)
     let effectLines = [];
 
@@ -2369,6 +2380,15 @@
         // (reserve mechanic removed — gear is now introduced via location drafts)
       }
     }
+
+    // 4b. Mutation thresholds from loot effects (gather cards can add mutation outside of
+    // threat resolution, so drainMutantSpots must be called here too, not just after threats).
+    await drainMutantSpots();
+    if (gameOver) return;
+
+    // Sync stats again after all loot effects so the Firebase players listener cannot revert
+    // gather-card stat changes (mutation, health, sanity) during the wait below.
+    if (isMultiplayer) await mpWriteMyState();
 
     // 5. Toast summary + log cost/effects
     const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid (${newFood})` : `☣ threat drawn instead of food`;
@@ -3049,6 +3069,13 @@
           console.log(`[DEV] '${card.name}' from ${label} → front of draw pile`);
           return card;
         }
+      }
+      // Fall back to master deck (covers road cards set aside during initial deal)
+      const master = fullDeck.find(c => c.name.toLowerCase().includes(q));
+      if (master) {
+        drawPile.unshift({ ...master });
+        console.log(`[DEV] '${master.name}' injected from master deck → front of draw pile`);
+        return master;
       }
       console.warn(`[DEV] No loot card found matching '${name}'`);
       return null;

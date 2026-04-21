@@ -1513,6 +1513,7 @@
       background: rgba(5,4,3,0.82);
       border-radius: 4px;
       padding: 1rem;
+      padding-top: 2.5rem;
       overflow-y: auto;
     }
 
@@ -4050,7 +4051,8 @@
       text-align: center;
       opacity: 0.85;
     }
-    .mp-ally-req-btns { display: flex; gap: 0.5rem; width: 100%; }
+    .mp-ally-req-btns, #mp-ally-cost-btns { display: flex; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
+    #mp-ally-cost-btns.hidden { display: none; }
     .mp-ally-ans-btn {
       flex: 1;
       font-family: 'Cinzel', serif;

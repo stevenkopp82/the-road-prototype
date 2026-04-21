@@ -165,7 +165,7 @@
       "name": "Fishing Pole",
       "location": "road",
       "type": "item",
-      "text": "Passive: +1 food when gathering a card in Water",
+      "text": "Passive: +1 food in Water",
       "mechanism": {
         "type": "passive_event",
         "trigger": "gather_gain",
@@ -514,15 +514,17 @@
       "name": "Binoculars",
       "location": "road",
       "type": "item",
-      "text": "Passive: -1 threat in Open (min 0)",
+      "text": "Passive: +1 sanity in Open",
       "mechanism": {
-        "type": "cost_modifier",
-        "cost": "threat",
+        "type": "passive_event",
+        "trigger": "gather_gain",
+        "stat_filter": "sanity",
         "slots": [
           0
         ],
-        "amount": -1,
-        "min": 0
+        "effect": {
+          "food": 1
+        }
       },
       "value": 8,
       "icon": "SVGs/binoculars.svg"
@@ -991,7 +993,7 @@
       "name": "hiking boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 2
       },
@@ -1002,7 +1004,7 @@
       "name": "leather gloves",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "health": 1,
         "sanity": 1
@@ -1025,7 +1027,7 @@
       "name": "steel toe boots",
       "location": "road",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "health": 1,
         "sanity": 2
@@ -1083,7 +1085,7 @@
       "name": "belt",
       "location": "sprawl",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 2
       },
@@ -1162,7 +1164,7 @@
       "name": "biohazard gloves",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "mutation": 3
       },
@@ -1173,7 +1175,7 @@
       "name": "gold necklace",
       "location": "hive",
       "type": "armor",
-      "armor_slot": "accessory",
+      "armor_slot": "misc",
       "absorb": {
         "sanity": 3
       },

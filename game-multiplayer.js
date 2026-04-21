@@ -362,10 +362,10 @@ async function mpRequestAllies(card, monsterStr, myStr) {
   const waitText = document.getElementById('mp-ally-wait-text');
   waitEl.classList.remove('hidden');
 
-  // Determine eligible allies: those who haven't picked yet this round
+  // All other players are eligible to help (helping doesn't cost a turn)
   const players = await dbGet(playersPath(mpGameCode));
   const eligible = Object.entries(players || {})
-    .filter(([id, p]) => id !== mpPlayerId && !p.hasPickedThisRound);
+    .filter(([id]) => id !== mpPlayerId);
 
   if (eligible.length === 0) {
     // No allies available — fall through to die roll
@@ -409,15 +409,6 @@ async function mpRequestAllies(card, monsterStr, myStr) {
   });
 
   waitEl.classList.add('hidden');
-
-  // Mark allies who answered as having used their turn
-  const req = await dbGet(allyRequestPath);
-  const answeredAllies = Object.keys(req?.allies || {});
-  if (answeredAllies.length > 0) {
-    const updates = {};
-    answeredAllies.forEach(id => { updates[`${id}/hasPickedThisRound`] = true; });
-    await dbUpdate(playersPath(mpGameCode), updates);
-  }
 
   await dbRemove(allyRequestPath);
   return result;
@@ -761,27 +752,62 @@ function mpInitListeners() {
       banner.classList.add('hidden');
       return;
     }
-    // Only show to players who haven't picked yet
-    const myData = mpAllPlayers[mpPlayerId];
-    if (myData?.hasPickedThisRound) { banner.classList.add('hidden'); return; }
 
     const name = mpAllPlayers[req.requesterId]?.name ?? 'Your ally';
     bodyEl.textContent =
       `${name} is battling ${req.monsterName} (STR ${req.monsterStr}). ` +
       `Their STR: ${req.requesterStr}. Will you help?`;
+    // Reset to initial state in case cost panel was previously shown
+    document.getElementById('mp-ally-req-btns').classList.remove('hidden');
+    document.getElementById('mp-ally-cost-btns').classList.add('hidden');
     banner.classList.remove('hidden');
 
-    // Answer the call
-    yesBtn.onclick = async () => {
+    const costFoodBtn   = document.getElementById('mp-ally-cost-food');
+    const costHealthBtn = document.getElementById('mp-ally-cost-health');
+    const costBackBtn   = document.getElementById('mp-ally-cost-back');
+
+    const hideBanner = () => {
       banner.classList.add('hidden');
-      // Record this ally's STR contribution
+      document.getElementById('mp-ally-req-btns').classList.remove('hidden');
+      document.getElementById('mp-ally-cost-btns').classList.add('hidden');
+    };
+
+    const commitHelp = async (costLabel) => {
+      hideBanner();
       const myStr = getPlayerStrength();
+      await mpWriteMyState();
       await dbUpdate(`${roundPath(mpGameCode)}/allyRequest/allies/${mpPlayerId}`, { str: myStr });
-      gameLog.add(`⚔ You answered ${name}'s call — your STR ${myStr} added`, 'good');
+      gameLog.add(`⚔ You answered ${name}'s call (${costLabel}) — your STR ${myStr} added`, 'good');
     };
-    noBtn.onclick = () => {
-      banner.classList.add('hidden');
+
+    // Step 1: "Answer the Call" → show cost choice
+    yesBtn.onclick = () => {
+      document.getElementById('mp-ally-req-btns').classList.add('hidden');
+      document.getElementById('mp-ally-cost-btns').classList.remove('hidden');
     };
+
+    noBtn.onclick = () => hideBanner();
+
+    // Step 2: cost choices
+    costFoodBtn.onclick = async () => {
+      if (playerState.food.value < 2) {
+        gameLog.add('Not enough food to answer the call.', 'warn');
+        return;
+      }
+      if (playerState.food.set) playerState.food.set(Math.max(0, playerState.food.value - 2));
+      await commitHelp('−2 food');
+    };
+
+    costHealthBtn.onclick = async () => {
+      if (playerState.health.value < 1) {
+        gameLog.add('Not enough health to answer the call.', 'warn');
+        return;
+      }
+      if (playerState.health.set) playerState.health.set(Math.max(0, playerState.health.value - 1));
+      await commitHelp('−1 health');
+    };
+
+    costBackBtn.onclick = () => hideBanner();
   });
 
   // 5. Share requests — incoming equipment offer from an ally

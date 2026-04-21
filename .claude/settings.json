@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import os; print\\(os.getcwd\\(\\)\\)\")",
+      "Bash(node --check \"/c/Users/steve/the-road-prototype/game-mutant.js\")",
+      "Bash(node --check \"/c/Users/steve/the-road-prototype/game-combat.js\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}
