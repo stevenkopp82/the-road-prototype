@@ -169,7 +169,6 @@
       "mechanism": {
         "type": "passive_event",
         "trigger": "gather_gain",
-        "stat_filter": "food",
         "slots": [
           2
         ],
@@ -517,12 +516,11 @@
       "mechanism": {
         "type": "passive_event",
         "trigger": "gather_gain",
-        "stat_filter": "sanity",
         "slots": [
           0
         ],
         "effect": {
-          "food": 1
+          "sanity": 1
         }
       },
       "value": 8,

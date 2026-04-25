@@ -3035,6 +3035,8 @@
         '  DEV.discard()                        — list discard pile cards\n' +
         '  DEV.forceCard(name)                  — move a loot card to front of draw pile\n' +
         '  DEV.forceThreat(name)                — move a threat card to front of threat pile\n' +
+        '  DEV.give(name)                       — add a card directly to inventory by name\n' +
+        '  DEV.inventory()                      — list all currently held inventory cards\n' +
         '  DEV.seed()                           — show current RNG seed\n' +
         '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n'
       );
@@ -3143,6 +3145,48 @@
       const s = setRngSeed(n);
       console.log(`[DEV] RNG seed set to: ${s}`);
       return s;
+    },
+
+    give(name) {
+      if (!name) { console.warn('[DEV] Usage: DEV.give("card name")'); return null; }
+      const q = name.toLowerCase();
+      const card = fullDeck.find(c => c.name.toLowerCase().includes(q));
+      if (!card) { console.warn(`[DEV] No card found matching '${name}'`); return null; }
+      const c = { ...card };
+      if (c.type === 'weapon') {
+        setInventorySlot('weapon', c);
+        console.log(`[DEV] ${c.name} equipped as weapon`);
+      } else if (c.type === 'armor') {
+        const slotKey = c.armor_slot ?? 'misc';
+        armorSlots[slotKey] = { card: c, pips: { ...c.absorb } };
+        refreshArmorSlot(slotKey);
+        mpSyncInventorySlots();
+        console.log(`[DEV] ${c.name} equipped in armor slot: ${slotKey}`);
+      } else if (c.mechanism?.passive || c.mechanism?.type === 'capacity' && c.mechanism.passive) {
+        equipPassiveItem(c);
+        updateItemBars();
+        console.log(`[DEV] ${c.name} added as passive item`);
+      } else {
+        const slot = firstEmptyItemSlot();
+        if (slot < 0) { console.warn(`[DEV] No empty item slot — discard something first`); return null; }
+        setItemSlot(slot, c);
+        if (c.mechanism?.type === 'capacity') applyCapacityMechanism(c, true);
+        updateItemBars();
+        console.log(`[DEV] ${c.name} added to item slot ${slot}`);
+      }
+      gameLog.add(`[DEV] Added: ${c.name}`, 'gold');
+      return c;
+    },
+
+    inventory() {
+      const inv = {
+        weapon: inventory.weapon?.name ?? null,
+        items:  itemSlots.map((c, i) => c ? `[${i}] ${c.name} (${itemUsesArr[i]} uses)` : `[${i}] empty`),
+        armor:  Object.fromEntries(Object.entries(armorSlots).map(([k, v]) => [k, v ? `${v.card.name} ${JSON.stringify(v.pips)}` : null])),
+        passive: passiveItems.map(c => c.name),
+      };
+      console.log('[DEV] inventory:', inv);
+      return inv;
     },
   };
   console.log('[DEV] helpers ready — type DEV.help() for commands');

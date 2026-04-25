@@ -331,6 +331,10 @@ async function mpOfferFoodShare(excessFood) {
 
   dialog.classList.add('hidden');
 
+  // Push the player's own food to Firebase first (it was only set locally),
+  // so the player-state listener doesn't reset it when ally writes fire.
+  await mpWriteMyState();
+
   // Write food deltas to Firebase for each recipient
   const writes = Object.entries(allocations).filter(([, amt]) => amt > 0).map(([id, amt]) => {
     const recipientFood = mpAllPlayers[id]?.food ?? 0;
@@ -343,8 +347,8 @@ async function mpOfferFoodShare(excessFood) {
 
 // ── Phase 4: Ally Battle System ────────────────────────────────────
 // Called by the active player when they lose a first battle in co-op.
-// Returns a promise that resolves to: { won: bool, combinedStr: number }
-async function mpRequestAllies(card, monsterStr, myStr) {
+// Returns a promise that resolves to: { won: bool, combinedStr: number } where combinedStr is ally STR only
+async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
   const allyRequestPath = `${roundPath(mpGameCode)}/allyRequest`;
 
   // Write the request to Firebase — eligible allies will see the banner
@@ -371,23 +375,33 @@ async function mpRequestAllies(card, monsterStr, myStr) {
     // No allies available — fall through to die roll
     waitEl.classList.add('hidden');
     await dbRemove(allyRequestPath);
-    return { won: false, combinedStr: myStr };
+    return { won: false, combinedStr: 0 };
   }
 
   // Poll for ally responses with a 30-second timeout
   const result = await new Promise(resolve => {
     let timeout = null;
-    const unsub = dbListen(allyRequestPath, req => {
-      if (!req) { unsub(); resolve({ won: false, combinedStr: myStr }); return; }
+    let settled = false;
+    let unsub;
+
+    const settle = (val) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      if (unsub) unsub();
+      resolve(val);
+    };
+
+    unsub = dbListen(allyRequestPath, req => {
+      if (!req) { settle({ won: false, combinedStr: 0 }); return; }
 
       const alliedIds = Object.keys(req.allies || {});
-      const combinedStr = myStr + alliedIds.reduce((sum, id) => {
-        // Use the ally's STR recorded when they answered
+      const combinedStr = alliedIds.reduce((sum, id) => {
         return sum + (req.allies[id]?.str ?? 0);
       }, 0);
 
       waitText.textContent = alliedIds.length > 0
-        ? `${alliedIds.length} ally/allies answered — combined STR: ${combinedStr} vs ${monsterStr}`
+        ? `${alliedIds.length} ally/allies answered — ally STR: ${combinedStr} vs ${monsterStr}`
         : 'Calling for allies...';
 
       // Resolve if we've won or all eligible allies have responded
@@ -396,15 +410,16 @@ async function mpRequestAllies(card, monsterStr, myStr) {
       );
 
       if (combinedStr > monsterStr || allAnswered) {
-        clearTimeout(timeout);
-        unsub();
-        resolve({ won: combinedStr > monsterStr, combinedStr });
+        settle({ won: combinedStr > monsterStr, combinedStr });
       }
     });
 
+    abandonBtn.addEventListener('click', () => {
+      settle({ won: false, combinedStr: 0, abandoned: true });
+    }, { once: true });
+
     timeout = setTimeout(() => {
-      unsub();
-      resolve({ won: false, combinedStr: myStr });
+      settle({ won: false, combinedStr: 0 });
     }, 30000);
   });
 

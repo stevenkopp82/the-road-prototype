@@ -5,7 +5,10 @@
       "Bash(python3 -c \"import os; print\\(os.getcwd\\(\\)\\)\")",
       "Bash(node --check \"/c/Users/steve/the-road-prototype/game-mutant.js\")",
       "Bash(node --check \"/c/Users/steve/the-road-prototype/game-combat.js\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('environments', d\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Read(//c/Users/steve/**)"
     ]
   }
 }

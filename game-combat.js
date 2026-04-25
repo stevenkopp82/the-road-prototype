@@ -512,13 +512,30 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
           // ── Fight again: co-op uses ally system; solo rolls d6 ───────────
           if (isMultiplayer) {
             const myEffStr = effStr; // already computed above
+
+            // Add abandon button to the battle dialog while waiting for allies
+            const abandonRow = document.createElement('div');
+            abandonRow.className = 'second-chance-row';
+            const abandonBtn = document.createElement('button');
+            abandonBtn.className = 'second-chance-btn btn-flee';
+            abandonBtn.textContent = '↩ Abandon Call';
+            abandonRow.appendChild(abandonBtn);
+            effectsEl.appendChild(abandonRow);
+
             let allyResult;
             try {
-              allyResult = await mpRequestAllies(card, reducedMonsterStr, myEffStr);
+              allyResult = await mpRequestAllies(card, reducedMonsterStr, myEffStr, abandonBtn);
             } catch (e) {
               console.error('mpRequestAllies failed:', e);
-              allyResult = { won: false, combinedStr: myEffStr };
+              allyResult = { won: false, combinedStr: 0 };
               btn.style.display = '';
+            }
+            effectsEl.innerHTML = '';
+
+            if (allyResult.abandoned) {
+              gameLog.add(`↩ You abandoned the call for help — turn ends`, 'dim');
+              resolve({ lootLost: true });
+              return;
             }
 
             // Rebuild display to show ally result
@@ -533,7 +550,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
             r2PlayerPanel.appendChild(r2Title);
             const r2StrEl = document.createElement('div');
             r2StrEl.className = 'battle-str-total';
-            r2StrEl.innerHTML = `<span class="bsr-label">Combined STR</span><span class="battle-stat-value player-str">${allyResult.combinedStr}</span>`;
+            r2StrEl.innerHTML = `<span class="bsr-label">Ally STR</span><span class="battle-stat-value player-str">${allyResult.combinedStr}</span>`;
             r2PlayerPanel.appendChild(r2StrEl);
             const r2MonPanel = document.createElement('div');
             r2MonPanel.className = 'battle-panel battle-monster-panel';
