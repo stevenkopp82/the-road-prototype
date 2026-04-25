@@ -3118,23 +3118,45 @@
     },
 
     forceThreat(name) {
-      const q = name.toLowerCase();
-      const idx = threatPile.findIndex(c => c.name.toLowerCase().includes(q));
+      const q   = name.toLowerCase();
+      const loc = _THREAT_LOCS[Math.min(deckPass, 2)];
+      const pile = threatDrawPiles[loc] ?? [];
+      const idx  = pile.findIndex(c => c.name.toLowerCase().includes(q));
       if (idx >= 0) {
-        const [card] = threatPile.splice(idx, 1);
-        threatPile.unshift(card);
-        console.log(`[DEV] Threat '${card.name}' → front of threat pile`);
+        const [card] = pile.splice(idx, 1);
+        pile.unshift(card);
+        console.log(`[DEV] Threat '${card.name}' → front of ${loc} draw pile`);
         return card;
       }
       // Inject a fresh copy from the master list
       const card = threatFull.find(c => c.name.toLowerCase().includes(q));
       if (card) {
-        threatPile.unshift({ ...card });
-        console.log(`[DEV] Threat '${card.name}' injected at front of threat pile`);
+        pile.unshift({ ...card });
+        console.log(`[DEV] Threat '${card.name}' injected at front of ${loc} draw pile`);
         return card;
       }
       console.warn(`[DEV] No threat found matching '${name}'`);
       return null;
+    },
+
+    threatDeck(loc) {
+      const target = loc
+        ? _THREAT_LOCS.find(l => l.toLowerCase().includes(loc.toLowerCase())) ?? _THREAT_LOCS[Math.min(deckPass, 2)]
+        : _THREAT_LOCS[Math.min(deckPass, 2)];
+      const draw    = threatDrawPiles[target]    ?? [];
+      const discard = threatDiscardPiles[target] ?? [];
+      console.log(`[DEV] Threat deck — ${target}`);
+      console.log(`  Draw (${draw.length}):`, draw.map(c => c.name));
+      console.log(`  Discard (${discard.length}):`, discard.map(c => c.name));
+      return { location: target, draw, discard };
+    },
+
+    threatDeckAll() {
+      for (const loc of _THREAT_LOCS) {
+        const draw    = threatDrawPiles[loc]    ?? [];
+        const discard = threatDiscardPiles[loc] ?? [];
+        console.log(`[DEV] ${loc} — draw (${draw.length}): [${draw.map(c => c.name).join(', ')}]  |  discard (${discard.length}): [${discard.map(c => c.name).join(', ')}]`);
+      }
     },
 
     seed(n) {

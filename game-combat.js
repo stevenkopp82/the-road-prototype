@@ -13,8 +13,11 @@
  *   tempStrBonus, retainedSlot, suppressThreatNextPick, weaponUsesRemaining
  */
 
-var threatFull = [];
-var threatPile = [];
+var threatFull         = [];
+var threatDrawPiles    = {};  // { 'The Road': [], 'The Sprawl': [], 'The Hive': [] }
+var threatDiscardPiles = {};  // same structure — cards move here after resolution
+
+const _THREAT_LOCS = ['The Road', 'The Sprawl', 'The Hive'];
 
 async function loadThreatDeck() {
   try {
@@ -22,7 +25,12 @@ async function loadThreatDeck() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     threatFull = data.threat_deck;
-    threatPile = shuffle([...threatFull]);
+    threatDrawPiles   = {};
+    threatDiscardPiles = {};
+    for (const loc of _THREAT_LOCS) {
+      threatDrawPiles[loc]   = shuffle(threatFull.filter(c => c.location === loc));
+      threatDiscardPiles[loc] = [];
+    }
     console.log(`✓ Loaded ${threatFull.length} threat cards`);
   } catch (e) {
     console.warn('Could not load data/threat-deck.json:', e.message);
@@ -30,22 +38,18 @@ async function loadThreatDeck() {
 }
 
 function drawThreatCard() {
-  const locationNames = ['The Road', 'The Sprawl', 'The Hive'];
-  const currentLocation = locationNames[Math.min(deckPass, 2)];
-  // Filter full deck to only cards for the current location
-  const locationCards = threatFull.filter(c => c.location === currentLocation);
-  if (locationCards.length === 0) return null; // fallback if no cards for location
-  // Replenish location pile if empty
-  if (threatPile.length === 0 || !threatPile.some(c => c.location === currentLocation)) {
-    threatPile = shuffle([...locationCards]);
+  const loc = _THREAT_LOCS[Math.min(deckPass, 2)];
+  if (!threatDrawPiles[loc]) return null;
+  if (threatDrawPiles[loc].length === 0) {
+    if (!threatDiscardPiles[loc]?.length) return null;
+    // Reshuffle discard into draw pile
+    threatDrawPiles[loc]   = shuffle([...threatDiscardPiles[loc]]);
+    threatDiscardPiles[loc] = [];
+    console.log(`[Threat] ${loc} reshuffled ${threatDrawPiles[loc].length} cards from discard`);
   }
-  // Draw the first card matching current location
-  const idx = threatPile.findIndex(c => c.location === currentLocation);
-  if (idx < 0) {
-    threatPile = shuffle([...locationCards]);
-    return threatPile.splice(0, 1)[0] ?? null;
-  }
-  return threatPile.splice(idx, 1)[0];
+  const card = threatDrawPiles[loc].shift();
+  if (card) threatDiscardPiles[loc].push(card);
+  return card ?? null;
 }
 
 /* ── Compute player's base strength (no weapon) ── */

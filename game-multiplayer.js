@@ -109,12 +109,29 @@ function mpWriteSharedState(currentSlotCards) {
   // Ensure no undefined in arrays (Firebase rejects undefined)
   const safeSlots = (currentSlotCards || slotCards).map(c => c ?? null);
   return dbSet(sharedStatePath(mpGameCode), {
-    slotCards:       safeSlots,
-    drawPile:        drawPile,
-    discardPile:     discardPile,
-    injuredMonsters: injuredMonsters,
-    deckPass:        deckPass,
+    slotCards:          safeSlots,
+    drawPile:           drawPile,
+    discardPile:        discardPile,
+    injuredMonsters:    injuredMonsters,
+    deckPass:           deckPass,
+    threatDrawPiles:    threatDrawPiles,
+    threatDiscardPiles: threatDiscardPiles,
   });
+}
+
+// ── Apply threat pile state from Firebase (handles array/object mismatch) ──
+function _applyThreatPilesFromState(state) {
+  const toArr = v => v == null ? [] : (Array.isArray(v) ? v : Object.values(v));
+  if (state.threatDrawPiles) {
+    for (const loc of _THREAT_LOCS) {
+      threatDrawPiles[loc]   = toArr(state.threatDrawPiles[loc]);
+    }
+  }
+  if (state.threatDiscardPiles) {
+    for (const loc of _THREAT_LOCS) {
+      threatDiscardPiles[loc] = toArr(state.threatDiscardPiles[loc]);
+    }
+  }
 }
 
 // ── Ally sidebar ──────────────────────────────────────────────────────
@@ -722,6 +739,7 @@ function mpInitListeners() {
     drawPile        = Array.isArray(state.drawPile)        ? state.drawPile        : Object.values(state.drawPile        || {});
     discardPile     = Array.isArray(state.discardPile)     ? state.discardPile     : Object.values(state.discardPile     || {});
     injuredMonsters = Array.isArray(state.injuredMonsters) ? state.injuredMonsters : Object.values(state.injuredMonsters || {});
+    _applyThreatPilesFromState(state);
     if (typeof state.deckPass === 'number' && state.deckPass !== deckPass) {
       deckPass = state.deckPass;
       updateBoardLocation();
@@ -925,6 +943,7 @@ async function mpInit() {
     drawPile        = Array.isArray(shared.drawPile)        ? shared.drawPile        : Object.values(shared.drawPile        || {});
     discardPile     = Array.isArray(shared.discardPile)     ? shared.discardPile     : Object.values(shared.discardPile     || {});
     injuredMonsters = Array.isArray(shared.injuredMonsters) ? shared.injuredMonsters : Object.values(shared.injuredMonsters || {});
+    _applyThreatPilesFromState(shared);
     if (typeof shared.deckPass === 'number' && shared.deckPass !== deckPass) {
       deckPass = shared.deckPass;
       updateBoardLocation();
@@ -943,6 +962,7 @@ async function mpInit() {
         drawPile        = Array.isArray(state.drawPile)        ? state.drawPile        : Object.values(state.drawPile        || {});
         discardPile     = Array.isArray(state.discardPile)     ? state.discardPile     : Object.values(state.discardPile     || {});
         injuredMonsters = Array.isArray(state.injuredMonsters) ? state.injuredMonsters : Object.values(state.injuredMonsters || {});
+        _applyThreatPilesFromState(state);
         if (typeof state.deckPass === 'number' && state.deckPass !== deckPass) {
           deckPass = state.deckPass;
           updateBoardLocation();
