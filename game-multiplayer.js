@@ -690,6 +690,7 @@ function mpInitListeners() {
       mpHideWaiting();
       setAllSlotsLocked(false);
       cardSelected = false;
+      updateItemBars();
     } else {
       const name = mpAllPlayers[round.activePlayerId]?.name ?? 'Another player';
       mpShowWaiting(name);
