@@ -26,9 +26,9 @@ index.html          # Welcome screen: lore, difficulty selection, links to game/
 game.html           # Full game: all dialogs, boards, game JS (~4,000 lines)
 style.css           # All CSS shared by index.html and game.html (~3,100 lines)
 catalog.html        # Card catalog viewer (reads from JSON, no game logic)
-loot-deck.json      # Loot cards (weapons, armor, items, gather)
-threat-deck.json    # 36 threat cards (break/setback/monster) across 3 locations
-mutant-deck.json    # 9 mutant ability cards
+data/loot-deck.json      # Loot cards (weapons, armor, items, gather)
+data/threat-deck.json    # 36 threat cards (break/setback/monster) across 3 locations
+data/mutant-deck.json    # 9 mutant ability cards
 SVGs/               # Card icons
 the_road_components.pdf  # Game design reference document
 README.md

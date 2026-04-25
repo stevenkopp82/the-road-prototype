@@ -17,8 +17,8 @@ var hivePool   = [];  // Hive cards, drawn from during draft
 async function loadDeck(dealCount = 40, excludeName = null) {
   const titleEl = document.getElementById('gather-board-title');
   try {
-    const res = await fetch('loot-deck.json?v=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the same folder?`);
+    const res = await fetch('data/loot-deck.json?v=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status} — is loot-deck.json in the data/ folder?`);
     const data = await res.json();
     if (!data.loot_deck || !Array.isArray(data.loot_deck)) throw new Error('Unexpected JSON structure');
     fullDeck = data.loot_deck;

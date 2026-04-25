@@ -188,7 +188,6 @@
       "mechanism": {
         "type": "passive_event",
         "trigger": "gather_gain",
-        "stat_filter": "sanity",
         "slots": [
           1
         ],
@@ -575,8 +574,7 @@
           "health": 1
         }
       },
-      "uses": 2,
-      "value": 4,
+      "value": 12,
       "icon": "SVGs/camping-tent.svg"
     },
     {

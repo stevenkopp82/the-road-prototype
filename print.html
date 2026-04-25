@@ -325,9 +325,9 @@ async function init() {
   const root = document.getElementById('root');
   try {
     const [lr, tr, mr] = await Promise.all([
-      fetch('loot-deck.json'),
-      fetch('threat-deck.json'),
-      fetch('mutant-deck.json')
+      fetch('data/loot-deck.json'),
+      fetch('data/threat-deck.json'),
+      fetch('data/mutant-deck.json')
     ]);
     const loot   = (await lr.json()).loot_deck;
     const threat = (await tr.json()).threat_deck;

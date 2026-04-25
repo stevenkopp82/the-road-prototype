@@ -1264,7 +1264,9 @@
   }
 
   // ── passive_event / gather_gain ───────────────────────────────────
-  // Called after a gather stat is applied; returns extra lines
+  // Called after a gather stat is applied; returns extra lines.
+  // Only handles items with stat_filter (fires per-stat). Items without
+  // stat_filter are handled by triggerGatherGainOnce (fires per-card).
   function triggerGatherGain(stat, amountGained, slotIndex) {
     if (amountGained <= 0) return [];
     const lines = [];
@@ -1272,9 +1274,38 @@
       if (!card?.mechanism) continue;
       const m = card.mechanism;
       if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
-      if (m.stat_filter && m.stat_filter !== stat) continue;
+      if (!m.stat_filter) continue; // no stat_filter → handled by triggerGatherGainOnce
+      if (m.stat_filter !== stat) continue;
       if (m.slots && !m.slots.includes(slotIndex)) continue;
       // Check uses if the card has them
+      if (card.uses != null) {
+        if (itemUsesArr[idx] <= 0) continue;
+        itemUsesArr[idx]--;
+        if (itemUsesArr[idx] === 0) {
+          setItemSlot(idx, null);
+        } else {
+          renderItemSlots();
+        }
+      }
+      for (const [eStat, eAmt] of Object.entries(m.effect)) {
+        const cap = eStat === 'food' ? maxFood : 10;
+        const next = Math.min(cap, playerState[eStat].value + eAmt);
+        if (playerState[eStat].set) playerState[eStat].set(next);
+        lines.push(`${card.name} — ${eStat} +${eAmt} (${next})`);
+      }
+    }
+    return lines;
+  }
+
+  // Fires gather_gain items that have no stat_filter — once per gather card.
+  function triggerGatherGainOnce(slotIndex) {
+    const lines = [];
+    for (const [idx, card] of itemSlots.entries()) {
+      if (!card?.mechanism) continue;
+      const m = card.mechanism;
+      if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
+      if (m.stat_filter) continue; // has stat_filter → handled by triggerGatherGain
+      if (m.slots && !m.slots.includes(slotIndex)) continue;
       if (card.uses != null) {
         if (itemUsesArr[idx] <= 0) continue;
         itemUsesArr[idx]--;
@@ -1992,8 +2023,8 @@
      THREAT DECK
   ═══════════════════════════════════════════ */
   async function loadGatherTrack() {
-    const res  = await fetch('gather-track.json?v=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status} loading gather-track.json`);
+    const res  = await fetch('data/gather-track.json?v=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status} loading data/gather-track.json`);
     const data = await res.json();
     const diff = data.difficulties[_session.difficulty] ?? data.difficulties['resolute'];
     SLOT_ENVIRONMENTS = data.environments;
@@ -2219,6 +2250,9 @@
             effectLines.push(`🧠 Psychologist — +1 extra sanity (${next})`);
           }
         }
+        // Once-per-gather passives (no stat_filter, e.g. Hiking Sticks)
+        const onceLines = triggerGatherGainOnce(slotIndex);
+        effectLines.push(...onceLines);
       }
     } else if (card.mechanism?.type === 'instant') {
       // Instant-use: resolved immediately, card goes to discard

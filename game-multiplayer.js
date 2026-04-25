@@ -786,7 +786,11 @@ function mpInitListeners() {
       document.getElementById('mp-ally-cost-btns').classList.remove('hidden');
     };
 
-    noBtn.onclick = () => hideBanner();
+    noBtn.onclick = async () => {
+      hideBanner();
+      // Record the decline so allAnswered resolves without waiting for the full timeout
+      await dbUpdate(`${roundPath(mpGameCode)}/allyRequest/allies/${mpPlayerId}`, { declined: true }).catch(() => {});
+    };
 
     // Step 2: cost choices
     costFoodBtn.onclick = async () => {

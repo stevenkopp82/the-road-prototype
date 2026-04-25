@@ -22,14 +22,14 @@ var _pendingMutantSpots = 0; // count of mutation thresholds crossed, awaited by
 
 async function loadMutantDeck() {
   try {
-    const res  = await fetch('mutant-deck.json?v=' + Date.now());
+    const res  = await fetch('data/mutant-deck.json?v=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     mutantFull = data.mutant_deck;
     mutantPile = shuffle([...mutantFull]);
     console.log(`✓ Loaded ${mutantFull.length} mutant cards`);
   } catch (e) {
-    console.warn('Could not load mutant-deck.json:', e.message);
+    console.warn('Could not load data/mutant-deck.json:', e.message);
   }
 }
 

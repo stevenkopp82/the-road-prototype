@@ -843,9 +843,9 @@
   /* ── Load data ── */
   const ts = Date.now();
   Promise.all([
-    fetch(`loot-deck.json?v=${ts}`).then(r => r.json()),
-    fetch(`threat-deck.json?v=${ts}`).then(r => r.json()),
-    fetch(`mutant-deck.json?v=${ts}`).then(r => r.json()),
+    fetch(`data/loot-deck.json?v=${ts}`).then(r => r.json()),
+    fetch(`data/threat-deck.json?v=${ts}`).then(r => r.json()),
+    fetch(`data/mutant-deck.json?v=${ts}`).then(r => r.json()),
   ]).then(([lootData, threatData, mutantData]) => {
     allLoot    = lootData.loot_deck   ?? [];
     allThreats = threatData.threat_deck ?? [];

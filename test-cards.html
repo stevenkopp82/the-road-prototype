@@ -373,9 +373,9 @@
        LOAD JSON AND RUN
     ══════════════════════════════════════════════════════════════════ */
     Promise.all([
-      fetch('loot-deck.json').then(r => r.json()),
-      fetch('threat-deck.json').then(r => r.json()),
-      fetch('mutant-deck.json').then(r => r.json()),
+      fetch('data/loot-deck.json').then(r => r.json()),
+      fetch('data/threat-deck.json').then(r => r.json()),
+      fetch('data/mutant-deck.json').then(r => r.json()),
     ]).then(([lootRaw, threatRaw, mutantRaw]) => {
       const loot    = lootRaw.loot_deck;
       const threats = threatRaw.threat_deck;

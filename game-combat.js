@@ -18,14 +18,14 @@ var threatPile = [];
 
 async function loadThreatDeck() {
   try {
-    const res  = await fetch('threat-deck.json?v=' + Date.now());
+    const res  = await fetch('data/threat-deck.json?v=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     threatFull = data.threat_deck;
     threatPile = shuffle([...threatFull]);
     console.log(`✓ Loaded ${threatFull.length} threat cards`);
   } catch (e) {
-    console.warn('Could not load threat-deck.json:', e.message);
+    console.warn('Could not load data/threat-deck.json:', e.message);
   }
 }
 
@@ -512,7 +512,14 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
           // ── Fight again: co-op uses ally system; solo rolls d6 ───────────
           if (isMultiplayer) {
             const myEffStr = effStr; // already computed above
-            const allyResult = await mpRequestAllies(card, reducedMonsterStr, myEffStr);
+            let allyResult;
+            try {
+              allyResult = await mpRequestAllies(card, reducedMonsterStr, myEffStr);
+            } catch (e) {
+              console.error('mpRequestAllies failed:', e);
+              allyResult = { won: false, combinedStr: myEffStr };
+              btn.style.display = '';
+            }
 
             // Rebuild display to show ally result
             display.innerHTML = '';
