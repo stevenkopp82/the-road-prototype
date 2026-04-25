@@ -2826,7 +2826,7 @@
       updateStatsPill();
       // Track mutation thresholds crossed — game flow awaits these via drainMutantSpots()
       if (track.id === 'mutation') {
-        const MUTATION_CARDS_SET = new Set([4, 6, 9]);
+        const MUTATION_CARDS_SET = new Set([3, 5, 8]);
         const lo = Math.min(prevVal, newVal), hi = Math.max(prevVal, newVal);
         for (const spot of MUTATION_CARDS_SET) {
           if (spot > lo && spot <= hi && newVal > prevVal) {
@@ -2848,7 +2848,7 @@
 
     const isMutation = track.id === 'mutation';
     const MUTATION_SKULL = 10;
-    const MUTATION_CARDS = new Set([4, 6, 9]);
+    const MUTATION_CARDS = new Set([3, 5, 8]);
 
     const trackEl = document.createElement('div');
     trackEl.className = 'track';

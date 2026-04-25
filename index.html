@@ -407,6 +407,12 @@
         mutation:   btn.dataset.mutation,
       };
       if (_flow === 'solo') {
+        // Clear any stale multiplayer session from an abandoned co-op game
+        sessionStorage.removeItem('multiplayer');
+        sessionStorage.removeItem('gameCode');
+        sessionStorage.removeItem('playerId');
+        sessionStorage.removeItem('mpIsHost');
+        sessionStorage.removeItem('mpFreshStart');
         saveSessionAndGo();
         window.location.href = 'game.html';
       } else {
