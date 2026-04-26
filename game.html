@@ -794,9 +794,16 @@
   /* ── Apply starvation: health −1, sanity −1 */
   function applyStarvation() {
     if (gameOver) return;
-    const newHealth = Math.max(0, playerState.health.value - 1);
+    let healthDmg = 1;
+    if (hasMutant('hardened_skin', mutantCards) && !_hardenedSkinUsed) {
+      _hardenedSkinUsed = true;
+      healthDmg = 0;
+      showToast('🪨 Hardened skin — health damage ignored', false, 2400);
+      gameLog.add('🪨 Hardened skin — starvation health damage ignored', 'dim');
+    }
+    const newHealth = Math.max(0, playerState.health.value - healthDmg);
     const newSanity = Math.max(0, playerState.sanity.value - 1);
-    gameLog.add(`🌾 Starving — −1 health (${newHealth}), −1 sanity (${newSanity})`, 'warn');
+    gameLog.add(`🌾 Starving — −${healthDmg} health (${newHealth}), −1 sanity (${newSanity})`, 'warn');
     if (playerState.health.set) playerState.health.set(newHealth);
     if (checkGameOver('health', newHealth)) return;
 
@@ -853,6 +860,7 @@
   var retainedSlot = null; // { card, slotIndex } — card kept on board after battle loss
   var suppressThreatNextPick = false; // Walkie-talkie: skip all threats on next pick
   var tempStrBonus = 0;               // Adrenaline shot: +3 STR for one battle, then reset
+  var _hardenedSkinUsed = false;      // Hardened skin: resets each turn, blocks first health damage
 
 
 
@@ -948,12 +956,18 @@
     if ((effects.sanity ?? 0) > 0 && character === 'psychologist')
       lines.push('🧠 Psychologist — +1 extra sanity');
 
-    // Item passive_event / gather_gain bonuses
+    // Item passive bonuses: gather_gain (stat-filtered) and loot_gain (any card type)
     for (const itemCard of itemSlots) {
       if (!itemCard?.mechanism) continue;
       const m = itemCard.mechanism;
-      if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
-      if (m.stat_filter && !((effects[m.stat_filter] ?? 0) > 0)) continue;
+      if (m.type !== 'passive_event') continue;
+      if (m.trigger === 'gather_gain') {
+        if (m.stat_filter && !((effects[m.stat_filter] ?? 0) > 0)) continue;
+      } else if (m.trigger === 'loot_gain') {
+        // fires for any card at this slot — no stat check needed
+      } else {
+        continue;
+      }
       if (m.slots && !m.slots.includes(slotIndex)) continue;
       for (const [stat, amt] of Object.entries(m.effect)) {
         const icon = EFFECT_META[stat]?.icon ?? '';
@@ -1162,8 +1176,11 @@
         headerRow.appendChild(envBadge);
       });
     }
-    if (card.mechanism?.type === 'passive_event' && card.mechanism.trigger === 'gather_gain' && card.mechanism.slots?.length) {
-      const gainIcon = card.mechanism.stat_filter === 'food' ? '🌾' : card.mechanism.stat_filter === 'health' ? '❤️' : '✨';
+    if (card.mechanism?.type === 'passive_event' &&
+        (card.mechanism.trigger === 'gather_gain' || card.mechanism.trigger === 'loot_gain') &&
+        card.mechanism.slots?.length) {
+      const firstEffectKey = Object.keys(card.mechanism.effect ?? {})[0];
+      const gainIcon = firstEffectKey === 'food' ? '🌾' : firstEffectKey === 'health' ? '❤️' : firstEffectKey === 'sanity' ? '🧠' : '✨';
       card.mechanism.slots.forEach(slotIdx => {
         const envDef = SLOT_ENVIRONMENTS[slotIdx];
         if (!envDef) return;
@@ -1265,8 +1282,8 @@
 
   // ── passive_event / gather_gain ───────────────────────────────────
   // Called after a gather stat is applied; returns extra lines.
-  // Only handles items with stat_filter (fires per-stat). Items without
-  // stat_filter are handled by triggerGatherGainOnce (fires per-card).
+  // Only handles items with stat_filter (fires per-stat).
+  // Items with trigger loot_gain (no stat_filter) are handled by triggerLootGain.
   function triggerGatherGain(stat, amountGained, slotIndex) {
     if (amountGained <= 0) return [];
     const lines = [];
@@ -1274,7 +1291,7 @@
       if (!card?.mechanism) continue;
       const m = card.mechanism;
       if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
-      if (!m.stat_filter) continue; // no stat_filter → handled by triggerGatherGainOnce
+      if (!m.stat_filter) continue;
       if (m.stat_filter !== stat) continue;
       if (m.slots && !m.slots.includes(slotIndex)) continue;
       // Check uses if the card has them
@@ -1297,14 +1314,14 @@
     return lines;
   }
 
-  // Fires gather_gain items that have no stat_filter — once per gather card.
-  function triggerGatherGainOnce(slotIndex) {
+  // ── passive_event / loot_gain ────────────────────────────────────
+  // Fires once per card pick from the matching slot(s), regardless of card type.
+  function triggerLootGain(slotIndex) {
     const lines = [];
     for (const [idx, card] of itemSlots.entries()) {
       if (!card?.mechanism) continue;
       const m = card.mechanism;
-      if (m.type !== 'passive_event' || m.trigger !== 'gather_gain') continue;
-      if (m.stat_filter) continue; // has stat_filter → handled by triggerGatherGain
+      if (m.type !== 'passive_event' || m.trigger !== 'loot_gain') continue;
       if (m.slots && !m.slots.includes(slotIndex)) continue;
       if (card.uses != null) {
         if (itemUsesArr[idx] <= 0) continue;
@@ -2085,6 +2102,7 @@
   /* ── Card selection handler ─────────────────────────────────────── */
   async function onCardSelected(slotIndex) {
     if (cardSelected) return;
+    _hardenedSkinUsed = false;
     const card = slotCards[slotIndex];
     const locNames = ['The Road', 'The Sprawl', 'The Hive'];
     const locLabel = locNames[Math.min(deckPass, 2)];
@@ -2139,10 +2157,19 @@
 
     // 1c. Pay health cost
     if (healthCost > 0) {
-      const newHealth = Math.max(0, playerState.health.value - healthCost);
-      if (playerState.health.set) playerState.health.set(newHealth);
-      gameLog.add(`❤️ Slot cost: −${healthCost} health (${newHealth})`, 'warn');
-      if (checkGameOver('health', newHealth)) return;
+      let actualHealthCost = healthCost;
+      if (hasMutant('hardened_skin', mutantCards) && !_hardenedSkinUsed) {
+        _hardenedSkinUsed = true;
+        actualHealthCost = 0;
+        showToast('🪨 Hardened skin — health damage ignored', false, 2400);
+        gameLog.add('🪨 Hardened skin — slot health cost ignored', 'dim');
+      }
+      if (actualHealthCost > 0) {
+        const newHealth = Math.max(0, playerState.health.value - actualHealthCost);
+        if (playerState.health.set) playerState.health.set(newHealth);
+        gameLog.add(`❤️ Slot cost: −${actualHealthCost} health (${newHealth})`, 'warn');
+        if (checkGameOver('health', newHealth)) return;
+      }
     }
 
     // 1d. Pay sanity cost
@@ -2250,9 +2277,6 @@
             effectLines.push(`🧠 Psychologist — +1 extra sanity (${next})`);
           }
         }
-        // Once-per-gather passives (no stat_filter, e.g. Hiking Sticks)
-        const onceLines = triggerGatherGainOnce(slotIndex);
-        effectLines.push(...onceLines);
       }
     } else if (card.mechanism?.type === 'instant') {
       // Instant-use: resolved immediately, card goes to discard
@@ -2413,6 +2437,12 @@
       if (gearAcquired) {
         // (reserve mechanic removed — gear is now introduced via location drafts)
       }
+    }
+
+    // loot_gain passives fire on any successful card pick, regardless of type
+    if (!lootBlocked) {
+      const lootGainLines = triggerLootGain(slotIndex);
+      effectLines.push(...lootGainLines);
     }
 
     // 4b. Mutation thresholds from loot effects (gather cards can add mutation outside of
@@ -3036,6 +3066,7 @@
         '  DEV.forceCard(name)                  — move a loot card to front of draw pile\n' +
         '  DEV.forceThreat(name)                — move a threat card to front of threat pile\n' +
         '  DEV.give(name)                       — add a card directly to inventory by name\n' +
+        '  DEV.giveMutation()                   — trigger the mutant card pick dialog\n' +
         '  DEV.inventory()                      — list all currently held inventory cards\n' +
         '  DEV.seed()                           — show current RNG seed\n' +
         '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n'
@@ -3198,6 +3229,27 @@
       }
       gameLog.add(`[DEV] Added: ${c.name}`, 'gold');
       return c;
+    },
+
+    giveMutation(name) {
+      if (name) {
+        const q = name.toLowerCase();
+        const card = mutantFull.find(c => c.name.toLowerCase().includes(q));
+        if (!card) {
+          console.warn(`[DEV] No mutant card found matching '${name}'. Available:`, mutantFull.map(c => c.name));
+          return null;
+        }
+        mutantCards.push(card);
+        renderMutantPanel();
+        updateSlotCosts();
+        console.log(`[DEV] Mutation added: ${card.name}`);
+        gameLog.add(`[DEV] Mutation: ${card.name}`, 'gold');
+        return card;
+      }
+      console.log('[DEV] Triggering mutant card pick dialog');
+      onMutantCardSpot().then(() => {
+        console.log('[DEV] Mutation picked — current mutants:', mutantCards.map(c => c.name));
+      });
     },
 
     inventory() {

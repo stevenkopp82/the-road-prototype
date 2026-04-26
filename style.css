@@ -3284,6 +3284,20 @@
       60%       { transform: translateX(-4px); }
       80%       { transform: translateX(4px); }
     }
+    .sm-char-btn.sm-char-taken {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .sm-char-btn.sm-char-taken::after {
+      content: 'Taken';
+      display: block;
+      font-size: 0.38rem;
+      letter-spacing: 0.12em;
+      color: #e08080;
+      margin-top: 0.15rem;
+      text-transform: uppercase;
+    }
 
     .sm-difficulty {
       margin-top: 0.6rem;
@@ -3580,6 +3594,34 @@
       font-size: 0.42rem;
       color: rgba(200,150,42,0.55);
       font-style: italic;
+    }
+    .mp-avail-chars {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: center;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(200,150,42,0.15);
+      min-height: 1.2rem;
+    }
+    .mp-avail-label {
+      font-family: 'Spectral', serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      opacity: 0.5;
+    }
+    .mp-avail-char-chip {
+      font-family: 'Spectral', serif;
+      font-size: 0.48rem;
+      color: var(--gold-dim);
+      background: rgba(200,150,42,0.07);
+      border: 1px solid rgba(200,150,42,0.2);
+      border-radius: 3px;
+      padding: 0.12rem 0.32rem;
     }
     .mp-status-msg {
       font-family: 'Spectral', serif;

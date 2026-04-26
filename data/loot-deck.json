@@ -168,7 +168,7 @@
       "text": "Passive: +1 food in Water",
       "mechanism": {
         "type": "passive_event",
-        "trigger": "gather_gain",
+        "trigger": "loot_gain",
         "slots": [
           2
         ],
@@ -180,13 +180,31 @@
       "icon": "SVGs/fishing-pole.svg"
     },
     {
+      "name": "Trowel",
+      "location": "road",
+      "type": "item",
+      "text": "Passive: +1 food in Nest",
+      "mechanism": {
+        "type": "passive_event",
+        "trigger": "loot_gain",
+        "slots": [
+          4
+        ],
+        "effect": {
+          "food": 1
+        }
+      },
+      "value": 4,
+      "icon": "SVGs/trowel.svg"
+    },
+    {
       "name": "Hiking sticks",
       "location": "sprawl",
       "type": "item",
-      "text": "Passive: +1 sanity when gathering a card in Ruin",
+      "text": "Passive: +1 sanity when picking any card in Ruin",
       "mechanism": {
         "type": "passive_event",
-        "trigger": "gather_gain",
+        "trigger": "loot_gain",
         "slots": [
           1
         ],
@@ -515,7 +533,7 @@
       "text": "Passive: +1 sanity in Open",
       "mechanism": {
         "type": "passive_event",
-        "trigger": "gather_gain",
+        "trigger": "loot_gain",
         "slots": [
           0
         ],

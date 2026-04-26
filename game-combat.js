@@ -121,11 +121,17 @@ async function applyEffects(effects, skipArmorAbsorb = false) {
       }
     }
   }
-  for (const [track, amount] of Object.entries(effects)) {
+  for (let [track, amount] of Object.entries(effects)) {
     if (!playerState[track]) continue;
+    if (track === 'health' && amount < 0 && hasMutant('hardened_skin', mutantCards) && !_hardenedSkinUsed) {
+      _hardenedSkinUsed = true;
+      const shieldLine = '🪨 Hardened skin — health damage ignored';
+      lines.push(shieldLine);
+      gameLog.add(shieldLine, 'dim');
+      showToast(shieldLine, false, 2400);
+      continue;
+    }
     const current = playerState[track].value;
-
-
     const next = Math.max(0, Math.min(10, current + amount));
     if (playerState[track].set) playerState[track].set(next);
     const effectLine = `${EFFECT_META[track]?.icon ?? ''} ${track} ${amount > 0 ? '+' : ''}${amount} (${next})`;
@@ -192,11 +198,22 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
     } else if (card.type === 'setback') {
       const parts = [];
       if (card.effects) {
+        let resolvedEffects = { ...card.effects };
+        if (resolvedEffects.health < 0 && hasMutant('hardened_skin', mutantCards) && !_hardenedSkinUsed) {
+          _hardenedSkinUsed = true;
+          const shieldLine = '🪨 Hardened skin — health damage ignored';
+          parts.push(shieldLine);
+          gameLog.add(shieldLine, 'dim');
+          showToast(shieldLine, false, 2400);
+          delete resolvedEffects.health;
+        }
         for (const [t, v] of Object.entries(card.effects)) {
           parts.push(`${EFFECT_META[t]?.icon ?? ''} ${t} ${v > 0 ? '+' : ''}${v}`);
         }
-        effectLines = await applyEffects(card.effects);
-        if (gameOver) { resolve({ lootLost: false }); return; }
+        if (Object.keys(resolvedEffects).length > 0) {
+          effectLines = await applyEffects(resolvedEffects);
+          if (gameOver) { resolve({ lootLost: false }); return; }
+        }
       }
 
       bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
@@ -443,19 +460,6 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
             const fif = Math.min(maxFood, playerState.food.value + 2);
             if (playerState.food.set) playerState.food.set(fif);
             showToast(`🧬 Feral instinct — food +2 (${fif})`, false, 2400);
-          }
-          if (hasMutant('hardened_skin', mutantCards)) {
-            const restorable = Object.entries(armorSlots).find(([k, slot]) => {
-              if (!slot) return false;
-              return Object.keys(slot.card.absorb).some(stat => (slot.pips[stat] ?? 0) < slot.card.absorb[stat]);
-            });
-            if (restorable) {
-              const [slotKey, slot] = restorable;
-              const stat = Object.keys(slot.card.absorb).find(s => (slot.pips[s] ?? 0) < slot.card.absorb[s]);
-              slot.pips[stat] = Math.min(slot.card.absorb[stat], (slot.pips[stat] ?? 0) + 1);
-              refreshArmorSlot(slotKey);
-              showToast(`🪨 Hardened skin — +1 ${stat} pip restored on ${slot.card.name}`, false, 2400);
-            }
           }
         };
 

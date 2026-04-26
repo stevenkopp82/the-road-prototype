@@ -9,7 +9,7 @@
     {
       "name": "Hardened skin",
       "effect": "hardened_skin",
-      "text": "After each battle win or tie, restore 1 pip to any one armor piece",
+      "text": "The first health damage each turn is ignored",
       "icon": "🪨"
     },
     {

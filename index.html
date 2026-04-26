@@ -209,6 +209,7 @@
       <div class="mp-code-hint">Other players enter this code to join</div>
     </div>
     <div class="mp-players" id="mp-host-player-list"></div>
+    <div class="mp-avail-chars" id="mp-host-avail-chars"></div>
     <div class="mp-status-msg" id="mp-host-status">Waiting for allies to join...</div>
     <button class="mp-btn" id="mp-btn-start-game" disabled>Start Game</button>
     <button class="mp-btn mp-btn-ghost" id="mp-btn-host-cancel">Cancel Game</button>
@@ -223,6 +224,7 @@
     </div>
     <div class="mp-status-msg" id="mp-guest-difficulty"></div>
     <div class="mp-players" id="mp-guest-player-list"></div>
+    <div class="mp-avail-chars" id="mp-guest-avail-chars"></div>
     <div class="mp-status-msg" id="mp-guest-status">Waiting for the host to start...</div>
     <button class="mp-btn mp-btn-ghost" id="mp-btn-guest-leave">Leave Game</button>
   </div>
@@ -242,6 +244,40 @@
   let mpUnsubPlayers = null;
   let mpUnsubMeta    = null;
   let mpIsHostLocal  = false;   // true when this client created the game
+
+  // ── Character constants ───────────────────────────────────────────────────────
+  const ALL_CHARS = ['soldier','medic','survivalist','psychologist','hunter'];
+  const CHAR_META = {
+    soldier:      { icon:'⚔️',  label:'Soldier' },
+    medic:        { icon:'🩺',  label:'Medic' },
+    survivalist:  { icon:'🎒',  label:'Survivalist' },
+    psychologist: { icon:'🧠',  label:'Psychologist' },
+    hunter:       { icon:'🏹',  label:'Hunter' },
+  };
+
+  function applyCharacterAvailability(takenChars) {
+    document.querySelectorAll('.sm-char-btn').forEach(btn => {
+      const char = btn.dataset.char;
+      const taken = takenChars.includes(char);
+      btn.disabled = taken;
+      btn.classList.toggle('sm-char-taken', taken);
+      if (taken && selectedChar === char) {
+        selectedChar = null;
+        btn.classList.remove('sm-char-selected');
+        document.getElementById('btn-character-continue').disabled = true;
+      }
+    });
+  }
+
+  function renderAvailableChars(players, elId) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const taken = Object.values(players || {}).map(p => p.character).filter(Boolean);
+    const avail = ALL_CHARS.filter(c => !taken.includes(c));
+    if (avail.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = '<span class="mp-avail-label">Open: </span>' +
+      avail.map(c => `<span class="mp-avail-char-chip">${CHAR_META[c].icon} ${CHAR_META[c].label}</span>`).join('');
+  }
 
   // ── Step navigation ──────────────────────────────────────────────────────────
   function showStep(id) {
@@ -270,6 +306,7 @@
     selectedChar = null;
     document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
     document.getElementById('btn-character-continue').disabled = true;
+    applyCharacterAvailability([]);
     showStep('step-character');
   });
 
@@ -287,6 +324,7 @@
     selectedChar = null;
     document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
     document.getElementById('btn-character-continue').disabled = true;
+    applyCharacterAvailability([]);
     showStep('step-character');
   });
 
@@ -356,6 +394,8 @@
     selectedChar = null;
     document.querySelectorAll('.sm-char-btn').forEach(b => b.classList.remove('sm-char-selected'));
     document.getElementById('btn-character-continue').disabled = true;
+    const takenChars = existing ? Object.values(existing).map(p => p.character).filter(Boolean) : [];
+    applyCharacterAvailability(takenChars);
     showStep('step-character');
   });
 
@@ -476,6 +516,16 @@
       return;
     }
 
+    // Confirm the character is still available
+    const currentPlayers = await dbGet(`games/${_joinCode}/players`);
+    const takenNow = Object.values(currentPlayers || {}).map(p => p.character).filter(Boolean);
+    if (takenNow.includes(selectedChar)) {
+      errEl.textContent = 'That character was just taken. Go back and pick another.';
+      applyCharacterAvailability(takenNow);
+      btn.disabled = false; btn.textContent = 'Join Game';
+      return;
+    }
+
     mpGameCode = _joinCode;
     mpPlayerId = generatePlayerId();
 
@@ -549,6 +599,7 @@
     mpUnsubPlayers = dbListen(`games/${mpGameCode}/players`, players => {
       if (!players) return;
       renderPlayerList(players, playerListId);
+      renderAvailableChars(players, isHost ? 'mp-host-avail-chars' : 'mp-guest-avail-chars');
       if (isHost) {
         const count = Object.keys(players).length;
         const startBtn = document.getElementById('mp-btn-start-game');
