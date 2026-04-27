@@ -1559,7 +1559,6 @@
     .inventory-card-zone.inv-weapon  { border-color: rgba(176,48,48,0.3); }
     .inventory-card-zone.inv-item    { border-color: rgba(85,119,204,0.3); }
 
-    /* Uses states — shared by weapons and vehicles */
     .inventory-card-zone.item-has-uses  { border-color: rgba(74,160,74,0.7); box-shadow: 0 0 8px rgba(74,160,74,0.2); }
     .inventory-card-zone.item-depleted  { border-color: rgba(176,48,48,0.7); box-shadow: 0 0 8px rgba(176,48,48,0.15); }
 

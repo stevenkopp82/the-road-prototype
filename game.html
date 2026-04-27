@@ -134,16 +134,6 @@
 
     <div class="journey-path" id="journey-path"></div>
 
-    <div class="binoculars-bar" id="binoculars-bar" style="display:none;">
-      <button class="peek-btn" id="peek-threat-btn">🔭 Peek at Threat</button>
-      <span class="peek-used-label" id="peek-used-label"></span>
-    </div>
-
-    <div class="compass-bar" id="torch-bar" style="display:none;">
-      <button class="compass-peek-btn" id="torch-use-btn" style="border-color:rgba(200,150,42,0.5);background:rgba(200,150,42,0.08);color:#c8962a;">🕯 Light Torch (+1 Sanity)</button>
-      <span class="compass-used-label" id="torch-uses-label"></span>
-    </div>
-
     <div class="compass-bar" id="walkie-bar" style="display:none;">
       <button class="compass-peek-btn" id="walkie-use-btn" style="border-color:rgba(100,180,120,0.5);background:rgba(100,180,120,0.08);color:#64b478;">📻 Walkie-Talkie — skip all threats this pick</button>
       <span class="compass-used-label" id="walkie-uses-label"></span>
@@ -1378,8 +1368,7 @@
 
   // ── active: update item bar buttons ──────────────────────────────
   function updateActiveItemBars() {
-    // Torch (turn_start), Walkie-talkie (pre_pick), Adrenaline (pre_battle)
-    updateTorchBar();
+    // Walkie-talkie (pre_pick), Adrenaline (pre_battle)
     updateWalkieBar();
     updateAdrenalineBar();
   }
@@ -1553,8 +1542,8 @@
     const wrap = renderCard(card);
     wrap.style.cursor = 'pointer';
 
-    // Uses pip row — for weapons, vehicles, and items with uses
-    if ((card.type === 'weapon' || card.type === 'vehicle' || card.type === 'item') && card.uses != null) {
+    // Uses pip row — for weapons, and items with uses
+    if ((card.type === 'weapon' || card.type === 'item') && card.uses != null) {
       const row = document.createElement('div');
       row.className = 'weapon-uses-row';
       for (let i = 0; i < card.uses; i++) {
@@ -1803,57 +1792,9 @@
     mpSyncInventorySlots();
   }
 
-
-  /* ── Binoculars ── passive: -1 threat on slots 4 & 5 ── */
-
-  function updateBinocularsBar() {
-    // Binoculars are now passive — hide the bar entirely
-    const bar = document.getElementById('binoculars-bar');
-    bar.style.display = 'none';
-  }
-
   function updateItemBars() {
-    updateBinocularsBar();
-    updateCompassBar();
     updateActiveItemBars();
   }
-
-  function updateTorchBar() {
-    const torchIdx = itemSlots.findIndex(c => c?.mechanism?.timing === 'turn_start');
-    const bar = document.getElementById('torch-bar');
-    if (torchIdx < 0) { bar.style.display = 'none'; return; }
-    const uses = itemUsesArr[torchIdx];
-    bar.style.display = (uses > 0 && !cardSelected) ? 'flex' : 'none';
-    document.getElementById('torch-uses-label').textContent =
-      uses > 0 ? `${uses} use${uses !== 1 ? 's' : ''} remaining` : '';
-  }
-
-  document.getElementById('torch-use-btn').addEventListener('click', () => {
-    const torchIdx = itemSlots.findIndex(c => c?.mechanism?.timing === 'turn_start');
-    if (torchIdx < 0 || cardSelected) return;
-    if (itemUsesArr[torchIdx] <= 0) return;
-    const card = itemSlots[torchIdx];
-    const effect = card.mechanism.effect;
-    itemUsesArr[torchIdx]--;
-    const lines = [];
-    for (const [stat, amt] of Object.entries(effect)) {
-      const next = Math.min(10, playerState[stat].value + amt);
-      if (playerState[stat].set) playerState[stat].set(next);
-      lines.push(`${stat} +${amt} (${next})`);
-    }
-    const summary = `🕯 ${card.name} — ${lines.join(', ')}`;
-    if (itemUsesArr[torchIdx] === 0) {
-      showToast(`${summary}\n🎒 ${card.name} depleted — discarded`, false, 2500);
-      setItemSlot(torchIdx, null);
-    } else {
-      showToast(summary, false, 2000);
-      renderItemSlots();
-    }
-    updateTorchBar();
-  });
-
-  /* ── Compass: peek top loot card once per turn (costs 1 food) ─── */
-  function updateCompassBar() { /* Compass is now passive — no bar needed */ }
 
   /* ── Walkie-talkie: arm/disarm threat suppression for next pick ── */
   function updateWalkieBar() {
@@ -2401,7 +2342,7 @@
           }
         }
       } else {
-        // Weapon or vehicle
+        // Weapon
         if (inventory[type]) {
           const replaceResult = await promptReplace(type, inventory[type], card);
           if (replaceResult === 'share') {
