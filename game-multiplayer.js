@@ -427,7 +427,9 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
       );
 
       if (combinedStr > monsterStr || allAnswered) {
-        settle({ won: combinedStr > monsterStr, combinedStr });
+        const participatingAllyIds = Object.keys(req.allies || {})
+          .filter(id => typeof req.allies[id]?.str === 'number');
+        settle({ won: combinedStr > monsterStr, combinedStr, participatingAllyIds });
       }
     });
 
@@ -444,6 +446,13 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
 
   await dbRemove(allyRequestPath);
   return result;
+}
+
+/** Signal each participating ally that a battle was won so they receive their own win bonuses. */
+function mpNotifyAllyBattleWin(allyIds) {
+  allyIds.forEach(id => {
+    dbUpdate(playerPath(mpGameCode, id), { battleWinBonus: true }).catch(() => {});
+  });
 }
 
 // ── Phase 7: Equipment Sharing ────────────────────────────────────────
@@ -771,6 +780,16 @@ function mpInitListeners() {
         if (typeof remoteVal === 'number' && remoteVal !== playerState[key]?.value) {
           if (playerState[key]?.set) playerState[key].set(remoteVal);
         }
+      }
+      if (myRemote.battleWinBonus) {
+        applyBattleWinBonuses();
+        dbUpdate(playerPath(mpGameCode, mpPlayerId), {
+          battleWinBonus: null,
+          food:     playerState.food.value,
+          health:   playerState.health.value,
+          sanity:   playerState.sanity.value,
+          mutation: playerState.mutation.value,
+        }).catch(() => {});
       }
     }
   });

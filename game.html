@@ -829,7 +829,7 @@
     costs = applyItemCostModifiers(slotIndex, costs, itemSlots);
 
     // Future flicker mutant: −1 threat on slots 4 & 5, min 1
-    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker', mutantCards)) {
+    if ((slotIndex === 3 ) && hasMutant('future_flicker', mutantCards)) {
       costs.threat = Math.max(1, costs.threat - 1);
     }
     return costs;
@@ -1040,7 +1040,7 @@
       const costIcon = m.cost === 'food' ? '🌾' : m.cost === 'health' ? '❤️' : m.cost === 'sanity' ? '🧠' : m.cost === 'threat' ? '☣' : '🧬';
       mods.push(`${sign}${m.amount} ${costIcon} from ${card.name}`);
     }
-    if ((slotIndex === 3 || slotIndex === 4) && hasMutant('future_flicker', mutantCards)) {
+    if ((slotIndex === 3 ) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 ☣ from Future Flicker');
     }
     if (mods.length > 0) {
@@ -1745,7 +1745,7 @@
       const costName = STAT_LABELS[m.cost] ?? m.cost;
       mods.push(`${sign}${m.amount} ${costName} from ${card.name}`);
     }
-    if ((index === 3 || index === 4) && hasMutant('future_flicker', mutantCards)) {
+    if ((index === 3 ) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 threat from Future Flicker');
     }
     if (mods.length > 0) tip += '\n' + mods.map(m => `• ${m}`).join('\n');

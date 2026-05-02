@@ -37,6 +37,22 @@ async function loadThreatDeck() {
   }
 }
 
+/* Battle win/tie bonuses — also called on the ally's client when they help win. */
+function applyBattleWinBonuses() {
+  const itemLines = triggerBattleWinOrTie();
+  itemLines.forEach(l => showToast(l, false, 2000));
+  if (character === 'hunter') {
+    const hf = Math.min(maxFood, playerState.food.value + 2);
+    if (playerState.food.set) playerState.food.set(hf);
+    showToast(`🏹 Hunter — food +2 (${hf})`, false, 2400);
+  }
+  if (hasMutant('feral_instinct', mutantCards)) {
+    const fif = Math.min(maxFood, playerState.food.value + 2);
+    if (playerState.food.set) playerState.food.set(fif);
+    showToast(`🧬 Feral instinct — food +2 (${fif})`, false, 2400);
+  }
+}
+
 function drawThreatCard() {
   const loc = _THREAT_LOCS[Math.min(deckPass, 2)];
   if (!threatDrawPiles[loc]) return null;
@@ -445,23 +461,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         };
 
         // Helper: apply win/tie passive bonuses (Matches, feral instinct, hardened skin)
-        const applyWinBonuses = () => {
-          // Item passive_event: battle_win_or_tie
-          const itemLines = triggerBattleWinOrTie();
-          itemLines.forEach(l => showToast(l, false, 2000));
-          // Character passive: Hunter gains +2 food on battle win/tie
-          if (character === 'hunter') {
-            const hf = Math.min(maxFood, playerState.food.value + 2);
-            if (playerState.food.set) playerState.food.set(hf);
-            showToast(`🏹 Hunter — food +2 (${hf})`, false, 2400);
-          }
-          // Mutant bonuses
-          if (hasMutant('feral_instinct', mutantCards)) {
-            const fif = Math.min(maxFood, playerState.food.value + 2);
-            if (playerState.food.set) playerState.food.set(fif);
-            showToast(`🧬 Feral instinct — food +2 (${fif})`, false, 2400);
-          }
-        };
+        const applyWinBonuses = () => applyBattleWinBonuses();
 
         // Apply damage on tie or loss
         if (effStr <= monsterStr) { if (await applyBattleDamage()) { resolve({ lootLost: true }); return; } }
@@ -612,7 +612,10 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
             if (secondLootLost || !allyResult.won) {
               if (await applyBattleDamage()) { resolve({ lootLost: true }); return; }
             }
-            if (allyResult.won) applyWinBonuses();
+            if (allyResult.won) {
+              applyWinBonuses();
+              if (allyResult.participatingAllyIds?.length) mpNotifyAllyBattleWin(allyResult.participatingAllyIds);
+            }
             resolve({ lootLost: secondLootLost });
             return;
           }
