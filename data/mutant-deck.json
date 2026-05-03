@@ -4,55 +4,55 @@
       "name": "Forehead tusk",
       "effect": "forehead_tusk",
       "text": "+2 strength",
-      "icon": "🦷"
+      "icon": "SVGs/mighty-horn.svg"
     },
     {
       "name": "Hardened skin",
       "effect": "hardened_skin",
       "text": "The first health damage each turn is ignored",
-      "icon": "🪨"
+      "icon": "SVGs/abdominal-armor.svg"
     },
     {
       "name": "Regenerative tissue",
       "effect": "regenerative_tissue",
       "text": "When you gain health, +1 extra health",
-      "icon": "💚"
+      "icon": "SVGs/health-increase.svg"
     },
     {
       "name": "Loss of fear",
       "effect": "loss_of_fear",
       "text": "When you gain sanity, +1 extra sanity",
-      "icon": "😤"
+      "icon": "SVGs/mad-scientist.svg"
     },
     {
       "name": "Hive mind",
       "effect": "hive_mind",
       "text": "+3 strength in The Hive",
-      "icon": "🧠"
+      "icon": "SVGs/hive-mind.svg"
     },
     {
       "name": "Feral instinct",
       "effect": "feral_instinct",
       "text": "When you defeat a monster (win or tie), +2 food",
-      "icon": "🐾"
+      "icon": "SVGs/paw-print.svg"
     },
     {
       "name": "Extra arm",
       "effect": "extra_arm",
       "text": "+3 strength when using a melee weapon",
-      "icon": "💪"
+      "icon": "SVGs/arm.svg"
     },
     {
       "name": "Glowing fingers",
       "effect": "glowing_fingers",
       "text": "−1 threat when picking up an item card",
-      "icon": "✨"
+      "icon": "SVGs/smoking-finger.svg"
     },
     {
       "name": "Future flicker",
       "effect": "future_flicker",
-      "text": "−1 threat on dark and nest",
-      "icon": "👁️"
+      "text": "−1 threat on dark",
+      "icon": "SVGs/burning-eye.svg"
     }
   ]
 }
