@@ -2087,6 +2087,17 @@
     }
     #payment-dialog.open { display: flex; }
 
+    #damage-avoid-dialog {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 700;
+      align-items: center;
+      justify-content: center;
+    }
+    #damage-avoid-dialog.open { display: flex; }
+
     .payment-box {
       background: #111008;
       border: 1px solid var(--gold-dim);

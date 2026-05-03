@@ -346,6 +346,28 @@
   </div>
 
   <!-- ══════════════════════════════════════
+       DAMAGE AVOIDANCE DIALOG (Enhanced Metabolism / Spore Resistance)
+  ══════════════════════════════════════ -->
+  <div id="damage-avoid-dialog">
+    <div class="payment-box">
+      <div class="payment-title" id="damage-avoid-title">Mutant Ability</div>
+      <div class="payment-subtitle" id="damage-avoid-subtitle"></div>
+      <div class="payment-options">
+        <button class="payment-option opt-food" id="btn-damage-avoid-pay">
+          <span class="payment-option-icon">🌾</span>
+          <span class="payment-option-label" id="damage-avoid-pay-label">Pay 1 Food</span>
+          <span class="payment-option-desc">Absorb the damage with nutrition.</span>
+        </button>
+        <button class="payment-option" id="btn-damage-avoid-take">
+          <span class="payment-option-icon" id="damage-avoid-take-icon">❤️</span>
+          <span class="payment-option-label" id="damage-avoid-take-label">Take Damage</span>
+          <span class="payment-option-desc" id="damage-avoid-take-desc">Accept the wound.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
        THREAT RESOLUTION DIALOG
   ══════════════════════════════════════ -->
   <div id="threat-dialog">
@@ -832,6 +854,10 @@
     if ((slotIndex === 3 ) && hasMutant('future_flicker', mutantCards)) {
       costs.threat = Math.max(1, costs.threat - 1);
     }
+    // Fins mutant: −1 threat on Water slot (slot 3), min 1
+    if (slotIndex === 2 && hasMutant('fins', mutantCards)) {
+      costs.threat = Math.max(1, costs.threat - 1);
+    }
     return costs;
   }
 
@@ -1042,6 +1068,9 @@
     }
     if ((slotIndex === 3 ) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 ☣ from Future Flicker');
+    }
+    if (slotIndex === 2 && hasMutant('fins', mutantCards)) {
+      mods.push('−1 ☣ from Fins');
     }
     if (mods.length > 0) {
       const modsEl = document.createElement('div');
@@ -1310,6 +1339,39 @@
     if (paymentResolve) { paymentResolve('alt'); paymentResolve = null; }
   });
 
+  /* ── Damage avoidance prompt (Enhanced Metabolism / Spore Resistance) ── */
+  let damageAvoidResolve = null;
+
+  function promptDamageAvoidance(mutantName, stat, amount, foodCost) {
+    return new Promise(resolve => {
+      damageAvoidResolve = resolve;
+      const statIcon  = stat === 'health' ? '❤️' : '🧬';
+      const statLabel = stat === 'health' ? 'health' : 'mutation';
+      document.getElementById('damage-avoid-title').textContent = `🧬 ${mutantName}`;
+      document.getElementById('damage-avoid-subtitle').textContent =
+        `You are about to receive ${Math.abs(amount)} ${statLabel} damage. Pay ${foodCost} food to avoid it?`;
+      document.getElementById('damage-avoid-pay-label').textContent = `Pay ${foodCost} Food`;
+      document.getElementById('damage-avoid-take-icon').textContent = statIcon;
+      document.getElementById('damage-avoid-take-label').textContent = `Take ${Math.abs(amount)} Damage`;
+      document.getElementById('damage-avoid-take-desc').textContent =
+        stat === 'health' ? 'Accept the wound.' : 'Let the mutation spread.';
+      const takeBtn = document.getElementById('btn-damage-avoid-take');
+      takeBtn.style.borderColor = stat === 'health' ? 'var(--health-col)' : 'var(--mutate-col)';
+      takeBtn.style.color       = stat === 'health' ? 'var(--health-col)' : 'var(--mutate-col)';
+      document.getElementById('damage-avoid-dialog').classList.add('open');
+    });
+  }
+
+  document.getElementById('btn-damage-avoid-pay').addEventListener('click', () => {
+    document.getElementById('damage-avoid-dialog').classList.remove('open');
+    if (damageAvoidResolve) { damageAvoidResolve('food'); damageAvoidResolve = null; }
+  });
+
+  document.getElementById('btn-damage-avoid-take').addEventListener('click', () => {
+    document.getElementById('damage-avoid-dialog').classList.remove('open');
+    if (damageAvoidResolve) { damageAvoidResolve('damage'); damageAvoidResolve = null; }
+  });
+
   /* ── Card selection handler ─────────────────────────────────────── */
   async function onCardSelected(slotIndex) {
     if (cardSelected) return;
@@ -1359,11 +1421,26 @@
 
     // 1b. Pay mutation cost (Hive slots)
     if (mutationCost > 0) {
-      const prevMut = playerState.mutation.value;
-      const newMut  = Math.min(10, prevMut + mutationCost);
-      if (playerState.mutation.set) playerState.mutation.set(newMut);
-      gameLog.add(`🧬 Slot cost: +${mutationCost} mutation (${newMut})`, 'warn');
-      if (newMut >= 10) { triggerGameOver('mutation'); return; }
+      let actualMutCost = mutationCost;
+      if (hasMutant('spore_resistance', mutantCards) && playerState.food.value >= 2) {
+        const choice = await promptDamageAvoidance('Spore Resistance', 'mutation', actualMutCost, 2);
+        if (choice === 'food') {
+          const prevFoodSR = playerState.food.value;
+          const newFoodSR  = Math.max(0, prevFoodSR - 2);
+          if (playerState.food.set) playerState.food.set(newFoodSR);
+          gameLog.add('🧬 Spore resistance — 2 food paid to avoid mutation slot cost', 'dim');
+          showToast('🧬 Spore resistance — 2 food paid', false, 2400);
+          actualMutCost = 0;
+          if (newFoodSR === 0 || prevFoodSR === 0) { applyStarvation(); if (gameOver) return; }
+        }
+      }
+      if (actualMutCost > 0) {
+        const prevMut = playerState.mutation.value;
+        const newMut  = Math.min(10, prevMut + actualMutCost);
+        if (playerState.mutation.set) playerState.mutation.set(newMut);
+        gameLog.add(`🧬 Slot cost: +${actualMutCost} mutation (${newMut})`, 'warn');
+        if (newMut >= 10) { triggerGameOver('mutation'); return; }
+      }
     }
 
     // 1c. Pay health cost
@@ -1374,6 +1451,18 @@
         actualHealthCost = 0;
         showToast('🪨 Hardened skin — health damage ignored', false, 2400);
         gameLog.add('🪨 Hardened skin — slot health cost ignored', 'dim');
+      }
+      if (actualHealthCost > 0 && hasMutant('enhanced_metabolism', mutantCards) && playerState.food.value >= 1) {
+        const choice = await promptDamageAvoidance('Enhanced Metabolism', 'health', actualHealthCost, 1);
+        if (choice === 'food') {
+          const prevFoodEM = playerState.food.value;
+          const newFoodEM  = Math.max(0, prevFoodEM - 1);
+          if (playerState.food.set) playerState.food.set(newFoodEM);
+          gameLog.add('🧬 Enhanced metabolism — 1 food paid to avoid slot health cost', 'dim');
+          showToast('🧬 Enhanced metabolism — 1 food paid', false, 2400);
+          actualHealthCost = 0;
+          if (newFoodEM === 0 || prevFoodEM === 0) { applyStarvation(); if (gameOver) return; }
+        }
       }
       if (actualHealthCost > 0) {
         const newHealth = Math.max(0, playerState.health.value - actualHealthCost);
@@ -1747,6 +1836,9 @@
     }
     if ((index === 3 ) && hasMutant('future_flicker', mutantCards)) {
       mods.push('−1 threat from Future Flicker');
+    }
+    if (index === 2 && hasMutant('fins', mutantCards)) {
+      mods.push('−1 threat from Fins');
     }
     if (mods.length > 0) tip += '\n' + mods.map(m => `• ${m}`).join('\n');
 

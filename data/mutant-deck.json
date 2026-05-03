@@ -53,6 +53,24 @@
       "effect": "future_flicker",
       "text": "−1 threat on dark",
       "icon": "SVGs/burning-eye.svg"
+    },
+    {
+      "name": "Fins",
+      "effect": "fins",
+      "text": "−1 threat when getting a card from the Water slot",
+      "icon": "SVGs/shark-fin.svg"
+    },
+    {
+      "name": "Enhanced metabolism",
+      "effect": "enhanced_metabolism",
+      "text": "When you would receive health damage from threat cards, you may pay 1 food instead",
+      "icon": "SVGs/bread.svg"
+    },
+    {
+      "name": "Spore resistance",
+      "effect": "spore_resistance",
+      "text": "When you would receive mutation damage from threat cards, you may pay 2 food instead",
+      "icon": "SVGs/spotted-wound.svg"
     }
   ]
 }

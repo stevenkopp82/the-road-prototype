@@ -119,6 +119,24 @@ function getPlayerStrength() {
 /* ── Apply an effects object to player state ── */
 async function applyEffects(effects, skipArmorAbsorb = false) {
   const lines = [];
+  // Enhanced Metabolism: fires BEFORE armor absorption on the direct-damage path.
+  // Battle damage has its own EM check inside applyBattleDamage before armorAbsorb.
+  if (!skipArmorAbsorb && effects.health != null && effects.health < 0 &&
+      hasMutant('enhanced_metabolism', mutantCards) && playerState.food.value >= 1) {
+    const choice = await promptDamageAvoidance('Enhanced Metabolism', 'health', effects.health, 1);
+    if (choice === 'food') {
+      const prevFoodEM = playerState.food.value;
+      const newFoodEM  = Math.max(0, prevFoodEM - 1);
+      if (playerState.food.set) playerState.food.set(newFoodEM);
+      const emLine = '🧬 Enhanced metabolism — 1 food paid to avoid health damage';
+      lines.push(emLine);
+      gameLog.add(emLine, 'dim');
+      showToast('🧬 Enhanced metabolism — 1 food paid', false, 2400);
+      effects = { ...effects };
+      delete effects.health;
+      if (newFoodEM === 0) { applyStarvation(); if (gameOver) return lines; }
+    }
+  }
   // Armor absorption for setbacks (battle damage is absorbed upstream)
   if (!skipArmorAbsorb) {
     const { absorbed, lines: absLines } = armorAbsorb(effects);
@@ -146,6 +164,21 @@ async function applyEffects(effects, skipArmorAbsorb = false) {
       gameLog.add(shieldLine, 'dim');
       showToast(shieldLine, false, 2400);
       continue;
+    }
+    // Spore Resistance: pay 2 food to avoid mutation damage
+    if (track === 'mutation' && amount > 0 && hasMutant('spore_resistance', mutantCards) && playerState.food.value >= 2) {
+      const choice = await promptDamageAvoidance('Spore Resistance', 'mutation', amount, 2);
+      if (choice === 'food') {
+        const prevFoodSR = playerState.food.value;
+        const newFoodSR  = Math.max(0, prevFoodSR - 2);
+        if (playerState.food.set) playerState.food.set(newFoodSR);
+        const srLine = '🧬 Spore resistance — 2 food paid to avoid mutation damage';
+        lines.push(srLine);
+        gameLog.add(srLine, 'dim');
+        showToast('🧬 Spore resistance — 2 food paid', false, 2400);
+        if (newFoodSR === 0) { applyStarvation(); if (gameOver) return lines; }
+        continue;
+      }
     }
     const current = playerState[track].value;
     const next = Math.max(0, Math.min(10, current + amount));
@@ -448,6 +481,21 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         const applyBattleDamage = async () => {
           if (!card.damage) return false;
           let dmg = { ...card.damage };
+          // Enhanced Metabolism: offer to pay 1 food BEFORE armor absorbs health damage
+          if (dmg.health != null && dmg.health < 0 &&
+              hasMutant('enhanced_metabolism', mutantCards) && playerState.food.value >= 1) {
+            const choice = await promptDamageAvoidance('Enhanced Metabolism', 'health', dmg.health, 1);
+            if (choice === 'food') {
+              const prevFoodEM = playerState.food.value;
+              const newFoodEM  = Math.max(0, prevFoodEM - 1);
+              if (playerState.food.set) playerState.food.set(newFoodEM);
+              gameLog.add('🧬 Enhanced metabolism — 1 food paid to avoid battle damage', 'dim');
+              showToast('🧬 Enhanced metabolism — 1 food paid', false, 2400);
+              dmg = { ...dmg };
+              delete dmg.health;
+              if (newFoodEM === 0) { applyStarvation(); if (gameOver) return true; }
+            }
+          }
           const { absorbed, lines: absLines } = armorAbsorb(dmg);
           absLines.forEach(l => { showToast(l, false, 2200); gameLog.add(l, l.includes('destroyed') ? 'warn' : 'dim'); });
           const reduced = {};

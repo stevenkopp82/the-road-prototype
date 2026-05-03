@@ -388,8 +388,6 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
   const eligible = Object.entries(players || {})
     .filter(([id]) => id !== mpPlayerId);
 
-  console.log('[ally] eligible count:', eligible.length, 'monsterStr:', monsterStr);
-
   if (eligible.length === 0) {
     // No allies available — fall through to die roll
     waitEl.classList.add('hidden');
@@ -408,7 +406,6 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
       settled = true;
       clearTimeout(timeout);
       if (unsub) unsub();
-      console.log('[ally] settling with:', JSON.stringify(val));
       resolve(val);
     };
 
@@ -420,8 +417,6 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
         return sum + (req.allies[id]?.str ?? 0);
       }, 0);
 
-      console.log('[ally] listener fired — allies:', JSON.stringify(req.allies), 'combinedStr:', combinedStr, 'monsterStr:', monsterStr);
-
       waitText.textContent = alliedIds.length > 0
         ? `${alliedIds.length} ally/allies answered — ally STR: ${combinedStr} vs ${monsterStr}`
         : 'Calling for allies...';
@@ -430,8 +425,6 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
       const allAnswered = eligible.every(([id]) =>
         req.allies?.[id] !== undefined
       );
-
-      console.log('[ally] allAnswered:', allAnswered, 'combinedStr >= monsterStr:', combinedStr >= monsterStr);
 
       if (combinedStr >= monsterStr || allAnswered) {
         const participatingAllyIds = Object.keys(req.allies || {})
