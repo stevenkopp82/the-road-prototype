@@ -388,6 +388,8 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
   const eligible = Object.entries(players || {})
     .filter(([id]) => id !== mpPlayerId);
 
+  console.log('[ally] eligible count:', eligible.length, 'monsterStr:', monsterStr);
+
   if (eligible.length === 0) {
     // No allies available — fall through to die roll
     waitEl.classList.add('hidden');
@@ -406,6 +408,7 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
       settled = true;
       clearTimeout(timeout);
       if (unsub) unsub();
+      console.log('[ally] settling with:', JSON.stringify(val));
       resolve(val);
     };
 
@@ -417,6 +420,8 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
         return sum + (req.allies[id]?.str ?? 0);
       }, 0);
 
+      console.log('[ally] listener fired — allies:', JSON.stringify(req.allies), 'combinedStr:', combinedStr, 'monsterStr:', monsterStr);
+
       waitText.textContent = alliedIds.length > 0
         ? `${alliedIds.length} ally/allies answered — ally STR: ${combinedStr} vs ${monsterStr}`
         : 'Calling for allies...';
@@ -426,10 +431,17 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
         req.allies?.[id] !== undefined
       );
 
-      if (combinedStr > monsterStr || allAnswered) {
+      console.log('[ally] allAnswered:', allAnswered, 'combinedStr >= monsterStr:', combinedStr >= monsterStr);
+
+      if (combinedStr >= monsterStr || allAnswered) {
         const participatingAllyIds = Object.keys(req.allies || {})
           .filter(id => typeof req.allies[id]?.str === 'number');
-        settle({ won: combinedStr > monsterStr, combinedStr, participatingAllyIds });
+        settle({
+          won:   combinedStr >= monsterStr,
+          tied:  combinedStr === monsterStr,
+          combinedStr,
+          participatingAllyIds,
+        });
       }
     });
 
@@ -452,6 +464,14 @@ async function mpRequestAllies(card, monsterStr, myStr, abandonBtn) {
 function mpNotifyAllyBattleWin(allyIds) {
   allyIds.forEach(id => {
     dbUpdate(playerPath(mpGameCode, id), { battleWinBonus: true }).catch(() => {});
+  });
+}
+
+/** Signal each participating ally to take tie damage (ally STR matched monster STR). */
+function mpNotifyAllyBattleTie(allyIds, damage) {
+  if (!damage) return;
+  allyIds.forEach(id => {
+    dbUpdate(playerPath(mpGameCode, id), { battleTieDamage: damage }).catch(() => {});
   });
 }
 
@@ -790,6 +810,15 @@ function mpInitListeners() {
           sanity:   playerState.sanity.value,
           mutation: playerState.mutation.value,
         }).catch(() => {});
+      }
+      if (myRemote.battleTieDamage) {
+        const dmg = myRemote.battleTieDamage;
+        dbUpdate(playerPath(mpGameCode, mpPlayerId), { battleTieDamage: null }).catch(() => {});
+        (async () => {
+          await applyEffects(dmg);
+          await mpWriteMyState();
+          gameLog.add('⚔ Tie damage — you absorbed the blow for your ally', 'warn');
+        })();
       }
     }
   });

@@ -586,14 +586,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
             effectsEl.innerHTML = '';
 
             let secondLootLost;
-            if (allyResult.won) {
-              outcome2.classList.add('outcome-win');
-              outcome2.textContent = '⚔ Victory — loot secured!';
-              body2.textContent = 'Your allies turn the tide.';
-              btn.className = 'threat-continue-btn btn-gold';
-              secondLootLost = false;
-              gameLog.add(`⚔ Allies helped defeat ${card.name} (combined ${allyResult.combinedStr} > ${reducedMonsterStr})`, 'good');
-            } else {
+            if (!allyResult.won) {
               outcome2.classList.add('outcome-loss');
               outcome2.textContent = '⚔ Defeat — the group retreats';
               body2.textContent = 'Not enough strength. You abandon the fight.';
@@ -605,12 +598,33 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
                 effectsEl.appendChild(p);
               });
               gameLog.add(`⚔ Allies could not defeat ${card.name} (${allyResult.combinedStr} vs ${reducedMonsterStr}) — loot lost`, 'warn');
+            } else if (allyResult.tied) {
+              outcome2.classList.add('outcome-win');
+              outcome2.textContent = '⚔ Tie — loot secured!';
+              body2.textContent = 'A grinding draw. Your ally absorbs the blow.';
+              btn.className = 'threat-continue-btn btn-gold';
+              secondLootLost = false;
+              if (card.damage) Object.entries(card.damage).forEach(([k,v]) => {
+                const p = document.createElement('div');
+                p.textContent = `${EFFECT_META[k]?.icon ?? ''} Ally ${k} ${v>0?'+':''}${v}`;
+                effectsEl.appendChild(p);
+              });
+              gameLog.add(`⚔ Allies tied ${card.name} (combined ${allyResult.combinedStr} = ${reducedMonsterStr}) — loot secured, ally takes damage`, 'warn');
+            } else {
+              outcome2.classList.add('outcome-win');
+              outcome2.textContent = '⚔ Victory — loot secured!';
+              body2.textContent = 'Your allies turn the tide.';
+              btn.className = 'threat-continue-btn btn-gold';
+              secondLootLost = false;
+              gameLog.add(`⚔ Allies helped defeat ${card.name} (combined ${allyResult.combinedStr} > ${reducedMonsterStr})`, 'good');
             }
 
             btn.style.display = '';
             await new Promise(res => { btn.addEventListener('click', function h() { btn.removeEventListener('click', h); res(); }); });
-            if (secondLootLost || !allyResult.won) {
+            if (!allyResult.won) {
               if (await applyBattleDamage()) { resolve({ lootLost: true }); return; }
+            } else if (allyResult.tied && allyResult.participatingAllyIds?.length && card.damage) {
+              mpNotifyAllyBattleTie(allyResult.participatingAllyIds, card.damage);
             }
             if (allyResult.won) {
               applyWinBonuses();
