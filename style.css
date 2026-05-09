@@ -2409,6 +2409,103 @@
     .you-win-restart:hover  { opacity: 0.88; transform: translateY(-1px); }
     .you-win-restart:active { transform: scale(0.97); }
 
+    /* ── Victory points score block ── */
+    .you-win-box { max-width: 540px; }
+
+    #yw-score-block { width: 100%; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .yw-total {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0 0.2rem;
+      border-bottom: 1px solid rgba(200,150,42,0.25);
+      margin-bottom: 0.2rem;
+    }
+    .yw-total-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+    .yw-total-number {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 2rem;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(200,150,42,0.5);
+      line-height: 1;
+    }
+
+    .yw-player-block {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,150,42,0.15);
+      border-radius: 4px;
+      padding: 0.65rem 0.9rem;
+    }
+    .yw-player-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.45rem;
+    }
+    .yw-breakdown { display: flex; flex-direction: column; gap: 0.2rem; }
+    .yw-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Spectral', serif;
+      font-size: 0.85rem;
+      color: var(--parchment);
+      opacity: 0.85;
+    }
+    .yw-stat-detail {
+      font-family: 'Spectral', serif;
+      font-size: 0.75rem;
+      color: var(--parchment);
+      opacity: 0.5;
+      padding-left: 1rem;
+      letter-spacing: 0.05em;
+    }
+    .yw-player-total {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-align: right;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Survivor badges (inventory panel) ── */
+    #survivor-cards-container {
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.35rem 0 0.2rem;
+    }
+    .survivor-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(80,160,100,0.12);
+      border: 1px solid rgba(80,160,100,0.3);
+      border-radius: 3px;
+      padding: 0.25rem 0.5rem;
+      font-family: 'Spectral', serif;
+      font-size: 0.75rem;
+      color: var(--parchment);
+    }
+    .survivor-badge-icon { font-size: 0.9rem; line-height: 1; }
+    .survivor-badge-label { opacity: 0.85; }
+    .survivor-badge-pts {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      color: #80c890;
+      letter-spacing: 0.05em;
+      margin-left: 0.2rem;
+    }
+
     /* ── Location transition overlay ── */
     #location-transition {
       display: none;
