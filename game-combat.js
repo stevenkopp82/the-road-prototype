@@ -286,6 +286,86 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
       const envBonus = getWeaponEnvBonus(weapon, slotIndex);
       tempStrBonus = 0; // consumed regardless of outcome
 
+      // ── Smoke bomb escape: offer before battle UI if expected tie/loss ──
+      let smokeBombIdx = -1;
+      for (let _si = 0; _si < itemSlots.length; _si++) {
+        const _c = itemSlots[_si];
+        if (_c?.mechanism?.type === 'battle_escape' && itemUsesArr[_si] > 0) { smokeBombIdx = _si; break; }
+      }
+      if (smokeBombIdx >= 0) {
+        const _sanityMod  = getSanityStrModifier();
+        const { bonus: _ib } = getItemBattleStrBonus(hasWeapon, weapon, itemSlots);
+        const _extraArm   = (hasMutant('extra_arm', mutantCards) && isMelee && hasWeapon) ? 3 : 0;
+        const _initStr    = (hasWeapon ? baseStr + weaponStr : baseStr)
+                          + _ib + tuskBonus + hiveMindBonus + _extraArm + adrenalineBonus + _sanityMod + envBonus;
+        if (_initStr <= monsterStr) {
+          // Build smoke bomb prompt inside threat dialog
+          const _sbCard = itemSlots[smokeBombIdx];
+          display.innerHTML = '';
+          const _sbBadge = Object.assign(document.createElement('div'), { className: 'card-type-badge ttype-monster', textContent: 'monster' });
+          display.appendChild(_sbBadge);
+          const _sbTitle = Object.assign(document.createElement('div'), { className: 'card-name', textContent: card.name });
+          display.appendChild(_sbTitle);
+          if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
+          display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+          const _sbActions = document.createElement('div');
+          _sbActions.className = 'battle-actions';
+          const _sbOutcome = Object.assign(document.createElement('div'), {
+            className: 'battle-outcome ' + (_initStr === monsterStr ? 'outcome-tie' : 'outcome-loss'),
+            textContent: _initStr === monsterStr ? `⚔ Expected: Tie (STR ${_initStr} vs ${monsterStr})` : `⚔ Expected: Defeat (STR ${_initStr} vs ${monsterStr})`,
+          });
+          const _sbBody = Object.assign(document.createElement('div'), {
+            className: 'threat-card-body',
+            textContent: `You have a ${_sbCard.name}. Use it to vanish into the haze? You won't get the loot but won't take any damage, and all remaining threats are skipped.`,
+          });
+          const _sbRow = document.createElement('div');
+          _sbRow.className = 'second-chance-row';
+          const _sbEscBtn = Object.assign(document.createElement('button'), { className: 'second-chance-btn btn-fight', textContent: '💨 Use Smoke Bomb' });
+          const _sbSkipBtn = Object.assign(document.createElement('button'), { className: 'second-chance-btn btn-flee', textContent: '⚔ Fight anyway' });
+          _sbRow.appendChild(_sbEscBtn);
+          _sbRow.appendChild(_sbSkipBtn);
+          _sbActions.appendChild(_sbOutcome);
+          _sbActions.appendChild(_sbBody);
+          _sbActions.appendChild(_sbRow);
+          display.appendChild(_sbActions);
+          btn.style.display = 'none';
+          effectsEl.innerHTML = '';
+
+          const _sbChoice = await new Promise(res => {
+            _sbEscBtn.onclick  = () => res('escape');
+            _sbSkipBtn.onclick = () => res('fight');
+          });
+
+          btn.style.display = '';
+          display.innerHTML = '';
+          effectsEl.innerHTML = '';
+
+          if (_sbChoice === 'escape') {
+            itemUsesArr[smokeBombIdx]--;
+            if (itemUsesArr[smokeBombIdx] <= 0) setItemSlot(smokeBombIdx, null);
+            else renderItemSlots();
+            gameLog.add(`💨 Smoke bomb used — escaped from ${card.name}, turn ends`, 'dim');
+            showToast('💨 Smoke bomb — escaped! Turn ends.', false, 2400);
+            const _escBadge = Object.assign(document.createElement('div'), { className: 'card-type-badge ttype-break', textContent: 'escaped' });
+            display.appendChild(_escBadge);
+            const _escTitle = Object.assign(document.createElement('div'), { className: 'card-name', textContent: 'Smoke Bomb' });
+            display.appendChild(_escTitle);
+            display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+            const _escBody = Object.assign(document.createElement('div'), {
+              className: 'threat-card-body',
+              textContent: 'You vanish into the haze. All remaining threats are skipped. The loot is lost.',
+            });
+            display.appendChild(_escBody);
+            btn.textContent = 'End Turn';
+            btn.className = 'threat-continue-btn';
+            await new Promise(res => { btn.addEventListener('click', function _h() { btn.removeEventListener('click', _h); btn.textContent = 'Continue'; res(); }); });
+            resolve({ lootLost: true });
+            return;
+          }
+          // Player chose to fight — fall through to normal battle UI
+        }
+      }
+
       // Weapon use state — default to using weapon if available
       let usingWeapon = hasWeapon;
 

@@ -936,6 +936,19 @@
       "icon": "SVGs/syringe.svg"
     },
     {
+      "name": "Smoke bomb",
+      "location": "hive",
+      "type": "item",
+      "text": "Use once: Escape a battle you'd tie or lose — no damage taken, all remaining threats skipped, loot lost.",
+      "effects": { "sanity": 1 },
+      "mechanism": {
+        "type": "battle_escape"
+      },
+      "uses": 1,
+      "value": 5,
+      "icon": "SVGs/unlit-bomb.svg"
+    },
+    {
       "name": "Chainsaw",
       "location": "hive",
       "type": "weapon",
@@ -1304,6 +1317,105 @@
       },
       "value": 0.5,
       "icon": "SVGs/medicine-pills_2.svg"
+    },
+    {
+      "name": "Beef jerky",
+      "location": "sprawl",
+      "type": "gather",
+      "effects": {
+        "food": 3
+      },
+      "value": 3,
+      "icon": "SVGs/sausage.svg"
+    },
+    {
+      "name": "Antibiotics",
+      "location": "sprawl",
+      "type": "gather",
+      "effects": {
+         "health": 3,
+         "food": -1
+      },
+      "value": 5,
+      "icon": "SVGs/medicine-pills.svg"
+    },
+    {
+      "name": "Harpoon gun",
+      "location": "hive",
+      "type": "weapon",
+      "strength": 2,
+      "uses": 4,
+      "weapon_class": "ranged",
+      "env_bonuses": [
+        {
+          "env": "water",
+          "bonus": 4
+        }
+      ],
+      "value": 10,
+      "points": 5,
+      "icon": "SVGs/harpoon-chain.svg"
+    },
+    {
+      "name": "Bug spray",
+      "location": "hive",
+      "type": "item",
+      "text": "Passive: -1 threat in Nest (min 1)",
+      "mechanism": {
+        "type": "cost_modifier",
+        "cost": "threat",
+        "slots": [4],
+        "amount": -1,
+        "min": 1
+      },
+      "value": 10,
+      "points": 5,
+      "icon": "SVGs/spray.svg"
+    },
+    {
+      "name": "Lone Survivor",
+      "location": "hive",
+      "type": "survivor",
+      "effects": { "food": -1 },
+      "points": 5,
+      "value": 3,
+      "icon": "SVGs/one.svg"
+    },
+    {
+      "name": "Lone Survivor",
+      "location": "hive",
+      "type": "survivor",
+      "effects": { "food": -1 },
+      "points": 5,
+      "value": 3,
+      "icon": "SVGs/one.svg"
+    },
+    {
+      "name": "Survivor pair",
+      "location": "hive",
+      "type": "survivor",
+      "effects": { "food": -2 },
+      "points": 10,
+      "value": 6,
+      "icon": "SVGs/two.svg"
+    },
+    {
+      "name": "Surviving Family",
+      "location": "hive",
+      "type": "survivor",
+      "effects": { "food": -3 },
+      "points": 15,
+      "value": 9,
+      "icon": "SVGs/three.svg"
+    },
+    {
+      "name": "Surviving Party",
+      "location": "hive",
+      "type": "survivor",
+      "effects": { "food": -4 },
+      "points": 25,
+      "value": 14,
+      "icon": "SVGs/four.svg"
     }
   ]
 }

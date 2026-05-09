@@ -781,6 +781,10 @@ function mpInitListeners() {
     if (!players) return;
     mpAllPlayers = players;
     mpRenderAllySidebar(players);
+    // If the win screen is already open, refresh the score block now that we
+    // have the latest ally stats (handles the race between the round-path
+    // listener firing triggerYouWin and this players-path listener arriving).
+    if (gameOver && typeof buildScoreBlock === 'function') buildScoreBlock();
     if (mpRound && mpRound.activePlayerId !== mpPlayerId) {
       const name = players[mpRound.activePlayerId]?.name ?? 'Another player';
       document.getElementById('mp-turn-name').textContent = name;

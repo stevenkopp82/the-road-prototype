@@ -792,6 +792,13 @@
     gameOver = true;
     gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
     logGameEnd({ outcome: 'win', turns: gameLog.getTurnNum() });
+<<<<<<< Updated upstream
+=======
+    // Write final stats to Firebase so the ally's score block can read them.
+    // Don't await — fire-and-forget; the players listener will refresh the block.
+    if (isMultiplayer) mpWriteMyState();
+    buildScoreBlock();
+>>>>>>> Stashed changes
     const el = document.getElementById('you-win');
     el.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
