@@ -8,7 +8,10 @@
       "Bash(node -e ' *)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('environments', d\\), indent=2\\)\\)\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
-      "Read(//c/Users/steve/**)"
+      "Read(//c/Users/steve/**)",
+      "Bash(python3 -c \"import json; data=json.load\\(open\\('c:/Users/steve/the-road-prototype/data/loot-deck.json'\\)\\); print\\(f'OK: {len\\(data[\\\\\"loot_deck\\\\\"]\\)} cards'\\)\")",
+      "Bash(node --check game-multiplayer.js)",
+      "Bash(node --check game-inventory.js)"
     ]
   }
 }
