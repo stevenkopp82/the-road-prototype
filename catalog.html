@@ -184,14 +184,45 @@
       align-self: flex-start;
       line-height: 1.6;
     }
-    .badge-gather  { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
-    .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
-    .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
-    .badge-armor   { background: rgba(80,140,200,0.28); color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
-    .badge-mutant  { background: rgba(140,60,200,0.3);  color: #c080f0; border: 1px solid rgba(140,60,200,0.5); }
-    .ttype-break   { background: rgba(60,120,60,0.3);   color: #80c880; border: 1px solid rgba(60,120,60,0.5); }
-    .ttype-setback { background: rgba(160,120,30,0.3);  color: #d8a848; border: 1px solid rgba(160,120,30,0.5); }
-    .ttype-monster { background: rgba(180,40,40,0.35);  color: #e06060; border: 1px solid rgba(180,40,40,0.6); }
+    .badge-gather   { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
+    .badge-item     { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
+    .badge-weapon   { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
+    .badge-armor    { background: rgba(80,140,200,0.28); color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
+    .badge-mutant   { background: rgba(140,60,200,0.3);  color: #c080f0; border: 1px solid rgba(140,60,200,0.5); }
+    .badge-survivor { background: rgba(60,160,90,0.25);  color: #70d888; border: 1px solid rgba(60,160,90,0.5); }
+    .ttype-break    { background: rgba(60,120,60,0.3);   color: #80c880; border: 1px solid rgba(60,120,60,0.5); }
+    .ttype-setback  { background: rgba(160,120,30,0.3);  color: #d8a848; border: 1px solid rgba(160,120,30,0.5); }
+    .ttype-monster  { background: rgba(180,40,40,0.35);  color: #e06060; border: 1px solid rgba(180,40,40,0.6); }
+
+    /* ── Survivor card ── */
+    .survivor-card {
+      width: var(--card-w);
+      height: var(--card-h);
+      background: #0e1610;
+      border: 1px solid rgba(60,160,90,0.35);
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 8px 8px 6px;
+      gap: 4px;
+      cursor: default;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .survivor-card:hover {
+      border-color: rgba(60,160,90,0.7);
+      box-shadow: 0 4px 20px rgba(60,160,90,0.14);
+    }
+
+    /* ── Points label shown on survivor (and gear) cards ── */
+    .card-pts {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.1em;
+      color: #70d888;
+      margin-top: auto;
+    }
 
     .card-name {
       font-family: 'Cinzel', serif;
@@ -383,7 +414,7 @@
 
   const LOCATIONS = ['road', 'sprawl', 'hive'];
   const LOCATION_LABELS = { road: 'The Road', sprawl: 'The Sprawl', hive: 'The Hive' };
-  const LOOT_TYPES  = ['gather', 'weapon', 'armor', 'item'];
+  const LOOT_TYPES  = ['gather', 'weapon', 'armor', 'item', 'survivor'];
   const THREAT_TYPES = ['break', 'setback', 'monster'];
 
   /* ── Icon helper ── */
@@ -592,6 +623,75 @@
     return wrap;
   }
 
+  /* ── Render survivor card ── */
+  function renderSurvivorCard(card, dupeCount) {
+    const wrap = document.createElement('div');
+    wrap.className = 'survivor-card';
+
+    const badge = document.createElement('div');
+    badge.className = 'card-type-badge badge-survivor';
+    badge.textContent = 'survivor';
+    wrap.appendChild(badge);
+
+    if (dupeCount > 1) {
+      const dupe = document.createElement('div');
+      dupe.className = 'card-dupe-badge';
+      dupe.textContent = `×${dupeCount}`;
+      wrap.appendChild(dupe);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = card.name;
+    wrap.appendChild(name);
+
+    const iconEl = createIconEl(card.icon, card.name, 'card-icon-img');
+    if (iconEl) wrap.appendChild(iconEl);
+
+    wrap.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+
+    if (card.effects && Object.keys(card.effects).length > 0) {
+      const efRow = document.createElement('div');
+      efRow.className = 'card-effects';
+      for (const [key, val] of Object.entries(card.effects)) {
+        const meta = EFFECT_META[key];
+        if (!meta) continue;
+        const chip = document.createElement('div');
+        chip.className = 'effect-chip';
+        const ico = document.createElement('span');
+        ico.className = `ef-icon ${meta.cls}`;
+        ico.textContent = meta.icon;
+        const num = document.createElement('span');
+        num.className = val >= 0 ? 'ef-pos' : 'ef-neg';
+        num.textContent = (val > 0 ? '+' : '') + val;
+        chip.appendChild(ico); chip.appendChild(num);
+        efRow.appendChild(chip);
+      }
+      wrap.appendChild(efRow);
+    }
+
+    if (card.text) {
+      const txt = document.createElement('div');
+      txt.className = 'card-text';
+      txt.textContent = card.text;
+      wrap.appendChild(txt);
+    }
+
+    if (card.points != null) {
+      const pts = document.createElement('div');
+      pts.className = 'card-pts';
+      pts.textContent = `+${card.points} victory pts`;
+      wrap.appendChild(pts);
+    }
+
+    const val = document.createElement('div');
+    val.className = 'card-value';
+    val.textContent = card.value;
+    wrap.appendChild(val);
+
+    return wrap;
+  }
+
   /* ── Human-readable mechanism summary ── */
   function mechanismSummary(m) {
     if (!m) return '';
@@ -742,7 +842,9 @@
             const typeCards = locCards.filter(c => c.type === type);
             if (!typeCards.length) continue;
             const duped = collapsedupes(typeCards);
-            const cardEls = duped.map(({ card, count }) => renderLootCard(card, count));
+            const cardEls = duped.map(({ card, count }) =>
+              type === 'survivor' ? renderSurvivorCard(card, count) : renderLootCard(card, count)
+            );
             const sub = buildGroup(type, cardEls, typeCards.length);
             if (sub) locGroup.appendChild(sub);
             total += typeCards.length;
@@ -755,7 +857,9 @@
           const typeCards = allLoot.filter(c => c.type === type);
           if (!typeCards.length) continue;
           const duped = collapsedupes(typeCards);
-          const cardEls = duped.map(({ card, count }) => renderLootCard(card, count));
+          const cardEls = duped.map(({ card, count }) =>
+            type === 'survivor' ? renderSurvivorCard(card, count) : renderLootCard(card, count)
+          );
           const group = buildGroup(type, cardEls, typeCards.length);
           if (group) {
             const tallies = {};
@@ -837,6 +941,41 @@
       body.appendChild(row);
       return allMutants.length;
     }));
+
+    /* ─── 4. SURVIVORS ─── */
+    const survivorCards = allLoot.filter(c => c.type === 'survivor');
+    if (survivorCards.length > 0) {
+      catalog.appendChild(buildSection('4. Survivor Cards', body => {
+        const note = document.createElement('div');
+        note.style.cssText = 'font-family:Spectral,serif;font-size:0.78rem;color:#6b5f48;margin-bottom:18px;line-height:1.6;';
+        note.textContent = 'Found in The Hive loot pool. Pick a survivor card to rescue them — pay the food cost immediately, then keep the card. Each survivor you bring to The Sanctuary scores victory points.';
+        body.appendChild(note);
+
+        const duped = collapsedupes(survivorCards);
+        const row = document.createElement('div');
+        row.className = 'card-row';
+        duped.forEach(({ card, count }) => row.appendChild(renderSurvivorCard(card, count)));
+        body.appendChild(row);
+
+        // Points summary table
+        const table = document.createElement('div');
+        table.style.cssText = 'margin-top:24px;display:flex;flex-direction:column;gap:6px;max-width:320px;';
+        const tableTitle = document.createElement('div');
+        tableTitle.style.cssText = 'font-family:Cinzel,serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#6b5f48;margin-bottom:4px;';
+        tableTitle.textContent = 'Victory Points Summary';
+        table.appendChild(tableTitle);
+        duped.forEach(({ card }) => {
+          const row2 = document.createElement('div');
+          row2.style.cssText = 'display:flex;justify-content:space-between;font-family:Spectral,serif;font-size:0.8rem;color:#c8bcaa;border-bottom:1px solid #2a2010;padding-bottom:4px;';
+          const foodCost = card.effects?.food ?? 0;
+          row2.innerHTML = `<span>${card.name}</span><span style="display:flex;gap:14px;"><span style="color:#c87828">🍖 ${foodCost}</span><span style="color:#70d888">+${card.points ?? 0} pts</span></span>`;
+          table.appendChild(row2);
+        });
+        body.appendChild(table);
+
+        return survivorCards.length;
+      }));
+    }
   }
 
   /* ── Load data ── */

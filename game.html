@@ -70,6 +70,7 @@
     <div class="you-win-icon">🏛️</div>
     <div class="you-win-title">The Sanctuary</div>
     <div class="you-win-subtitle">Against all odds, you made it.<br>The gates open. You are safe — for now.</div>
+    <div id="yw-score-block"></div>
     <button class="you-win-restart" id="yw-restart">Play Again</button>
   </div>
 </div>
@@ -178,6 +179,7 @@
   <div id="items-panel">
     <div id="item-slots-container"></div>
     <div id="passive-items-container"></div>
+    <div id="survivor-cards-container" style="display:none;"></div>
   </div>
 
   <div id="mutant-cards-panel" style="display:none;">
@@ -787,11 +789,114 @@
     });
   }
 
+  function calcVictoryPoints() {
+    const statPts = {
+      food:     playerState.food.value,
+      health:   playerState.health.value,
+      sanity:   playerState.sanity.value,
+      mutation: 10 - playerState.mutation.value,
+    };
+    const statTotal = statPts.food + statPts.health + statPts.sanity + statPts.mutation;
+
+    const allCards = [];
+    if (inventory.weapon) allCards.push(inventory.weapon);
+    itemSlots.forEach(c => { if (c) allCards.push(c); });
+    passiveItems.forEach(c => { if (c) allCards.push(c); });
+    Object.values(armorSlots).forEach(s => { if (s?.card) allCards.push(s.card); });
+
+    let gearPts = 0;
+    let survivorPts = 0;
+    allCards.forEach(card => {
+      if (card.points != null) gearPts += card.points;
+    });
+    survivorCards.forEach(card => {
+      survivorPts += (card.points ?? 0);
+    });
+
+    return { statPts, statTotal, gearPts, survivorPts, total: statTotal + gearPts + survivorPts };
+  }
+
+  function buildScoreBlock() {
+    const vp = calcVictoryPoints();
+    const block = document.getElementById('yw-score-block');
+    if (!block) return;
+
+    let html = `<div class="yw-total">`;
+    if (isMultiplayer) {
+      // Compute ally stat points from mpAllPlayers
+      const allies = Object.entries(mpAllPlayers).filter(([id]) => id !== mpPlayerId);
+      const teamTotal = vp.total + allies.reduce((sum, [, p]) => {
+        const food = p.food ?? 0;
+        const health = p.health ?? 0;
+        const sanity = p.sanity ?? 0;
+        const mutation = 10 - (p.mutation ?? 0);
+        return sum + food + health + sanity + mutation;
+      }, 0);
+      html += `<span class="yw-total-label">Team Score</span><span class="yw-total-number">${teamTotal}</span>`;
+    } else {
+      html += `<span class="yw-total-label">Final Score</span><span class="yw-total-number">${vp.total}</span>`;
+    }
+    html += `</div>`;
+
+    // Solo or local player breakdown
+    const myName = isMultiplayer ? (mpMyName || 'You') : null;
+    html += buildPlayerBreakdown(myName, vp, true);
+
+    // Ally breakdowns (multiplayer only, stats-only)
+    if (isMultiplayer) {
+      Object.entries(mpAllPlayers)
+        .filter(([id]) => id !== mpPlayerId)
+        .forEach(([, p]) => {
+          const food = p.food ?? 0;
+          const health = p.health ?? 0;
+          const sanity = p.sanity ?? 0;
+          const mutBuf = 10 - (p.mutation ?? 0);
+          const allyStatTotal = food + health + sanity + mutBuf;
+          const allyVp = {
+            statPts: { food, health, sanity, mutation: mutBuf },
+            statTotal: allyStatTotal,
+            gearPts: null,
+            survivorPts: null,
+            total: allyStatTotal,
+          };
+          html += buildPlayerBreakdown(p.name ?? 'Ally', allyVp, false);
+        });
+    }
+
+    block.innerHTML = html;
+  }
+
+  function buildPlayerBreakdown(name, vp, showGear) {
+    const statLine = [
+      `🌾 ${vp.statPts.food}`,
+      `🩸 ${vp.statPts.health}`,
+      `🕯️ ${vp.statPts.sanity}`,
+      `🧬 ${vp.statPts.mutation}`,
+    ].join('  ');
+
+    let html = `<div class="yw-player-block">`;
+    if (name) html += `<div class="yw-player-name">${name}</div>`;
+    html += `<div class="yw-breakdown">`;
+
+    if (showGear && vp.survivorPts > 0) {
+      html += `<div class="yw-row"><span>👥 Survivors</span><span>${vp.survivorPts} pts</span></div>`;
+    }
+    if (showGear) {
+      html += `<div class="yw-row"><span>🎒 Gear</span><span>${vp.gearPts} pts</span></div>`;
+    }
+    html += `<div class="yw-row"><span>📊 Stats</span><span>${vp.statTotal} pts</span></div>`;
+    html += `<div class="yw-stat-detail">${statLine}</div>`;
+    html += `<div class="yw-player-total">${vp.total} pts total</div>`;
+    html += `</div></div>`;
+    return html;
+  }
+
   function triggerYouWin() {
     if (gameOver) return;
     gameOver = true;
     gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
     logGameEnd({ outcome: 'win', turns: gameLog.getTurnNum() });
+    buildScoreBlock();
     const el = document.getElementById('you-win');
     el.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
@@ -1577,6 +1682,25 @@
             effectLines.push(`🧠 Psychologist — +1 extra sanity (${next})`);
           }
         }
+      }
+    } else if (card.type === 'survivor') {
+      // Survivor cards: apply food cost immediately, then kept as VP tokens
+      if (card.effects) {
+        for (const [track, amount] of Object.entries(card.effects)) {
+          const rounded = Math.round(amount);
+          if (!rounded || !playerState[track]) continue;
+          const prevVal = playerState[track].value;
+          const next = Math.max(0, Math.min(track === 'food' ? maxFood : 10, prevVal + rounded));
+          if (playerState[track].set) playerState[track].set(next);
+          effectLines.push(`${EFFECT_META[track]?.icon ?? ''} ${track} ${rounded > 0 ? '+' : ''}${rounded} (${next})`);
+          if (track === 'food' && next === 0) { applyStarvation(); if (gameOver) break; }
+          else if (rounded < 0 && checkGameOver(track, next)) break;
+        }
+      }
+      if (!gameOver) {
+        survivorCards.push(card);
+        renderSurvivorPanel();
+        effectLines.push(`👤 ${card.name} rescued — +${card.points ?? 0} victory pts`);
       }
     } else if (card.mechanism?.type === 'instant') {
       // Instant-use: resolved immediately, card goes to discard

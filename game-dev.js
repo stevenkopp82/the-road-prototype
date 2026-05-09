@@ -12,7 +12,8 @@
  *             game-logic.js (setRngSeed)
  * Requires globals from game.html: playerState, deckPass, drawPile, discardPile,
  *   sprawlPool, hivePool, fullDeck, mutantFull, mutantCards, renderMutantPanel,
- *   updateSlotCosts, onMutantCardSpot, gameLog, _rngSeed, maxFood
+ *   updateSlotCosts, onMutantCardSpot, gameLog, _rngSeed, maxFood,
+ *   survivorCards, renderSurvivorPanel
  */
 
 /* ════════════════════════════════════════════
@@ -32,7 +33,9 @@ window.DEV = {
       '  DEV.forceCard(name)                  — move a loot card to front of draw pile\n' +
       '  DEV.forceThreat(name)                — move a threat card to front of threat pile\n' +
       '  DEV.give(name)                       — add a card directly to inventory by name\n' +
+      '  DEV.giveSurvivor(name)               — add a survivor card by name (no food cost)\n' +
       '  DEV.giveMutation()                   — trigger the mutant card pick dialog\n' +
+      '  DEV.setLocation(name)                — jump to road | sprawl | hive\n' +
       '  DEV.inventory()                      — list all currently held inventory cards\n' +
       '  DEV.seed()                           — show current RNG seed\n' +
       '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n'
@@ -216,6 +219,38 @@ window.DEV = {
     onMutantCardSpot().then(() => {
       console.log('[DEV] Mutation picked — current mutants:', mutantCards.map(c => c.name));
     });
+  },
+
+  giveSurvivor(name) {
+    if (!name) { console.warn('[DEV] Usage: DEV.giveSurvivor("card name")'); return null; }
+    const q = name.toLowerCase();
+    const card = fullDeck.find(c => c.type === 'survivor' && c.name.toLowerCase().includes(q));
+    if (!card) {
+      const available = fullDeck.filter(c => c.type === 'survivor').map(c => c.name);
+      console.warn(`[DEV] No survivor card matching '${name}'. Available:`, available);
+      return null;
+    }
+    const c = { ...card };
+    survivorCards.push(c);
+    renderSurvivorPanel();
+    console.log(`[DEV] ${c.name} added — +${c.points ?? 0} VP (no food cost applied)`);
+    gameLog.add(`[DEV] Survivor: ${c.name}`, 'gold');
+    return c;
+  },
+
+  setLocation(name) {
+    if (!name) { console.warn('[DEV] Usage: DEV.setLocation("road"|"sprawl"|"hive")'); return; }
+    const n = name.toLowerCase();
+    const map = { road: 0, sprawl: 1, swarm: 1, hive: 2 };
+    const key = Object.keys(map).find(k => n.includes(k) || k.includes(n));
+    if (key === undefined) {
+      console.warn(`[DEV] Unknown location '${name}'. Use: road, sprawl, hive`);
+      return;
+    }
+    deckPass = map[key];
+    const label = ['Road', 'Sprawl', 'Hive'][deckPass];
+    console.log(`[DEV] Location → ${label} (deckPass=${deckPass})`);
+    gameLog.add(`[DEV] Location: ${label}`, 'gold');
   },
 
   inventory() {

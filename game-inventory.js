@@ -23,6 +23,9 @@ const itemSlotsCount = 3;
 // Passive items: capacity/perpetual items that don't occupy a slot
 var passiveItems = [];
 
+// Survivors rescued — VP cards that stay in inventory
+var survivorCards = [];
+
 // ── Armor slots (armor variant only) ─────────────────────────────
 // Each slot: null | { card, pips: { health: N, sanity: N, mutation: N } }
 var armorSlots = { head: null, body: null, misc: null };
@@ -123,6 +126,33 @@ function renderItemSlots() {
   updateItemBars();
   // Refresh slot costs to reflect any item discounts (Area Map, Binoculars, etc.)
   updateSlotCosts();
+}
+
+/* ── Render rescued survivors into #survivor-cards-container ── */
+function renderSurvivorPanel() {
+  const container = document.getElementById('survivor-cards-container');
+  if (!container) return;
+  container.innerHTML = '';
+  if (survivorCards.length === 0) { container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  survivorCards.forEach(card => {
+    const badge = document.createElement('div');
+    badge.className = 'survivor-badge';
+    badge.title = card.text ?? card.name;
+    const icon = document.createElement('span');
+    icon.className = 'survivor-badge-icon';
+    icon.textContent = card.icon ?? '👤';
+    const label = document.createElement('span');
+    label.className = 'survivor-badge-label';
+    label.textContent = card.name;
+    const pts = document.createElement('span');
+    pts.className = 'survivor-badge-pts';
+    pts.textContent = `+${card.points ?? 0} pts`;
+    badge.appendChild(icon);
+    badge.appendChild(label);
+    badge.appendChild(pts);
+    container.appendChild(badge);
+  });
 }
 
 /* ── Render passive (no-slot) items into #passive-items-container ── */
