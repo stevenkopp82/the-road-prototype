@@ -591,9 +591,6 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         // Helper: apply win/tie passive bonuses (Matches, feral instinct, hardened skin)
         const applyWinBonuses = () => applyBattleWinBonuses();
 
-        // Apply damage on tie or loss
-        if (effStr <= monsterStr) { if (await applyBattleDamage()) { resolve({ lootLost: true }); return; } }
-
         if (effStr > monsterStr) {
           gameLog.add(`⚔ Victory vs ${card.name} (your ${effStr} > ${monsterStr})`, 'good');
         } else if (effStr === monsterStr) {
@@ -601,6 +598,9 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         } else {
           gameLog.add(`⚔ Defeat vs ${card.name} (your ${effStr} < ${monsterStr}) — damage taken`, 'warn');
         }
+
+        // Apply damage on tie or loss
+        if (effStr <= monsterStr) { if (await applyBattleDamage()) { resolve({ lootLost: true }); return; } }
 
         // ── First battle loss: offer flee or fight again ──────────────────────
         if (effStr < monsterStr) {

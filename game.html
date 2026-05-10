@@ -71,6 +71,14 @@
     <div class="you-win-title">The Sanctuary</div>
     <div class="you-win-subtitle">Against all odds, you made it.<br>The gates open. You are safe — for now.</div>
     <div id="yw-score-block"></div>
+    <div id="yw-name-entry" class="hidden">
+      <div class="yw-name-prompt" id="yw-name-prompt">Enter your name to record this score</div>
+      <div class="yw-name-row">
+        <input class="yw-name-input" id="yw-name-input" maxlength="24" placeholder="Survivor" autocomplete="off">
+        <button class="yw-name-btn" id="yw-name-btn">Record</button>
+      </div>
+    </div>
+    <div id="yw-recorded-msg" class="hidden">Score recorded ✓</div>
     <button class="you-win-restart" id="yw-restart">Play Again</button>
   </div>
 </div>
@@ -816,6 +824,28 @@
     return { statPts, statTotal, gearPts, survivorPts, total: statTotal + gearPts + survivorPts };
   }
 
+  function recordHighScore(name) {
+    const vp = calcVictoryPoints();
+    let score = vp.total;
+    let playerCount = 1;
+    if (isMultiplayer) {
+      const allies = Object.entries(mpAllPlayers).filter(([id]) => id !== mpPlayerId);
+      score += allies.reduce((sum, [, p]) => {
+        return sum + (p.food ?? 0) + (p.health ?? 0) + (p.sanity ?? 0) + (10 - (p.mutation ?? 0));
+      }, 0);
+      playerCount = 1 + allies.length;
+    }
+    return dbPush('highscores', {
+      name,
+      score,
+      difficulty: _session.difficulty,
+      mode:       isMultiplayer ? 'multiplayer' : 'solo',
+      players:    playerCount,
+      timestamp:  Date.now(),
+      date:       new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+    });
+  }
+
   function buildScoreBlock() {
     const vp = calcVictoryPoints();
     const block = document.getElementById('yw-score-block');
@@ -900,12 +930,39 @@
     // Don't await — fire-and-forget; the players listener will refresh the block.
     if (isMultiplayer) mpWriteMyState();
     buildScoreBlock();
+
+    // Show name-entry prompt for solo players and the multiplayer host only.
+    if (!isMultiplayer || mpIsHost) {
+      const prompt = document.getElementById('yw-name-prompt');
+      if (prompt) prompt.textContent = isMultiplayer
+        ? 'Enter a party name to record this team score'
+        : 'Enter your name to record your score';
+      const nameInput = document.getElementById('yw-name-input');
+      if (nameInput && isMultiplayer) nameInput.value = mpMyName || '';
+      document.getElementById('yw-name-entry').classList.remove('hidden');
+    }
+
     const el = document.getElementById('you-win');
     el.classList.add('open');
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('fading')));
   }
 
   document.getElementById('yw-restart').addEventListener('click', () => { window.location.href = 'index.html'; });
+
+  document.getElementById('yw-name-btn').addEventListener('click', async () => {
+    const nameInput = document.getElementById('yw-name-input');
+    const name = nameInput?.value.trim() || (isMultiplayer ? 'Our Party' : 'Survivor');
+    const btn  = document.getElementById('yw-name-btn');
+    btn.disabled    = true;
+    btn.textContent = '…';
+    await recordHighScore(name);
+    document.getElementById('yw-name-entry').classList.add('hidden');
+    document.getElementById('yw-recorded-msg').classList.remove('hidden');
+  });
+
+  document.getElementById('yw-name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('yw-name-btn').click();
+  });
 
   /* ── Check for game over after any track change ── */
   function checkGameOver(track, value) {
@@ -1487,7 +1544,7 @@
     const card = slotCards[slotIndex];
     const locNames = ['The Road', 'The Sprawl', 'The Hive'];
     const locLabel = locNames[Math.min(deckPass, 2)];
-    gameLog.newTurn(`${locLabel} · ${drawPile.length + 1} cards · ${card?.name ?? '?'}`);
+    gameLog.newTurn(`${locLabel} · ${card?.name ?? '?'}`);
     if (!card) return;
     slotCards[slotIndex] = null; // remove from board so clearLootZones won't discard it
 
@@ -1883,8 +1940,7 @@
 
     // 5. Toast summary + log cost/effects
     const costLine = foodCost > 0 ? `🌾 −${foodCost} food paid (${newFood})` : `☣ threat drawn instead of food`;
-    gameLog.add(costLine, 'dim');
-    showToast([card.name, costLine, ...effectLines].join('\n'), false, 3500);
+    showToast([costLine, ...effectLines].join('\n'), false, 3500);
 
     // 6. Wait so the player can read the result
     await new Promise(r => setTimeout(r, 1800));

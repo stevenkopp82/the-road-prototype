@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High Scores — The Road</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase (compat SDK — no build tools required) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="db.js"></script>
+</head>
+<body>
+
+<div id="hs-page">
+  <div class="hs-box">
+
+    <div class="hs-header">
+      <div class="hs-title">High Scores</div>
+      <a class="hs-back-link" href="index.html">← Back to Menu</a>
+    </div>
+
+    <div class="hs-filters">
+      <div class="hs-filter-group">
+        <span class="hs-filter-label">Difficulty</span>
+        <button class="hs-filter-btn active" data-filter="difficulty" data-value="all">All</button>
+        <button class="hs-filter-btn" data-filter="difficulty" data-value="cautious">Cautious</button>
+        <button class="hs-filter-btn" data-filter="difficulty" data-value="resolute">Resolute</button>
+        <button class="hs-filter-btn" data-filter="difficulty" data-value="desperate">Desperate</button>
+      </div>
+      <div class="hs-filter-group">
+        <span class="hs-filter-label">Mode</span>
+        <button class="hs-filter-btn active" data-filter="mode" data-value="all">All</button>
+        <button class="hs-filter-btn" data-filter="mode" data-value="solo">Solo</button>
+        <button class="hs-filter-btn" data-filter="mode" data-value="multiplayer">Team</button>
+      </div>
+    </div>
+
+    <div id="hs-table-container">
+      <div id="hs-loading">Loading scores…</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let _allScores  = [];
+  let _filterDiff = 'all';
+  let _filterMode = 'all';
+
+  async function loadScores() {
+    const raw = await dbGet('highscores');
+    if (!raw) {
+      _allScores = [];
+    } else {
+      _allScores = Object.entries(raw).map(([key, v]) => ({ key, ...v }));
+      _allScores.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+    }
+    renderTable();
+  }
+
+  function renderTable() {
+    const container = document.getElementById('hs-table-container');
+    const filtered = _allScores.filter(s => {
+      if (_filterDiff !== 'all' && s.difficulty !== _filterDiff) return false;
+      if (_filterMode !== 'all' && s.mode !== _filterMode) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="hs-empty">No scores yet — reach The Sanctuary and record your victory!</div>';
+      return;
+    }
+
+    const diffLabel = { cautious: 'Cautious', resolute: 'Resolute', desperate: 'Desperate' };
+    const modeIcon  = { solo: '🎒', multiplayer: '👥' };
+
+    let html = `<table class="hs-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Score</th>
+          <th>Difficulty</th>
+          <th>Mode</th>
+          <th>Players</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    filtered.forEach((s, i) => {
+      const rowClass = i === 0 ? 'hs-gold' : i === 1 ? 'hs-silver' : i === 2 ? 'hs-bronze' : '';
+      const icon     = modeIcon[s.mode] ?? '';
+      const modeText = s.mode === 'multiplayer' ? 'Team' : 'Solo';
+      html += `<tr class="${rowClass}">
+        <td class="hs-rank">${i + 1}</td>
+        <td class="hs-name">${esc(s.name ?? '?')}</td>
+        <td class="hs-score">${s.score ?? 0}</td>
+        <td>${diffLabel[s.difficulty] ?? esc(s.difficulty ?? '—')}</td>
+        <td>${icon} ${modeText}</td>
+        <td>${s.players ?? 1}</td>
+        <td class="hs-date">${esc(s.date ?? '—')}</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  document.querySelectorAll('.hs-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.filter;
+      document.querySelectorAll(`.hs-filter-btn[data-filter="${group}"]`)
+        .forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (group === 'difficulty') _filterDiff = btn.dataset.value;
+      if (group === 'mode')       _filterMode = btn.dataset.value;
+      renderTable();
+    });
+  });
+
+  loadScores();
+</script>
+</body>
+</html>
