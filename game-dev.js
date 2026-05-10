@@ -35,6 +35,7 @@ window.DEV = {
       '  DEV.give(name)                       — add a card directly to inventory by name\n' +
       '  DEV.giveSurvivor(name)               — add a survivor card by name (no food cost)\n' +
       '  DEV.giveMutation()                   — trigger the mutant card pick dialog\n' +
+      '  DEV.win()                            — immediately trigger the victory screen\n' +
       '  DEV.setLocation(name)                — jump to road | sprawl | hive\n' +
       '  DEV.inventory()                      — list all currently held inventory cards\n' +
       '  DEV.seed()                           — show current RNG seed\n' +
@@ -236,6 +237,11 @@ window.DEV = {
     console.log(`[DEV] ${c.name} added — +${c.points ?? 0} VP (no food cost applied)`);
     gameLog.add(`[DEV] Survivor: ${c.name}`, 'gold');
     return c;
+  },
+
+  win() {
+    console.log('[DEV] Triggering win condition');
+    triggerYouWin();
   },
 
   setLocation(name) {
