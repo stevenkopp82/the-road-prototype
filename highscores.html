@@ -56,7 +56,9 @@
     if (!raw) {
       _allScores = [];
     } else {
-      _allScores = Object.entries(raw).map(([key, v]) => ({ key, ...v }));
+      _allScores = Object.entries(raw)
+        .filter(([, v]) => !v.dev)
+        .map(([key, v]) => ({ key, ...v }));
       _allScores.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
     }
     renderTable();

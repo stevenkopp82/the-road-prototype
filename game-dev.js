@@ -35,11 +35,17 @@ window.DEV = {
       '  DEV.give(name)                       — add a card directly to inventory by name\n' +
       '  DEV.giveSurvivor(name)               — add a survivor card by name (no food cost)\n' +
       '  DEV.giveMutation()                   — trigger the mutant card pick dialog\n' +
-      '  DEV.win()                            — immediately trigger the victory screen\n' +
+      '  DEV.win()                            — trigger victory screen (score tagged dev, hidden from leaderboard)\n' +
       '  DEV.setLocation(name)                — jump to road | sprawl | hive\n' +
       '  DEV.inventory()                      — list all currently held inventory cards\n' +
       '  DEV.seed()                           — show current RNG seed\n' +
-      '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n'
+      '  DEV.seed(n)                          — reseed RNG (replay a run with ?seed=N)\n' +
+      '\nDEV.db helpers (Firebase):\n' +
+      '  DEV.db.listGames()                   — list all game sessions with age\n' +
+      '  DEV.db.cleanGames(hours=24)          — delete game sessions older than N hours\n' +
+      '  DEV.db.nukeGames()                   — delete ALL game sessions\n' +
+      '  DEV.db.listScores()                  — list all high scores (including dev-tagged)\n' +
+      '  DEV.db.nukeScores()                  — delete ALL high scores\n'
     );
   },
 
@@ -240,7 +246,8 @@ window.DEV = {
   },
 
   win() {
-    console.log('[DEV] Triggering win condition');
+    console.log('[DEV] Triggering win condition (score will be tagged dev — hidden from leaderboard)');
+    window._DEV_WIN = true;
     triggerYouWin();
   },
 
@@ -268,6 +275,54 @@ window.DEV = {
     };
     console.log('[DEV] inventory:', inv);
     return inv;
+  },
+
+  db: {
+    async listGames() {
+      const games = await dbGet('games');
+      if (!games) { console.log('[DEV.db] No game sessions in database'); return []; }
+      const now = Date.now();
+      const rows = Object.entries(games).map(([code, g]) => {
+        const created = g.meta?.created ?? 0;
+        const ageMin  = Math.round((now - created) / 60000);
+        return { code, status: g.meta?.status ?? '?', players: Object.keys(g.players ?? {}).length, ageMin };
+      });
+      console.table(rows);
+      return rows;
+    },
+
+    async cleanGames(olderThanHours = 24) {
+      const games = await dbGet('games');
+      if (!games) { console.log('[DEV.db] No game sessions to clean'); return; }
+      const cutoff  = Date.now() - olderThanHours * 3600000;
+      const toDelete = Object.entries(games)
+        .filter(([, g]) => (g.meta?.created ?? 0) < cutoff)
+        .map(([code]) => code);
+      if (!toDelete.length) { console.log(`[DEV.db] No games older than ${olderThanHours}h`); return; }
+      await Promise.all(toDelete.map(code => dbRemove(gamePath(code))));
+      console.log(`[DEV.db] Removed ${toDelete.length} game(s): ${toDelete.join(', ')}`);
+    },
+
+    async nukeGames() {
+      await dbRemove('games');
+      console.log('[DEV.db] All game sessions removed');
+    },
+
+    async listScores() {
+      const raw = await dbGet('highscores');
+      if (!raw) { console.log('[DEV.db] No scores in database'); return []; }
+      const rows = Object.entries(raw).map(([key, s]) => ({
+        key, name: s.name, score: s.score, difficulty: s.difficulty, mode: s.mode, dev: s.dev ?? false, date: s.date,
+      }));
+      rows.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      console.table(rows);
+      return rows;
+    },
+
+    async nukeScores() {
+      await dbRemove('highscores');
+      console.log('[DEV.db] All high scores removed');
+    },
   },
 };
 console.log('[DEV] helpers ready — type DEV.help() for commands');
