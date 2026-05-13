@@ -76,11 +76,12 @@ function dbListen(path, callback) {
  * Calls callback(childKey, childValue) for each new child.
  * Returns an unsubscribe function.
  */
-function dbListenChildAdded(path, callback) {
+function dbListenChildAdded(path, callback, onError) {
   if (!_rtdb) return () => {};
   const ref = _rtdb.ref(path);
   const handler = snap => callback(snap.key, snap.val());
-  ref.on('child_added', handler);
+  const errHandler = onError ?? (e => console.warn('[db] child_added error', path, e));
+  ref.on('child_added', handler, errHandler);
   return () => ref.off('child_added', handler);
 }
 
