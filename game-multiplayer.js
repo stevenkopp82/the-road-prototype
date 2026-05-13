@@ -92,14 +92,16 @@ function mpApplySlotCards(stateSlotCards) {
   });
 }
 
-// ── Sync this player's stats to Firebase ──
+// ── Sync this player's stats and inventory to Firebase ──
 function mpWriteMyState() {
   if (!isMultiplayer) return Promise.resolve();
   return dbUpdate(playerPath(mpGameCode, mpPlayerId), {
-    food:     playerState.food.value,
-    health:   playerState.health.value,
-    sanity:   playerState.sanity.value,
-    mutation: playerState.mutation.value,
+    food:       playerState.food.value,
+    health:     playerState.health.value,
+    sanity:     playerState.sanity.value,
+    mutation:   playerState.mutation.value,
+    inv:        typeof serializeInventory === 'function' ? serializeInventory() : null,
+    mutantCards: mutantCards ? mutantCards.map(c => ({ ...c })) : [],
   });
 }
 
@@ -939,10 +941,8 @@ function mpInitListeners() {
 
   // 6. Remote game log — display other players' events in this client's log panel
   dbListenChildAdded(logPath(mpGameCode), (_key, entry) => {
-    console.log('[MP Log] child_added fired', entry);
-    if (!entry) { console.warn('[MP Log] entry is null'); return; }
-    if (entry.n === mpMyName) { console.log('[MP Log] skipping own entry'); return; }
-    if (!mpGameLog) { console.warn('[MP Log] mpGameLog not ready'); return; }
+    if (!entry || entry.n === mpMyName) return;
+    if (!mpGameLog) return;
     mpGameLog.setReceiving(true);
     if (entry.c === '_turn') {
       gameLog.newTurn(`[${entry.n}] ${entry.t}`);
@@ -950,8 +950,7 @@ function mpInitListeners() {
       gameLog.add(`[${entry.n}] ${entry.t}`, entry.c || '');
     }
     mpGameLog.setReceiving(false);
-    console.log('[MP Log] displayed entry from', entry.n);
-  }, err => console.error('[MP Log] listener error', err));
+  });
 
   // 7. Meta — game over broadcast
   _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
@@ -1026,12 +1025,18 @@ async function mpInit() {
     });
   }
 
-  // On reconnect: restore this player's stats from Firebase
+  // On reconnect: restore this player's stats and inventory from Firebase
   if (isReconnect && myData) {
     if (myData.food     != null && playerState.food.set)     playerState.food.set(myData.food);
     if (myData.health   != null && playerState.health.set)   playerState.health.set(myData.health);
     if (myData.sanity   != null && playerState.sanity.set)   playerState.sanity.set(myData.sanity);
     if (myData.mutation != null && playerState.mutation.set) playerState.mutation.set(myData.mutation);
+    if (myData.inv && typeof restoreInventory === 'function') restoreInventory(myData.inv);
+    if (myData.mutantCards?.length > 0) {
+      mutantCards.push(...myData.mutantCards);
+      if (typeof renderMutantPanel === 'function') renderMutantPanel();
+      if (typeof updateSlotCosts === 'function') updateSlotCosts();
+    }
     gameLog.add(`🔄 Reconnected to game ${mpGameCode}`, 'gold');
   }
 

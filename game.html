@@ -619,6 +619,7 @@
   function triggerGameOver(reason) {
     if (gameOver) return;
     gameOver = true;
+    if (!isMultiplayer) sessionStorage.removeItem('soloGameState');
     // In co-op, broadcast the elimination to all clients
     if (isMultiplayer) mpTriggerGameOver(reason);
     const goLabels = { health: '💀 You Have Fallen', sanity: '🌑 Lost to Madness', mutation: '🧬 The Change is Complete' };
@@ -934,6 +935,7 @@
   function triggerYouWin() {
     if (gameOver) return;
     gameOver = true;
+    if (!isMultiplayer) sessionStorage.removeItem('soloGameState');
     gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
     logGameEnd({ outcome: 'win', turns: gameLog.getTurnNum() });
     // Write final stats + gear/survivor points to Firebase so ally screens show the full breakdown.
@@ -1063,6 +1065,122 @@
   var injuredMonsters = [null, null, null, null, null];
   var retainedSlot = null; // { card, slotIndex } — card kept on board after battle loss
   var suppressThreatNextPick = false; // Walkie-talkie: skip all threats on next pick
+
+  /* ═══════════════════════════════════════════
+     GAME STATE PERSISTENCE (solo: sessionStorage)
+  ═══════════════════════════════════════════ */
+
+  var _saveStateTimer = null;
+  function saveGameState() {
+    if (isMultiplayer || gameOver) return;
+    clearTimeout(_saveStateTimer);
+    _saveStateTimer = setTimeout(_writeSoloState, 200);
+  }
+
+  function _writeSoloState() {
+    try {
+      sessionStorage.setItem('soloGameState', JSON.stringify({
+        stats: {
+          food:     playerState.food.value,
+          health:   playerState.health.value,
+          sanity:   playerState.sanity.value,
+          mutation: playerState.mutation.value,
+        },
+        board: {
+          drawPile,
+          discardPile,
+          slotCards: slotCards.map(c => c ?? null),
+          deckPass,
+          passStartDeckSize,
+          injuredMonsters: injuredMonsters.map(m => m ?? null),
+          deckLaps,
+          sprawlPool,
+          hivePool,
+        },
+        threats: {
+          draw:    threatDrawPiles,
+          discard: threatDiscardPiles,
+        },
+        inv: serializeInventory(),
+        mutantCards: mutantCards.map(c => ({ ...c })),
+        mutantPile:  mutantPile.map(c => ({ ...c })),
+      }));
+    } catch (e) {
+      console.warn('[save] could not write solo state:', e);
+    }
+  }
+
+  function restoreGameState() {
+    try {
+      const raw = sessionStorage.getItem('soloGameState');
+      if (!raw) return false;
+      const s = JSON.parse(raw);
+      const toArr = v => v == null ? [] : (Array.isArray(v) ? v : Object.values(v));
+
+      // Stats
+      if (s.stats) {
+        if (playerState.food.set)     playerState.food.set(s.stats.food);
+        if (playerState.health.set)   playerState.health.set(s.stats.health);
+        if (playerState.sanity.set)   playerState.sanity.set(s.stats.sanity);
+        if (playerState.mutation.set) playerState.mutation.set(s.stats.mutation);
+      }
+
+      // Board
+      if (s.board) {
+        drawPile          = toArr(s.board.drawPile);
+        discardPile       = toArr(s.board.discardPile);
+        deckPass          = s.board.deckPass ?? 0;
+        passStartDeckSize = s.board.passStartDeckSize ?? drawPile.length;
+        injuredMonsters   = toArr(s.board.injuredMonsters);
+        if (injuredMonsters.length < 5) injuredMonsters = [null, null, null, null, null];
+        deckLaps          = s.board.deckLaps ?? 0;
+        sprawlPool        = toArr(s.board.sprawlPool);
+        hivePool          = toArr(s.board.hivePool);
+      }
+
+      // Threat piles
+      if (s.threats) {
+        for (const loc of _THREAT_LOCS) {
+          threatDrawPiles[loc]    = toArr(s.threats.draw?.[loc]);
+          threatDiscardPiles[loc] = toArr(s.threats.discard?.[loc]);
+        }
+      }
+
+      updateBoardLocation();
+      updateSlotCosts();
+
+      // Place visible slot cards
+      const visible = toArr(s.board?.slotCards).filter(c => c != null);
+      if (visible.length > 0) {
+        placeCards(visible);
+      } else if (drawPile.length > 0) {
+        const drawn = drawPile.splice(0, Math.min(drawPile.length, DRAW_SLOTS));
+        placeCards(drawn);
+      }
+      updateDeckCount();
+
+      // Inventory
+      if (s.inv) restoreInventory(s.inv);
+
+      // Mutant cards
+      if (s.mutantCards?.length > 0) {
+        mutantCards.push(...s.mutantCards);
+        renderMutantPanel();
+        updateSlotCosts();
+      }
+      if (s.mutantPile?.length > 0) {
+        mutantPile = [...s.mutantPile];
+      }
+
+      updateItemBars();
+      gameLog.add('🔄 Game restored', 'gold');
+      return true;
+    } catch (e) {
+      console.warn('[restore] could not restore solo state:', e);
+      sessionStorage.removeItem('soloGameState');
+      return false;
+    }
+  }
   var tempStrBonus = 0;               // Adrenaline shot: +3 STR for one battle, then reset
   var _hardenedSkinUsed = false;      // Hardened skin: resets each turn, blocks first health damage
 
@@ -2293,6 +2411,10 @@
     const _activeSeed = setRngSeed(_urlSeed !== null ? parseInt(_urlSeed, 10) : undefined);
     console.log(`[RNG] seed: ${_activeSeed}  (to replay: ?seed=${_activeSeed})`);
 
+    // Consume the fresh-start flag set by index.html; its absence means a browser refresh
+    const _soloFreshStart = sessionStorage.getItem('soloFreshStart') === 'true';
+    sessionStorage.removeItem('soloFreshStart');
+
     await loadGatherTrack();
     rebuildSlotsRow();
 
@@ -2310,7 +2432,15 @@
 
     await _deckReady; // await the already-in-flight fetch (usually already done by now)
 
-    if (!_isReconnect) {
+    const _hasSavedState = !isMultiplayer && !_soloFreshStart && sessionStorage.getItem('soloGameState') != null;
+
+    if (_isReconnect) {
+      // Multiplayer reconnect: load full deck data (needed for card lookups) but don't deal
+      await loadDeck(gameDealCount, null);
+    } else if (_hasSavedState) {
+      // Solo browser refresh: restore the full game state from sessionStorage
+      restoreGameState();
+    } else {
       // Fresh game: apply character starting gear and deal initial cards
       const gearName    = charDef.startGear;
       const startingCard = gearName ? (fullDeck.find(c => c.name === gearName) ?? null) : null;
@@ -2339,9 +2469,6 @@
         placeCards(drawn);
       }
       updateDeckCount();
-    } else {
-      // Reconnect: load full deck data (needed for card lookups) but don't deal
-      await loadDeck(gameDealCount, null);
     }
 
     document.getElementById('game-log').classList.add('log-visible');

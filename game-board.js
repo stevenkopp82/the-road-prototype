@@ -101,6 +101,7 @@ function buildTrack(track) {
         }
       }
     }
+    saveGameState?.();
   };
 
   const wrapper = document.createElement('div');

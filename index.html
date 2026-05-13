@@ -559,6 +559,9 @@
     sessionStorage.setItem('health',     selectedDiffData.health);
     sessionStorage.setItem('sanity',     selectedDiffData.sanity);
     sessionStorage.setItem('mutation',   selectedDiffData.mutation);
+    // Signal game.html that this is a fresh start, not a browser refresh
+    sessionStorage.setItem('soloFreshStart', 'true');
+    sessionStorage.removeItem('soloGameState');
   }
 
   function buildPlayerData(name, isHost) {

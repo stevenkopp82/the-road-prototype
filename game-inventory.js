@@ -193,6 +193,7 @@ function equipPassiveItem(card) {
   passiveItems.push(card);
   applyCapacityMechanism(card, true);
   renderPassiveItems();
+  saveGameState?.();
   return true;
 }
 
@@ -210,6 +211,7 @@ function setItemSlot(idx, card) {
   }
   renderItemSlots();
   mpSyncInventorySlots();
+  saveGameState?.();
 }
 
 /* ── Find the first empty item slot index, or -1 ── */
@@ -293,6 +295,7 @@ async function equipArmor(card) {
   armorSlots[slotKey] = { card, pips: { ...card.absorb } };
   refreshArmorSlot(slotKey);
   mpSyncInventorySlots();
+  saveGameState?.();
   return { taken: true };
 }
 
@@ -353,6 +356,7 @@ function setInventorySlot(type, card) {
     zone.appendChild(icon);
   }
   mpSyncInventorySlots();
+  saveGameState?.();
 }
 
 function updateItemBars() {
@@ -495,6 +499,77 @@ function promptItemDiscard(incomingCard) {
 
     document.getElementById('discard-dialog').classList.add('open');
   });
+}
+
+/* ═══════════════════════════════════════════
+   SERIALIZATION — used by saveGameState / mpWriteMyState
+═══════════════════════════════════════════ */
+
+function serializeInventory() {
+  const wur = typeof weaponUsesRemaining !== 'undefined' ? weaponUsesRemaining : 0;
+  return {
+    weapon: inventory.weapon ? { ...inventory.weapon } : null,
+    weaponUses: wur,
+    itemSlots: itemSlots.map(c => c ? { ...c } : null),
+    itemUsesArr: [...itemUsesArr],
+    armorSlots: {
+      head: armorSlots.head ? { card: { ...armorSlots.head.card }, pips: { ...armorSlots.head.pips } } : null,
+      body: armorSlots.body ? { card: { ...armorSlots.body.card }, pips: { ...armorSlots.body.pips } } : null,
+      misc: armorSlots.misc ? { card: { ...armorSlots.misc.card }, pips: { ...armorSlots.misc.pips } } : null,
+    },
+    passiveItems: passiveItems.map(c => ({ ...c })),
+    survivorCards: survivorCards.map(c => ({ ...c })),
+    maxFood,
+  };
+}
+
+function restoreInventory(data) {
+  if (!data) return;
+
+  if (data.weapon) {
+    inventory.weapon = data.weapon;
+    weaponUsesRemaining = data.weaponUses ?? data.weapon.uses ?? 0;
+    refreshWeaponZone();
+  }
+
+  if (data.itemSlots) {
+    data.itemSlots.forEach((card, idx) => {
+      if (!card) return;
+      itemSlots[idx] = card;
+      itemUsesArr[idx] = data.itemUsesArr?.[idx] ?? card.uses ?? 0;
+      if (card.mechanism?.type === 'capacity') applyCapacityMechanism(card, true);
+    });
+    renderItemSlots();
+  }
+
+  if (data.armorSlots) {
+    for (const slotKey of ['head', 'body', 'misc']) {
+      if (data.armorSlots[slotKey]) {
+        armorSlots[slotKey] = data.armorSlots[slotKey];
+        refreshArmorSlot(slotKey);
+      }
+    }
+  }
+
+  if (data.passiveItems?.length > 0) {
+    data.passiveItems.forEach(card => {
+      passiveItems.push(card);
+      applyCapacityMechanism(card, true);
+    });
+    renderPassiveItems();
+  }
+
+  if (data.survivorCards?.length > 0) {
+    survivorCards.push(...data.survivorCards);
+    renderSurvivorPanel();
+  }
+
+  if (data.maxFood != null) {
+    maxFood = data.maxFood;
+    renderFoodTrack();
+  }
+
+  mpSyncInventorySlots();
 }
 
 /* ═══════════════════════════════════════════

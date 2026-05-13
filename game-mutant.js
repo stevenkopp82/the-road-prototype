@@ -125,6 +125,7 @@ async function onMutantCardSpot() {
     mutantCards.push(cardA);
     renderMutantPanel();
     updateSlotCosts();
+    saveGameState?.();
     return;
   }
   const chosen = await promptMutantChoice(cardA, cardB);
@@ -136,6 +137,7 @@ async function onMutantCardSpot() {
   renderMutantPanel();
   // Refresh board costs — some mutations affect slot costs (e.g. future_flicker)
   updateSlotCosts();
+  saveGameState?.();
 }
 
 /* Await all pending mutation card picks before continuing game flow */
