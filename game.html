@@ -833,7 +833,8 @@
     if (isMultiplayer) {
       const allies = Object.entries(mpAllPlayers).filter(([id]) => id !== mpPlayerId);
       score += allies.reduce((sum, [, p]) => {
-        return sum + (p.food ?? 0) + (p.health ?? 0) + (p.sanity ?? 0) + (10 - (p.mutation ?? 0));
+        return sum + (p.food ?? 0) + (p.health ?? 0) + (p.sanity ?? 0) + (10 - (p.mutation ?? 0))
+                   + (p.gearPts ?? 0) + (p.survivorPts ?? 0);
       }, 0);
       playerCount = 1 + allies.length;
     }
@@ -857,14 +858,16 @@
 
     let html = `<div class="yw-total">`;
     if (isMultiplayer) {
-      // Compute ally stat points from mpAllPlayers
+      // Compute ally full VP (stats + gear + survivors) from mpAllPlayers
       const allies = Object.entries(mpAllPlayers).filter(([id]) => id !== mpPlayerId);
       const teamTotal = vp.total + allies.reduce((sum, [, p]) => {
         const food = p.food ?? 0;
         const health = p.health ?? 0;
         const sanity = p.sanity ?? 0;
         const mutation = 10 - (p.mutation ?? 0);
-        return sum + food + health + sanity + mutation;
+        const gear = p.gearPts ?? 0;
+        const survivors = p.survivorPts ?? 0;
+        return sum + food + health + sanity + mutation + gear + survivors;
       }, 0);
       html += `<span class="yw-total-label">Team Score</span><span class="yw-total-number">${teamTotal}</span>`;
     } else {
@@ -876,7 +879,7 @@
     const myName = isMultiplayer ? (mpMyName || 'You') : null;
     html += buildPlayerBreakdown(myName, vp, true);
 
-    // Ally breakdowns (multiplayer only, stats-only)
+    // Ally breakdowns (multiplayer only)
     if (isMultiplayer) {
       Object.entries(mpAllPlayers)
         .filter(([id]) => id !== mpPlayerId)
@@ -886,14 +889,17 @@
           const sanity = p.sanity ?? 0;
           const mutBuf = 10 - (p.mutation ?? 0);
           const allyStatTotal = food + health + sanity + mutBuf;
+          const allyGearPts = p.gearPts ?? 0;
+          const allySurvivorPts = p.survivorPts ?? 0;
+          const showAllyGear = p.gearPts != null;
           const allyVp = {
             statPts: { food, health, sanity, mutation: mutBuf },
             statTotal: allyStatTotal,
-            gearPts: null,
-            survivorPts: null,
-            total: allyStatTotal,
+            gearPts: allyGearPts,
+            survivorPts: allySurvivorPts,
+            total: allyStatTotal + allyGearPts + allySurvivorPts,
           };
-          html += buildPlayerBreakdown(p.name ?? 'Ally', allyVp, false);
+          html += buildPlayerBreakdown(p.name ?? 'Ally', allyVp, showAllyGear);
         });
     }
 
@@ -930,9 +936,16 @@
     gameOver = true;
     gameLog.add('🏛️ You reached The Sanctuary — Victory!', 'gold');
     logGameEnd({ outcome: 'win', turns: gameLog.getTurnNum() });
-    // Write final stats to Firebase so the ally's score block can read them.
+    // Write final stats + gear/survivor points to Firebase so ally screens show the full breakdown.
     // Don't await — fire-and-forget; the players listener will refresh the block.
-    if (isMultiplayer) mpWriteMyState();
+    if (isMultiplayer) {
+      const _winVp = calcVictoryPoints();
+      mpWriteMyState();
+      dbUpdate(playerPath(mpGameCode, mpPlayerId), {
+        gearPts:     _winVp.gearPts,
+        survivorPts: _winVp.survivorPts,
+      });
+    }
     buildScoreBlock();
 
     // Show name-entry prompt for solo players and the multiplayer host only.

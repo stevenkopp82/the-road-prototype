@@ -939,8 +939,10 @@ function mpInitListeners() {
 
   // 6. Remote game log — display other players' events in this client's log panel
   dbListenChildAdded(logPath(mpGameCode), (_key, entry) => {
-    if (!entry || entry.n === mpMyName) return; // skip own entries (already shown locally)
-    if (!mpGameLog) return;
+    console.log('[MP Log] child_added fired', entry);
+    if (!entry) { console.warn('[MP Log] entry is null'); return; }
+    if (entry.n === mpMyName) { console.log('[MP Log] skipping own entry'); return; }
+    if (!mpGameLog) { console.warn('[MP Log] mpGameLog not ready'); return; }
     mpGameLog.setReceiving(true);
     if (entry.c === '_turn') {
       gameLog.newTurn(`[${entry.n}] ${entry.t}`);
@@ -948,7 +950,8 @@ function mpInitListeners() {
       gameLog.add(`[${entry.n}] ${entry.t}`, entry.c || '');
     }
     mpGameLog.setReceiving(false);
-  });
+    console.log('[MP Log] displayed entry from', entry.n);
+  }, err => console.error('[MP Log] listener error', err));
 
   // 7. Meta — game over broadcast
   _mpUnsubMeta = dbListen(metaPath(mpGameCode), meta => {
@@ -956,7 +959,9 @@ function mpInitListeners() {
     if (meta.status === 'gameover' && !gameOver) {
       const reason = meta.gameOverReason ?? 'health';
       const name   = meta.eliminatedName ?? 'A survivor';
+      if (mpGameLog) mpGameLog.setReceiving(true);
       gameLog.add(`💀 ${name} has fallen — the group cannot continue.`, 'warn');
+      if (mpGameLog) mpGameLog.setReceiving(false);
       // triggerGameOver will check gameOver flag and show the screen
       if (!gameOver) triggerGameOver(reason);
     }
@@ -1054,13 +1059,13 @@ async function mpInit() {
   const _origLogAdd      = gameLog.add;
   const _origLogNewTurn  = gameLog.newTurn;
   gameLog.add = (text, cls = '') => {
-    _origLogAdd(text, cls);
+    _origLogAdd(_mpLogReceiving ? text : `[${mpMyName}] ${text}`, cls);
     if (!_mpLogReceiving && !gameOver) {
       dbPush(logPath(mpGameCode), { n: mpMyName, t: text, c: cls ?? '', ts: Date.now() });
     }
   };
   gameLog.newTurn = (label) => {
-    _origLogNewTurn(label);
+    _origLogNewTurn(_mpLogReceiving ? label : `[${mpMyName}] ${label}`);
     if (!_mpLogReceiving && !gameOver) {
       dbPush(logPath(mpGameCode), { n: mpMyName, t: label, c: '_turn', ts: Date.now() });
     }
