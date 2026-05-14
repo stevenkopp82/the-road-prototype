@@ -46,6 +46,16 @@ function mpShowWaiting(name) {
 function mpHideWaiting() {
   document.getElementById('mp-turn-overlay').classList.add('mp-hidden');
 }
+function mpShowYourTurnNotice() {
+  const overlay = document.getElementById('mp-your-turn-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  overlay.onclick = () => overlay.classList.add('hidden');
+}
+function mpHideYourTurnNotice() {
+  const overlay = document.getElementById('mp-your-turn-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
 
 // ── Visual: gray out a slot that was just claimed without clearing others ──
 function mpMarkSlotClaimed(slotIndex) {
@@ -727,6 +737,9 @@ async function mpStartNewRound(playerIds, turnOrder) {
 function mpInitListeners() {
   if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
 
+  // Track the last known active player to detect turn transitions
+  let _mpPrevActiveId = mpRound?.activePlayerId ?? null;
+
   // 1. Round: whose turn, phase, claimed slots
   _mpUnsubRound = dbListen(roundPath(mpGameCode), round => {
     if (!round) return;
@@ -742,12 +755,17 @@ function mpInitListeners() {
     }
 
     const isMyTurn = round.activePlayerId === mpPlayerId;
+    const turnJustBecameMine = isMyTurn && _mpPrevActiveId !== mpPlayerId;
+    _mpPrevActiveId = round.activePlayerId;
+
     if (isMyTurn) {
       mpHideWaiting();
       setAllSlotsLocked(false);
       cardSelected = false;
       updateItemBars();
+      if (turnJustBecameMine) mpShowYourTurnNotice();
     } else {
+      mpHideYourTurnNotice();
       const name = mpAllPlayers[round.activePlayerId]?.name ?? 'Another player';
       mpShowWaiting(name);
       setAllSlotsLocked(true);

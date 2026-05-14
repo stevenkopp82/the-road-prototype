@@ -4050,6 +4050,29 @@
       font-style: italic;
     }
     /* ─────────────────────────────────────────
+       YOUR TURN full-screen notice
+    ───────────────────────────────────────── */
+    #mp-your-turn-overlay {
+      position: fixed !important;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(6,4,2,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+    }
+    #mp-your-turn-overlay.hidden { display: none !important; }
+    .mp-your-turn-msg {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      text-align: center;
+      padding: 1rem 2rem;
+    }
+    /* ─────────────────────────────────────────
        PHASE 5 — Draft waiting overlay
     ───────────────────────────────────────── */
     #mp-draft-waiting {
