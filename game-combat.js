@@ -201,6 +201,18 @@ async function applyEffects(effects, skipArmorAbsorb = false) {
   return lines;
 }
 
+/* ── Hide game-over overlay, show Continue, wait for click, re-show game-over ── */
+// Call this any time gameOver fires mid-threat so the player can read the card first.
+async function awaitContinueAfterGameOver(btn) {
+  const goEl = document.getElementById('game-over');
+  goEl.classList.remove('open');
+  btn.style.display = '';
+  btn.textContent = 'Continue';
+  btn.className = 'threat-continue-btn';
+  await new Promise(res => { btn.addEventListener('click', function h() { btn.removeEventListener('click', h); res(); }); });
+  goEl.classList.add('open');
+}
+
 /* ── Discard N items from item slots (leftmost filled first) ── */
 /* ── Show one threat card in the dialog, resolve it, wait for dismiss ── */
 async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex) {
@@ -261,7 +273,18 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         }
         if (Object.keys(resolvedEffects).length > 0) {
           effectLines = await applyEffects(resolvedEffects);
-          if (gameOver) { resolve({ lootLost: false }); return; }
+          if (gameOver) {
+            bodyEl.textContent = parts.length ? `Effect: ${parts.join(', ')}` : 'No effect.';
+            display.appendChild(bodyEl);
+            effectLines.forEach(line => {
+              const p = document.createElement('div');
+              p.textContent = line;
+              effectsEl.appendChild(p);
+            });
+            await awaitContinueAfterGameOver(btn);
+            resolve({ lootLost: false });
+            return;
+          }
         }
       }
 
@@ -571,7 +594,21 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         }
 
         // Apply damage on tie or loss
-        if (effStr <= monsterStr) { if (await applyBattleDamage()) { resolve({ lootLost: true }); return; } }
+        if (effStr <= monsterStr) {
+          const _died = await applyBattleDamage();
+          if (_died) {
+            outcomeEl.className = 'battle-outcome ' + (effStr === monsterStr ? 'outcome-tie' : 'outcome-loss');
+            outcomeEl.textContent = effStr === monsterStr
+              ? `⚔ Tie vs ${card.name} — damage taken`
+              : `⚔ Defeat vs ${card.name} — damage taken`;
+            if (!battleActions.contains(outcomeEl)) battleActions.insertBefore(outcomeEl, bodyEl);
+            bodyEl.textContent = 'The wounds are fatal.';
+            btn.style.display = '';
+            await awaitContinueAfterGameOver(btn);
+            resolve({ lootLost: true });
+            return;
+          }
+        }
 
         // ── First battle loss: offer flee or fight again ──────────────────────
         if (effStr < monsterStr) {
