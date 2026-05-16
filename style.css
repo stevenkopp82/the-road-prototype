@@ -948,11 +948,12 @@
       align-self: flex-start;
       line-height: 1.6;
     }
-    .badge-gather  { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
-    .badge-item    { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
-    .badge-weapon  { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
-    .badge-armor   { background: rgba(80,140,200,0.28);  color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
-    .badge-mutant  { background: rgba(139,74,200,0.3);  color: #b87ee8; border: 1px solid rgba(139,74,200,0.55); }
+    .badge-gather   { background: rgba(74,122,58,0.35);  color: #7dc466; border: 1px solid rgba(74,122,58,0.6); }
+    .badge-item     { background: rgba(85,119,204,0.3);  color: #8aa8e8; border: 1px solid rgba(85,119,204,0.55); }
+    .badge-weapon   { background: rgba(176,48,48,0.3);   color: #e07070; border: 1px solid rgba(176,48,48,0.55); }
+    .badge-armor    { background: rgba(80,140,200,0.28);  color: #7ab8e8; border: 1px solid rgba(80,140,200,0.5); }
+    .badge-mutant   { background: rgba(139,74,200,0.3);  color: #b87ee8; border: 1px solid rgba(139,74,200,0.55); }
+    .badge-survivor { background: rgba(200,155,60,0.3);  color: #e8c46a; border: 1px solid rgba(200,155,60,0.55); }
 
     .card-name {
       font-family: 'Cinzel', serif;
