@@ -168,6 +168,9 @@
         <span class="mp-turn-sub">to pick...</span>
       </div>
     </div>
+
+    <!-- Multiplayer: shown while it is this player's turn -->
+    <div id="mp-your-turn-badge" class="mp-hidden">Your turn: Pick a card</div>
   </div>
 
   <!-- Stats pill — collapsed player board trigger -->
@@ -216,11 +219,6 @@
 
   <!-- Multiplayer ally stats sidebar -->
   <div id="mp-ally-sidebar"></div>
-
-  <!-- Multiplayer: YOUR TURN full-screen notice (click anywhere to dismiss) -->
-  <div id="mp-your-turn-overlay" class="hidden">
-    <span class="mp-your-turn-msg">Your Turn: Select a card from the track</span>
-  </div>
 
   <!-- Phase 5: Draft waiting overlay (shown while other players are still drafting) -->
   <div id="mp-draft-waiting" class="hidden">
@@ -915,8 +913,8 @@
   function buildPlayerBreakdown(name, vp, showGear) {
     const statLine = [
       `🌾 ${vp.statPts.food}`,
-      `🩸 ${vp.statPts.health}`,
-      `🕯️ ${vp.statPts.sanity}`,
+      `❤️ ${vp.statPts.health}`,
+      `🧠 ${vp.statPts.sanity}`,
       `🧬 ${vp.statPts.mutation}`,
     ].join('  ');
 
@@ -1457,7 +1455,7 @@
   var EFFECT_META = {
     food:     { icon: '🌾', cls: 'ef-food'    },
     health:   { icon: '❤️',  cls: 'ef-health'  },
-    sanity:   { icon: '🕯️', cls: 'ef-sanity'  },
+    sanity:   { icon: '🧠', cls: 'ef-sanity'  },
     mutation: { icon: '🧬', cls: 'ef-mutation' },
   };
 
@@ -2372,8 +2370,8 @@
 
   const TRACKS = [
     { id: 'food',     label: 'Food',     icon: '🌾', defaultValue: 7 },
-    { id: 'health',   label: 'Health',   icon: '🩸', defaultValue: 7 },
-    { id: 'sanity',   label: 'Sanity',   icon: '🕯️', defaultValue: 7 },
+    { id: 'health',   label: 'Health',   icon: '❤️', defaultValue: 7 },
+    { id: 'sanity',   label: 'Sanity',   icon: '🧠', defaultValue: 7 },
     { id: 'mutation', label: 'Mutation', icon: '🧬', defaultValue: 1 },
   ];
   // Apply session defaults now that TRACKS is defined

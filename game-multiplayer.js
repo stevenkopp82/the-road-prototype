@@ -47,14 +47,12 @@ function mpHideWaiting() {
   document.getElementById('mp-turn-overlay').classList.add('mp-hidden');
 }
 function mpShowYourTurnNotice() {
-  const overlay = document.getElementById('mp-your-turn-overlay');
-  if (!overlay) return;
-  overlay.classList.remove('hidden');
-  overlay.onclick = () => overlay.classList.add('hidden');
+  const el = document.getElementById('mp-your-turn-badge');
+  if (el) el.classList.remove('mp-hidden');
 }
 function mpHideYourTurnNotice() {
-  const overlay = document.getElementById('mp-your-turn-overlay');
-  if (overlay) overlay.classList.add('hidden');
+  const el = document.getElementById('mp-your-turn-badge');
+  if (el) el.classList.add('mp-hidden');
 }
 
 // ── Visual: gray out a slot that was just claimed without clearing others ──
@@ -159,8 +157,8 @@ function mpRenderAllySidebar(players) {
       `<div class="mp-ally-name">${p.name ?? 'Ally'}</div>` +
       `<div class="mp-ally-stats">` +
       `<span>🌾 ${p.food ?? '?'}</span>` +
-      `<span>🩸 ${p.health ?? '?'}</span>` +
-      `<span>🕯️ ${p.sanity ?? '?'}</span>` +
+      `<span>❤️ ${p.health ?? '?'}</span>` +
+      `<span>🧠 ${p.sanity ?? '?'}</span>` +
       `<span>🧬 ${p.mutation ?? '?'}</span>` +
       `</div>`;
     el.appendChild(card);
@@ -737,9 +735,6 @@ async function mpStartNewRound(playerIds, turnOrder) {
 function mpInitListeners() {
   if (!isMultiplayer || !mpGameCode || !mpPlayerId) return;
 
-  // Track the last known active player to detect turn transitions
-  let _mpPrevActiveId = mpRound?.activePlayerId ?? null;
-
   // 1. Round: whose turn, phase, claimed slots
   _mpUnsubRound = dbListen(roundPath(mpGameCode), round => {
     if (!round) return;
@@ -755,15 +750,13 @@ function mpInitListeners() {
     }
 
     const isMyTurn = round.activePlayerId === mpPlayerId;
-    const turnJustBecameMine = isMyTurn && _mpPrevActiveId !== mpPlayerId;
-    _mpPrevActiveId = round.activePlayerId;
 
     if (isMyTurn) {
       mpHideWaiting();
+      mpShowYourTurnNotice();
       setAllSlotsLocked(false);
       cardSelected = false;
       updateItemBars();
-      if (turnJustBecameMine) mpShowYourTurnNotice();
     } else {
       mpHideYourTurnNotice();
       const name = mpAllPlayers[round.activePlayerId]?.name ?? 'Another player';
@@ -1066,6 +1059,7 @@ async function mpInit() {
       // Undo the pre-lock applied before mpInit() ran
       setAllSlotsLocked(false);
       cardSelected = false;
+      mpShowYourTurnNotice();
     } else {
       setAllSlotsLocked(true);
       cardSelected = true;

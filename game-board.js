@@ -37,11 +37,6 @@ function buildStatSidebar(wrapper, statId, label, getCellConfig) {
   spacer.className = 'stat-spacer';
   sidebar.appendChild(spacer);
 
-  const hdr = document.createElement('div');
-  hdr.className = 'stat-header';
-  hdr.textContent = label;
-  sidebar.appendChild(hdr);
-
   const cellsEl = document.createElement('div');
   cellsEl.className = 'stat-cells';
 
@@ -66,7 +61,16 @@ function buildStatSidebar(wrapper, statId, label, getCellConfig) {
     cellsEl.appendChild(cell);
   }
 
-  sidebar.appendChild(cellsEl);
+  const inner = document.createElement('div');
+  inner.className = 'stat-inner';
+  inner.appendChild(cellsEl);
+
+  const hdr = document.createElement('div');
+  hdr.className = 'stat-header';
+  hdr.textContent = label;
+  inner.appendChild(hdr);
+
+  sidebar.appendChild(inner);
   group.appendChild(sidebar);
 
   return {
@@ -151,7 +155,7 @@ function buildTrack(track) {
       skull.className = 'skull-icon';
       // Food track skull: show what happens at 0 (starvation = health + sanity loss)
       if (track.id === 'food') {
-        skull.innerHTML = '<span>🩸</span><span>🕯️</span>';
+        skull.innerHTML = '<span>❤️</span><span>🧠</span>';
         skull.title = 'Starvation: −1 health, −1 sanity';
       } else {
         skull.textContent = '☠';
@@ -215,10 +219,6 @@ function buildTrack(track) {
     const spacer = document.createElement('div');
     spacer.className = 'strength-spacer';
     sidebar.appendChild(spacer);
-    const hdr = document.createElement('div');
-    hdr.className = 'strength-header';
-    hdr.textContent = 'STR';
-    sidebar.appendChild(hdr);
     const cellsEl = document.createElement('div');
     cellsEl.className = 'strength-cells';
     const strCells = [];
@@ -240,7 +240,14 @@ function buildTrack(track) {
       strCells.push({ el: cell, health: i });
       cellsEl.appendChild(cell);
     }
-    sidebar.appendChild(cellsEl);
+    const inner = document.createElement('div');
+    inner.className = 'strength-inner';
+    inner.appendChild(cellsEl);
+    const hdr = document.createElement('div');
+    hdr.className = 'strength-header';
+    hdr.textContent = 'Base strength';
+    inner.appendChild(hdr);
+    sidebar.appendChild(inner);
     group.appendChild(sidebar);
     renderStrength = function(healthVal) {
       strCells.forEach(({ el, health }) => el.classList.toggle('active-str', health === healthVal));
@@ -264,7 +271,7 @@ function buildTrack(track) {
     }
 
     // STR modifier sidebar — Sanity modifies combat STR
-    const { group: strModGroup, renderStat: renderStrMod } = buildStatSidebar(wrapper, 'str-mod', 'STR', (i) => ({
+    const { group: strModGroup, renderStat: renderStrMod } = buildStatSidebar(wrapper, 'str-mod', 'Strength modifier', (i) => ({
       val:      getSanityStrVal(i),
       band:     getSanityBand(i),
       isSkull:  i === 0,
