@@ -21,7 +21,7 @@
         "sanity": -1
       },
       "value": 2,
-      "icon": "SVGs/mushrooms.svg"
+      "icon": "SVGs/psych_mushrooms.svg"
     },
     {
       "name": "Mushrooms",
@@ -668,7 +668,7 @@
       "location": "road",
       "type": "weapon",
       "strength": 4,
-      "uses": 3,
+      "uses": 2,
       "weapon_class": "ranged",
       "env_bonuses": [
         {
@@ -676,7 +676,7 @@
           "bonus": 1
         }
       ],
-      "value": 12,
+      "value": 8,
       "points": 5,
       "icon": "SVGs/bow-arrow.svg"
     },
@@ -783,7 +783,7 @@
       "location": "road",
       "type": "weapon",
       "strength": 1,
-      "uses": 2,
+      "uses": 3,
       "weapon_class": "melee",
       "env_bonuses": [
         {
@@ -791,7 +791,7 @@
           "bonus": 1
         }
       ],
-      "value": 2,
+      "value": 3,
       "points": 5,
       "icon": "SVGs/wood-stick.svg"
     },
