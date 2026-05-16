@@ -229,11 +229,22 @@ function refreshWeaponZone() {
   const card = inventory.weapon;
   const zone = document.getElementById('inv-weapon');
   if (!card) return;
+  if (weaponUsesRemaining <= 0 && card.weapon_class === 'melee') {
+    showToast(`🗑️ ${card.name} broke — discarded`, false, 2400);
+    setInventorySlot('weapon', null);
+    return;
+  }
   zone.innerHTML = '';
   zone.classList.add('inv-filled');
   zone.classList.toggle('item-has-uses', weaponUsesRemaining > 0);
   zone.classList.toggle('item-depleted', weaponUsesRemaining <= 0);
-  zone.appendChild(renderInventoryCard(card, weaponUsesRemaining));
+  zone.classList.toggle('weapon-empty-pulse', weaponUsesRemaining <= 0);
+  const cardEl = renderInventoryCard(card, weaponUsesRemaining);
+  if (weaponUsesRemaining <= 0) {
+    const nameEl = cardEl.querySelector('.card-name');
+    if (nameEl) nameEl.textContent = `${card.name} (empty)`;
+  }
+  zone.appendChild(cardEl);
   zone.onmouseenter = () => showMagnifier(card, zone);
   zone.onmouseleave = hideMagnifier;
 }
@@ -337,7 +348,7 @@ function setInventorySlot(type, card) {
   inventory[type] = card;
   const zone = document.getElementById(`inv-${type}`);
   zone.innerHTML = '';
-  zone.classList.remove('item-has-uses', 'item-depleted');
+  zone.classList.remove('item-has-uses', 'item-depleted', 'weapon-empty-pulse');
   if (card) {
     zone.classList.add('inv-filled');
     if (type === 'weapon') {

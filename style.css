@@ -1564,6 +1564,11 @@
 
     .inventory-card-zone.item-has-uses  { border-color: rgba(74,160,74,0.7); box-shadow: 0 0 8px rgba(74,160,74,0.2); }
     .inventory-card-zone.item-depleted  { border-color: rgba(176,48,48,0.7); box-shadow: 0 0 8px rgba(176,48,48,0.15); }
+    .inventory-card-zone.weapon-empty-pulse { animation: weapon-empty-pulse 1.6s ease-in-out infinite; }
+    @keyframes weapon-empty-pulse {
+      0%, 100% { border-color: rgba(176,48,48,0.7); box-shadow: 0 0 8px rgba(176,48,48,0.2); }
+      50%       { border-color: rgba(220,80,80,1);   box-shadow: 0 0 18px rgba(220,80,80,0.55); }
+    }
 
     /* Uses pip row at bottom of inventory weapon card */
     .weapon-uses-row {
@@ -1624,6 +1629,8 @@
       border-color: rgba(120,80,80,0.4);
       color: #a08080;
     }
+    .weapon-toggle-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .weapon-toggle-btn:disabled:hover { transform: none; opacity: 0.55; }
 
     .inventory-empty-icon {
       font-size: 1.4rem;

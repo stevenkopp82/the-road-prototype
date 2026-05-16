@@ -324,6 +324,36 @@
         "mutation": 1
       },
       "icon": "SVGs/bear-head.svg"
+    },
+    {
+      "name": "Tentacles",
+      "location": "The Road",
+      "type": "setback",
+      "effects": {
+        "health": -1,
+        "sanity": -1
+      },
+      "icon": "SVGs/suckered-tentacle.svg"
+    },
+    {
+      "name": "Tentacles",
+      "location": "The Sprawl",
+      "type": "setback",
+      "effects": {
+        "health": -1,
+        "sanity": -2
+      },
+      "icon": "SVGs/suckered-tentacle.svg"
+    },
+    {
+      "name": "Tentacles",
+      "location": "The Hive",
+      "type": "setback",
+      "effects": {
+        "health": -2,
+        "sanity": -2
+      },
+      "icon": "SVGs/suckered-tentacle.svg"
     }
   ]
 }

@@ -214,6 +214,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
     display.innerHTML = '';
     effectsEl.innerHTML = '';
     btn.className = 'threat-continue-btn';
+    btn.style.display = '';  // reset visibility in case a prior monster card hid it
 
     // Log this threat
     gameLog.add(`☣ Threat: ${card.name} (${card.type})`, card.type === 'monster' ? 'warn' : card.type === 'break' ? 'dim' : '');
@@ -224,15 +225,14 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
     badge.textContent = card.type;
     display.appendChild(badge);
 
-    // Name
-    const nameEl = document.createElement('div');
-    nameEl.className = 'card-name';
-    nameEl.textContent = card.name;
-    display.appendChild(nameEl);
-
-    if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
-
-    display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+    if (card.type !== 'monster') {
+      const nameEl = document.createElement('div');
+      nameEl.className = 'card-name';
+      nameEl.textContent = card.name;
+      display.appendChild(nameEl);
+      if (card.icon) display.appendChild(createIconEl(card.icon, card.name, 'card-icon-img'));
+      display.appendChild(Object.assign(document.createElement('div'), { className: 'card-divider' }));
+    }
 
     const bodyEl = document.createElement('div');
     bodyEl.className = 'threat-card-body';
@@ -371,6 +371,7 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
 
       // ── Two-panel battle layout ──────────────────────────────────────
       display.classList.add('battle-mode');
+      btn.style.display = 'none';
 
       // Left panel: player strength breakdown
       const playerPanel = document.createElement('div');
@@ -427,26 +428,19 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
 
       // Populate player panel (weapon-aware)
       const updatePlayerPanel = () => {
-        const usingMelee = usingWeapon && isMelee;
-        const extraArmBonus = getExtraArmBonus(usingMelee);
         const sanityMod = getSanityStrModifier();
-        const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
-        const activeEnvBonus = usingWeapon ? envBonus : 0;
-        const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                     + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
+        const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(false, null, itemSlots);
+        const effStr = baseStr + itemBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityMod;
         strRows.innerHTML = '';
         strRows.appendChild(makeBsrRow('Base', baseStr, 'str-base'));
-        if (usingWeapon) strRows.appendChild(makeBsrRow(weapon.name, weaponStr, 'str-weapon'));
         itemLabels.forEach(lbl => {
           const m = lbl.match(/^([+-]?\d+)\s+(.+)$/);
           if (m) strRows.appendChild(makeBsrRow(m[2], parseInt(m[1]), 'str-item'));
         });
         if (tuskBonus)     strRows.appendChild(makeBsrRow('Forehead Tusk', tuskBonus, 'str-mutant'));
         if (hiveMindBonus) strRows.appendChild(makeBsrRow('Hive Mind', hiveMindBonus, 'str-mutant'));
-        if (extraArmBonus) strRows.appendChild(makeBsrRow('Extra Arm', extraArmBonus, 'str-mutant'));
         if (adrenalineBonus) strRows.appendChild(makeBsrRow('Adrenaline', adrenalineBonus, 'str-item'));
         if (sanityMod) strRows.appendChild(makeBsrRow('Sanity' + (sanityMod === 2 ? ' (frenzy)' : ''), sanityMod, sanityMod > 0 ? 'str-bonus' : 'str-penalty'));
-        if (activeEnvBonus) strRows.appendChild(makeBsrRow(SLOT_ENVIRONMENTS[slotIndex]?.label ?? 'Env', activeEnvBonus, 'str-bonus'));
         strTotal.innerHTML = `<span class="bsr-label">Total</span><span class="battle-stat-value player-str">${effStr}</span>`;
       };
 
@@ -454,58 +448,78 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
       const battleActions = document.createElement('div');
       battleActions.className = 'battle-actions';
 
-      if (hasWeapon) {
-        const toggleRow = document.createElement('div');
-        toggleRow.className = 'weapon-toggle-row';
-        const useBtn = document.createElement('button');
-        useBtn.className = 'weapon-toggle-btn active';
-        useBtn.textContent = `⚔ Use ${weapon.name} (${weaponUsesRemaining} use${weaponUsesRemaining !== 1 ? 's' : ''} left)`;
-        const skipBtn = document.createElement('button');
-        skipBtn.className = 'weapon-toggle-btn inactive';
-        skipBtn.textContent = 'Fight bare-handed';
-        toggleRow.appendChild(useBtn);
-        toggleRow.appendChild(skipBtn);
-        battleActions.appendChild(toggleRow);
-        useBtn.addEventListener('click', () => {
-          usingWeapon = true;
-          useBtn.className  = 'weapon-toggle-btn active';
-          skipBtn.className = 'weapon-toggle-btn inactive';
-          updatePlayerPanel();
-          updateOutcome();
-        });
-        skipBtn.addEventListener('click', () => {
-          usingWeapon = false;
-          useBtn.className  = 'weapon-toggle-btn inactive';
-          skipBtn.className = 'weapon-toggle-btn active';
-          updatePlayerPanel();
-          updateOutcome();
-        });
-        updatePlayerPanel();
-      } else {
-        // No weapon: static bare-hand breakdown
-        const sanityModBare = getSanityStrModifier();
-        const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null, itemSlots);
-        const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + adrenalineBonus + sanityModBare;
-        strRows.appendChild(makeBsrRow('Base', baseStr, 'str-base'));
-        bareItemLabels.forEach(lbl => {
-          const m = lbl.match(/^([+-]?\d+)\s+(.+)$/);
-          if (m) strRows.appendChild(makeBsrRow(m[2], parseInt(m[1]), 'str-item'));
-        });
-        if (tuskBonus)     strRows.appendChild(makeBsrRow('Forehead Tusk', tuskBonus, 'str-mutant'));
-        if (hiveMindBonus) strRows.appendChild(makeBsrRow('Hive Mind', hiveMindBonus, 'str-mutant'));
-        if (adrenalineBonus) strRows.appendChild(makeBsrRow('Adrenaline', adrenalineBonus, 'str-item'));
-        if (sanityModBare) strRows.appendChild(makeBsrRow('Sanity' + (sanityModBare === 2 ? ' (frenzy)' : ''), sanityModBare, sanityModBare > 0 ? 'str-bonus' : 'str-penalty'));
-        strTotal.innerHTML = `<span class="bsr-label">Total</span><span class="battle-stat-value player-str">${bareStr}</span>`;
-      }
+      // Helper: compute effective strength for a given weapon-use choice
+      const calcEffStr = (useWpn) => {
+        const um = useWpn && isMelee;
+        const smod = getSanityStrModifier();
+        const { bonus: ib } = getItemBattleStrBonus(useWpn, weapon, itemSlots);
+        const eab = getExtraArmBonus(um);
+        const aeb = useWpn ? envBonus : 0;
+        return (useWpn ? baseStr + weaponStr : baseStr) + ib + tuskBonus + hiveMindBonus + eab + adrenalineBonus + smod + aeb;
+      };
+      const outcomeTag = (eff) => eff > monsterStr ? 'Win' : eff === monsterStr ? 'Tie' : 'Loss';
+      const outcomeCls = (eff) => eff > monsterStr ? 'outcome-win' : eff === monsterStr ? 'outcome-tie' : 'outcome-loss';
 
-      // Outcome + body text live in actions panel
+      // outcomeEl and bodyEl kept in scope for flee/fight-again UI but not shown initially
       const outcomeEl = document.createElement('div');
       outcomeEl.className = 'battle-outcome';
-      battleActions.appendChild(outcomeEl);
+
+      const toggleRow = document.createElement('div');
+      toggleRow.className = 'weapon-toggle-row';
+      const useBtn = document.createElement('button');
+      const skipBtn = document.createElement('button');
+
+      // Weapon button
+      const weaponBroken = weapon && weaponUsesRemaining <= 0;
+      if (!weapon) {
+        useBtn.textContent = '⚔ No weapon';
+        useBtn.className = 'weapon-toggle-btn inactive';
+        useBtn.disabled = true;
+      } else if (weaponBroken) {
+        useBtn.textContent = `⚔ ${weapon.name} — ${isMelee ? 'Weapon broken' : 'Out of ammo'}`;
+        useBtn.className = 'weapon-toggle-btn inactive';
+        useBtn.disabled = true;
+      } else {
+        const wpnEff = calcEffStr(true);
+        useBtn.textContent = `⚔ Use ${weapon.name} (+${weaponStr}, ${weaponUsesRemaining} use${weaponUsesRemaining !== 1 ? 's' : ''}) — STR ${wpnEff} — ${outcomeTag(wpnEff)}`;
+        useBtn.className = `weapon-toggle-btn ${outcomeCls(wpnEff)}`;
+      }
+
+      // Bare-handed button
+      const bareEff = calcEffStr(false);
+      skipBtn.textContent = `Fight bare-handed — STR ${bareEff} — ${outcomeTag(bareEff)}`;
+      skipBtn.className = `weapon-toggle-btn ${outcomeCls(bareEff)}`;
+
+      toggleRow.appendChild(useBtn);
+      toggleRow.appendChild(skipBtn);
+      battleActions.appendChild(toggleRow);
       battleActions.appendChild(bodyEl);
       display.appendChild(battleActions);
 
-      function updateOutcome() {
+      updatePlayerPanel();
+
+      if (!useBtn.disabled) {
+        useBtn.addEventListener('click', () => {
+          usingWeapon = true;
+          useBtn.disabled = skipBtn.disabled = true;
+          origHandler();
+        });
+      }
+      skipBtn.addEventListener('click', () => {
+        usingWeapon = false;
+        useBtn.disabled = skipBtn.disabled = true;
+        origHandler();
+      });
+
+      // Override the continue handler to consume a weapon use and apply damage
+      const origHandler = async () => {
+        btn.removeEventListener('click', origHandler);
+        toggleRow.style.display = 'none';
+        if (usingWeapon && hasWeapon) {
+          weaponUsesRemaining--;
+          refreshWeaponZone();
+        }
+        // Compute final effective STR
         const usingMelee = usingWeapon && isMelee;
         const extraArmBonus = getExtraArmBonus(usingMelee);
         const sanityMod = getSanityStrModifier();
@@ -513,49 +527,6 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         const activeEnvBonus = usingWeapon ? envBonus : 0;
         const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
                      + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod + activeEnvBonus;
-        lootLostThisCard = effStr < monsterStr;
-        outcomeEl.className = 'battle-outcome';
-        effectLines = [];
-        if (effStr > monsterStr) {
-          outcomeEl.classList.add('outcome-win');
-          outcomeEl.textContent = '⚔ Victory — loot secured!';
-          bodyEl.textContent = 'You overpower the creature.';
-          btn.className = 'threat-continue-btn btn-gold';
-        } else if (effStr === monsterStr) {
-          outcomeEl.classList.add('outcome-tie');
-          outcomeEl.textContent = '⚔ Tie — loot secured, but at a cost';
-          bodyEl.textContent = 'You defeat it, but not without harm.';
-          if (card.damage) effectLines = Object.entries(card.damage).map(([k,v]) => `${EFFECT_META[k]?.icon ?? ''} ${k} ${v > 0 ? '+' : ''}${v}`);
-        } else {
-          outcomeEl.classList.add('outcome-loss');
-          outcomeEl.textContent = '⚔ Defeat — loot lost';
-          bodyEl.textContent = 'The creature bests you.';
-          if (card.damage) effectLines = Object.entries(card.damage).map(([k,v]) => `${EFFECT_META[k]?.icon ?? ''} ${k} ${v > 0 ? '+' : ''}${v}`);
-        }
-        effectsEl.innerHTML = '';
-        effectLines.forEach(line => {
-          const p = document.createElement('div');
-          p.textContent = line;
-          effectsEl.appendChild(p);
-        });
-      }
-
-      updateOutcome();
-
-      // Override the continue handler to consume a weapon use and apply damage
-      const origHandler = async () => {
-        btn.removeEventListener('click', origHandler);
-        if (usingWeapon && hasWeapon) {
-          weaponUsesRemaining--;
-          refreshWeaponZone();
-        }
-        // Compute final effective STR (same as updateOutcome)
-        const usingMelee = usingWeapon && isMelee;
-        const extraArmBonus = getExtraArmBonus(usingMelee);
-        const sanityMod = getSanityStrModifier();
-        const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
-        const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                     + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + adrenalineBonus + sanityMod;
 
         // Helper: apply damage with armor absorption
         const applyBattleDamage = async () => {
@@ -870,7 +841,6 @@ async function resolveThreatCard(card, queueEl, queueDots, currentIdx, slotIndex
         if (effStr >= monsterStr) applyWinBonuses();
         resolve({ lootLost: lootLostThisCard });
       };
-      btn.addEventListener('click', origHandler);
       // bodyEl is already in battleActions — skip the default append below
       return;
     }
@@ -952,10 +922,32 @@ function battleInjuredMonster(slotIndex) {
     const getExtraArmBonus = (usingMelee) => (hasMutant('extra_arm', mutantCards) && usingMelee) ? 3 : 0;
     let usingWeapon = hasWeapon;
 
+    // Helper: compute effective strength for a given weapon-use choice
+    const calcInjEffStr = (useWpn) => {
+      const um = useWpn && isMelee;
+      const { bonus: ib } = getItemBattleStrBonus(useWpn, weapon, itemSlots);
+      const eab = getExtraArmBonus(um);
+      return (useWpn ? baseStr + weaponStr : baseStr) + ib + tuskBonus + hiveMindBonus + eab;
+    };
+    const injOutcomeTag = (eff) => eff > monsterStr ? 'Win' : eff === monsterStr ? 'Tie' : 'Loss';
+    const injOutcomeCls = (eff) => eff > monsterStr ? 'outcome-win' : eff === monsterStr ? 'outcome-tie' : 'outcome-loss';
+
+    // Player side: bare-handed strength only (no weapon modifier)
+    const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null, itemSlots);
+    const bareDisplayStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus;
+    const bareDisplayLabels = [
+      ...bareItemLabels,
+      tuskBonus ? `+${tuskBonus} tusk` : '',
+      hiveMindBonus ? '+3 hive mind' : '',
+    ].filter(Boolean).join(' ');
+
     const battleRow = document.createElement('div');
     battleRow.className = 'threat-battle-row';
     const playerSide = document.createElement('div');
     playerSide.className = 'battle-stat';
+    playerSide.innerHTML = `
+      <span class="battle-stat-label">Your STR${bareDisplayLabels ? ' ' + bareDisplayLabels : ''}</span>
+      <span class="battle-stat-value player-str">${bareDisplayStr}</span>`;
     const vsEl = document.createElement('div');
     vsEl.className = 'battle-vs';
     vsEl.textContent = 'vs';
@@ -969,113 +961,56 @@ function battleInjuredMonster(slotIndex) {
     battleRow.appendChild(monsterSide);
     display.appendChild(battleRow);
 
-    if (hasWeapon) {
-      const toggleRow = document.createElement('div');
-      toggleRow.className = 'weapon-toggle-row';
-      const useBtn = document.createElement('button');
-      useBtn.className = 'weapon-toggle-btn active';
-      useBtn.textContent = `⚔ Use ${weapon.name} (${weaponUsesRemaining} use${weaponUsesRemaining !== 1 ? 's' : ''} left)`;
-      const skipBtn = document.createElement('button');
-      skipBtn.className = 'weapon-toggle-btn inactive';
-      skipBtn.textContent = 'Fight bare-handed';
-      toggleRow.appendChild(useBtn);
-      toggleRow.appendChild(skipBtn);
-      display.appendChild(toggleRow);
+    btn.style.display = 'none';
+    const outcomeEl = document.createElement('div'); // kept in scope, not appended
 
-      const updatePlayerSide = () => {
-        const usingMelee = usingWeapon && isMelee;
-        const extraArmBonus = getExtraArmBonus(usingMelee);
-        const sanityMod = getSanityStrModifier();
-        const { bonus: itemBonus, labels: itemLabels } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
-        const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                     + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus + sanityMod;
-        const weaponLabel   = usingWeapon       ? `+${weaponStr} weapon` : '';
-        const itemLabel     = itemLabels.length  ? itemLabels.join(' ')   : '';
-        const tuskLabel     = tuskBonus          ? `+${tuskBonus} tusk`  : '';
-        const hiveMindLabel = hiveMindBonus      ? '+3 hive mind'         : '';
-        const extraArmLabel = extraArmBonus      ? '+3 extra arm'         : '';
-        const sanityLabel   = sanityMod > 0      ? `+${sanityMod} sanity${sanityMod===2?' (frenzy)':''}` : sanityMod < 0 ? `${sanityMod} sanity` : '';
-        const labels = [weaponLabel, itemLabel, tuskLabel, hiveMindLabel, extraArmLabel, sanityLabel].filter(Boolean).join(' ');
-        playerSide.innerHTML = `
-          <span class="battle-stat-label">Your STR${labels ? ' ' + labels : ''}</span>
-          <span class="battle-stat-value player-str">${effStr}</span>`;
-      };
-      useBtn.addEventListener('click', () => {
-        usingWeapon = true;
-        useBtn.className = 'weapon-toggle-btn active';
-        skipBtn.className = 'weapon-toggle-btn inactive';
-        updatePlayerSide(); updateOutcome();
-      });
-      skipBtn.addEventListener('click', () => {
-        usingWeapon = false;
-        useBtn.className = 'weapon-toggle-btn inactive';
-        skipBtn.className = 'weapon-toggle-btn active';
-        updatePlayerSide(); updateOutcome();
-      });
-      updatePlayerSide();
+    const injToggleRow = document.createElement('div');
+    injToggleRow.className = 'weapon-toggle-row';
+    const useBtn = document.createElement('button');
+    const skipBtn = document.createElement('button');
+
+    // Weapon button
+    const weaponBrokenInj = weapon && weaponUsesRemaining <= 0;
+    if (!weapon) {
+      useBtn.textContent = '⚔ No weapon';
+      useBtn.className = 'weapon-toggle-btn inactive';
+      useBtn.disabled = true;
+    } else if (weaponBrokenInj) {
+      useBtn.textContent = `⚔ ${weapon.name} — ${isMelee ? 'Weapon broken' : 'Out of ammo'}`;
+      useBtn.className = 'weapon-toggle-btn inactive';
+      useBtn.disabled = true;
     } else {
-      const sanityModBare2 = getSanityStrModifier();
-      const { bonus: bareItemBonus, labels: bareItemLabels } = getItemBattleStrBonus(false, null, itemSlots);
-      const bareStr = baseStr + bareItemBonus + tuskBonus + hiveMindBonus + sanityModBare2;
-      const bareLabels = [
-        ...bareItemLabels,
-        tuskBonus?`+${tuskBonus} tusk`:'',
-        hiveMindBonus?'+3 hive mind':'',
-        sanityModBare2>0?`+${sanityModBare2} sanity${sanityModBare2===2?' (frenzy)':''}` : '',
-        sanityModBare2<0?`${sanityModBare2} sanity`:'',
-      ].filter(Boolean).join(' ');
-      playerSide.innerHTML = `
-        <span class="battle-stat-label">Your STR${bareLabels ? ' ' + bareLabels : ''}</span>
-        <span class="battle-stat-value player-str">${bareStr}</span>`;
+      const wpnEff = calcInjEffStr(true);
+      useBtn.textContent = `⚔ Use ${weapon.name} (+${weaponStr}) — STR ${wpnEff} — ${injOutcomeTag(wpnEff)}`;
+      useBtn.className = `weapon-toggle-btn ${injOutcomeCls(wpnEff)}`;
     }
 
-    const outcomeEl = document.createElement('div');
-    outcomeEl.className = 'battle-outcome';
-    display.appendChild(outcomeEl);
+    // Bare-handed button
+    const bareEff = calcInjEffStr(false);
+    skipBtn.textContent = `Fight bare-handed — STR ${bareEff} — ${injOutcomeTag(bareEff)}`;
+    skipBtn.className = `weapon-toggle-btn ${injOutcomeCls(bareEff)}`;
+
+    injToggleRow.appendChild(useBtn);
+    injToggleRow.appendChild(skipBtn);
+    display.appendChild(injToggleRow);
     display.appendChild(bodyEl);
 
-    function updateOutcome() {
-      const usingMelee = usingWeapon && isMelee;
-      const extraArmBonus = getExtraArmBonus(usingMelee);
-      const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
-      const effStr = (usingWeapon ? baseStr + weaponStr : baseStr)
-                   + itemBonus + tuskBonus + hiveMindBonus + extraArmBonus;
-      outcomeEl.className = 'battle-outcome';
-      effectsEl.innerHTML = '';
-      if (effStr > monsterStr) {
-        outcomeEl.classList.add('outcome-win');
-        outcomeEl.textContent = '⚔ Victory — monster slain, proceed to loot!';
-        bodyEl.textContent = 'You finish the creature off.';
-        btn.className = 'threat-continue-btn btn-gold';
-      } else if (effStr === monsterStr) {
-        outcomeEl.classList.add('outcome-tie');
-        outcomeEl.textContent = '⚔ Tie — monster slain, but at a cost';
-        bodyEl.textContent = 'You kill it, barely.';
-        btn.className = 'threat-continue-btn btn-gold';
-        if (inj.card.damage) {
-          Object.entries(inj.card.damage).forEach(([k,v]) => {
-            const p = document.createElement('div');
-            p.textContent = `${EFFECT_META[k]?.icon ?? ''} ${k} ${v>0?'+':''}${v}`;
-            effectsEl.appendChild(p);
-          });
-        }
-      } else {
-        outcomeEl.classList.add('outcome-loss');
-        outcomeEl.textContent = '⚔ Defeat — monster holds the slot';
-        bodyEl.textContent = 'The creature endures. The loot remains out of reach.';
-        if (inj.card.damage) {
-          Object.entries(inj.card.damage).forEach(([k,v]) => {
-            const p = document.createElement('div');
-            p.textContent = `${EFFECT_META[k]?.icon ?? ''} ${k} ${v>0?'+':''}${v}`;
-            effectsEl.appendChild(p);
-          });
-        }
-      }
+    if (!useBtn.disabled) {
+      useBtn.addEventListener('click', () => {
+        usingWeapon = true;
+        useBtn.disabled = skipBtn.disabled = true;
+        handler();
+      });
     }
-    updateOutcome();
+    skipBtn.addEventListener('click', () => {
+      usingWeapon = false;
+      useBtn.disabled = skipBtn.disabled = true;
+      handler();
+    });
 
     const handler = async () => {
       btn.removeEventListener('click', handler);
+      injToggleRow.style.display = 'none';
       const usingMelee = usingWeapon && isMelee;
       const extraArmBonus = getExtraArmBonus(usingMelee);
       const { bonus: itemBonus } = getItemBattleStrBonus(usingWeapon, weapon, itemSlots);
@@ -1129,7 +1064,6 @@ function battleInjuredMonster(slotIndex) {
         resolve({ won: false });
       }
     };
-    btn.addEventListener('click', handler);
   });
 }
 
