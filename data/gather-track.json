@@ -71,7 +71,7 @@
         { "food": 1, "sanity": 1, "threat": 3 }
       ],
       "hive": [
-        { "food": 1, "threat": 1, "alt": { "food": 2, "sanity": 1 } },
+        { "food": 1, "threat": 1 },
         { "food": 2, "threat": 1 },
         { "food": 2, "threat": 2 },
         { "food": 2, "mutation": 1, "threat": 2 },
